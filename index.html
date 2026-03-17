@@ -1452,8 +1452,22 @@
             function startDrag(e) { isDragging = true; dragStart = { x: (e.clientX || e.touches[0].clientX) - cropState.x, y: (e.clientY || e.touches[0].clientY) - cropState.y }; }
             function doDrag(e) { if(!isDragging) return; const canvas = getEl('crop-canvas'); const cx = e.clientX || e.touches?.[0]?.clientX; const cy = e.clientY || e.touches?.[0]?.clientY; if(!cx) return; cropState.x = Math.max(0, Math.min(cx - dragStart.x, canvas.width - cropState.size)); cropState.y = Math.max(0, Math.min(cy - dragStart.y, canvas.height - cropState.size)); updateGuide(); }
             function endDrag() { isDragging = false; }
-            function handleWheel(e) { e.preventDefault(); const canvas = getEl('crop-canvas'); const d = e.deltaY > 0 ? -12 : 12; const ns = Math.max(30, Math.min(cropState.size + d, canvas.width, canvas.height)); cropState.x = Math.max(0, Math.min(cropState.x - (ns-cropState.size)/2, canvas.width - ns)); cropState.y = Math.max(0, Math.min(cropState.y - (ns-cropState.size)/2, canvas.height - ns)); cropState.size = ns; updateGuide(); }
-            function applyCrop() { const cv = document.createElement('canvas'); cv.width = cv.height = 256; const s = cropState.scale; cv.getContext('2d').drawImage(currentCropImg, cropState.x/s, cropState.y/s, cropState.size/s, cropState.size/s, 0, 0, 256, 256); charIcons[currentCropChar] = cv.toDataURL('image/png'); getEl('crop-modal').classList.add('hidden'); renderIconUploads(); refreshIcons(); }
+            function handleWheel(e) { e.preventDefault(); const canvas = getEl('crop-canvas'); const d = e.deltaY > 0 ? -12 : 12; const ns = Math.max(30, Math.min(cropState.size + d, canvas.width, canvas.height));
+                cropState.x = Math.max(0, Math.min(cropState.x - (ns-cropState.size)/2, canvas.width - ns));
+                cropState.y = Math.max(0, Math.min(cropState.y - (ns-cropState.size)/2, canvas.height - ns));
+                cropState.size = ns;
+                updateGuide();
+            }
+            function applyCrop() { 
+                const cv = document.createElement('canvas'); 
+                cv.width = cv.height = 256;  // ← 固定で256x256にリサイズ
+                const s = cropState.scale; 
+                cv.getContext('2d').drawImage(currentCropImg, cropState.x/s, cropState.y/s, cropState.size/s, cropState.size/s, 0, 0, 256, 256); 
+                charIcons[currentCropChar] = cv.toDataURL('image/png');  // ← PNG形式で保存
+                getEl('crop-modal').classList.add('hidden'); 
+                renderIconUploads(); 
+                refreshIcons(); 
+            }
             function refreshIcons() {
                 Array.from(characters).forEach(name => {
                     const data = charIcons[name]; const safeCharClass = getSafeClassName(name);
