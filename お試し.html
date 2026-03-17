@@ -1,0 +1,1546 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ろぐしあたー | TRPGログビュワー</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&display=swap');
+
+        :root {
+            --column-width: 350px;
+            --base-font-size: 14px;
+            --portrait-size: 50px;
+            --accent-color: #3b82f6; 
+            --bg-timeline: #709cdb;
+        }
+
+        body {
+            font-family: 'Zen Maru Gothic', 'Hiragino Maru Gothic ProN', 'Meiryo', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            overscroll-behavior-y: none;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .font-serif {
+            font-family: 'Shippori Mincho', serif !important;
+        }
+
+        /* --------------------------
+           Home View Styles
+        -------------------------- */
+        .hero-gradient {
+            background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 100%);
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid #f1f5f9;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1);
+        }
+
+        .icon-box {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            background: #eff6ff;
+            color: var(--accent-color);
+        }
+
+        /* --------------------------
+           App View Styles
+        -------------------------- */
+        .header-nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid #f1f5f9;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 50;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+
+        .filter-section {
+            position: fixed;
+            top: 60px; left: 0; right: 0;
+            background: white;
+            padding: 8px 16px;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            z-index: 40;
+            border-bottom: 1px solid #f1f5f9;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+        }
+
+        .filter-section::-webkit-scrollbar { display: none; }
+        .filter-section { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .filter-chip {
+            padding: 6px 14px;
+            background: #f1f5f9;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #64748b;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            user-select: none;
+        }
+
+        .filter-chip.active {
+            background: var(--accent-color);
+            color: white;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+        }
+
+        .timeline-viewport {
+            position: fixed;
+            top: 105px;
+            bottom: 60px;
+            left: 0; right: 0;
+            overflow: auto;
+            background-color: var(--bg-timeline);
+            background-image: radial-gradient(rgba(255,255,255,0.15) 1px, transparent 1px);
+            background-size: 20px 20px;
+            padding-top: 40px;
+        }
+
+        @media (min-width: 640px) {
+            .filter-section { padding: 12px 24px; top: 60px; }
+            .timeline-viewport { top: 115px; bottom: 0; }
+            .mobile-nav { display: none !important; }
+        }
+
+        .sticky-header-row {
+            display: inline-flex;
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            padding: 0 16px;
+            min-width: min-content;
+        }
+
+        .column-header {
+            width: var(--column-width);
+            flex-shrink: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            margin: 0 8px;
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 13px;
+            color: #475569;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid rgba(255,255,255,0.5);
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .delete-col-btn {
+            position: absolute;
+            right: 8px;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            color: #cbd5e1;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .delete-col-btn:hover {
+            background-color: #fee2e2;
+            color: #ef4444;
+        }
+
+        .timeline-row {
+            display: inline-flex;
+            padding: 0 16px;
+            margin-top: 16px;
+            min-width: min-content;
+            transition: opacity 0.3s;
+            position: relative;
+        }
+
+        .timeline-cell {
+            width: var(--column-width);
+            flex-shrink: 0;
+            margin: 0 8px;
+            position: relative;
+        }
+
+        .msg-container {
+            display: flex;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 12px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border: 1px solid rgba(255,255,255,1);
+            position: relative;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .msg-container:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+        }
+
+        .char-portrait {
+            width: var(--portrait-size);
+            height: var(--portrait-size);
+            border-radius: 12px;
+            flex-shrink: 0;
+            background-color: #e2e8f0;
+            background-size: cover;
+            background-position: center;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+            display: none;
+            border: 2px solid white;
+        }
+
+        .msg-content-wrapper {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .msg-info {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .char-name-bg {
+            background: rgba(255,255,255,0.8);
+            padding: 2px 8px;
+            border-radius: 6px;
+            display: inline-block;
+        }
+
+        .char-name {
+            font-weight: 700;
+            font-size: calc(var(--base-font-size) - 2px);
+        }
+
+        .bubble {
+            font-size: var(--base-font-size);
+            line-height: 1.7;
+            color: #334155;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            position: relative;
+            padding: 8px 12px;
+            border-radius: 12px;
+            background-color: transparent;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        /* Highlight Search Result Animation */
+        @keyframes jumpHighlight {
+            0%   { transform: translateY(0) scale(1); box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.7); background-color: transparent; }
+            20%  { transform: translateY(-10px) scale(1.02); box-shadow: 0 10px 15px -3px rgba(251, 191, 36, 0.5); background-color: rgba(254, 243, 199, 0.8); }
+            40%  { transform: translateY(0) scale(1); box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.7); background-color: transparent; }
+            60%  { transform: translateY(-5px) scale(1.01); box-shadow: 0 5px 10px -3px rgba(251, 191, 36, 0.4); background-color: rgba(254, 243, 199, 0.6); }
+            80%  { transform: translateY(0) scale(1); box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.7); background-color: transparent; }
+            100% { transform: translateY(0) scale(1); box-shadow: 0 0 0 0 rgba(251, 191, 36, 0); background-color: transparent; }
+        }
+
+        .highlight-jump {
+            animation: jumpHighlight 1.5s ease-in-out;
+            border-color: #fbbf24 !important;
+            border-radius: 12px;
+        }
+
+        .delete-msg-btn {
+            position: absolute;
+            top: -10px; right: -10px;
+            width: 24px; height: 24px;
+            background: #ef4444; color: white;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; opacity: 0;
+            transition: opacity 0.2s, transform 0.2s;
+            box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+            z-index: 10;
+        }
+
+        /* Marker Mode */
+        body.marker-mode-active .bubble { cursor: pointer; }
+        body.marker-mode-active .bubble:hover {
+            background-color: rgba(254, 243, 199, 0.5);
+            border-color: #fcd34d;
+        }
+
+        /* Edit Mode (Delete) */
+        body.edit-mode-active .msg-container:hover .delete-msg-btn {
+            opacity: 1; transform: scale(1);
+        }
+        body.edit-mode-active .msg-container {
+            border: 2px dashed #fca5a5;
+        }
+
+        /* Text Edit Mode */
+        body.text-edit-mode-active .bubble { cursor: text; }
+        body.text-edit-mode-active .bubble:hover {
+            background-color: rgba(226, 232, 240, 0.5);
+            border-color: #cbd5e1;
+        }
+        .bubble-textarea {
+            width: 100%;
+            min-height: 60px;
+            font-family: inherit;
+            font-size: inherit;
+            line-height: inherit;
+            padding: 8px;
+            border: 2px solid var(--accent-color);
+            border-radius: 8px;
+            resize: vertical;
+            outline: none;
+            background: white;
+            color: #334155;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .setup-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .drop-zone {
+            border: 3px dashed #cbd5e1;
+            border-radius: 32px;
+            padding: 60px 20px;
+            text-align: center;
+            background: white;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.05);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .drop-zone:hover {
+            border-color: var(--accent-color);
+            background: #f8fafc;
+            transform: translateY(-4px);
+            box-shadow: 0 30px 60px -15px rgba(59, 130, 246, 0.15);
+        }
+
+        .drop-zone i {
+            color: #94a3b8;
+            transition: color 0.3s;
+            margin-bottom: 20px;
+        }
+        
+        .drop-zone:hover i {
+            color: var(--accent-color);
+            transform: scale(1.1);
+        }
+
+        .column-hidden { display: none !important; }
+
+        .settings-panel {
+            position: fixed;
+            right: -320px;
+            top: 60px;
+            bottom: 0;
+            width: 320px;
+            background: white;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.1);
+            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 60;
+            padding: 24px;
+            overflow-y: auto;
+            border-left: 1px solid #f1f5f9;
+        }
+
+        .settings-panel.active { right: 0; }
+        
+        @media (max-width: 639px) {
+            .settings-panel { right: -100%; width: 100%; top: auto; bottom: 60px; height: calc(100vh - 60px); box-shadow: 0 -10px 30px rgba(0,0,0,0.1); border-top: 1px solid #f1f5f9; border-left: none;}
+            .settings-panel.active { right: 0; }
+            .filter-section {
+                top: auto;
+                bottom: -100px;
+                transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                box-shadow: 0 -10px 30px rgba(0,0,0,0.1);
+                padding: 16px;
+                border-top: 1px solid #f1f5f9;
+                background: white;
+            }
+            .filter-section.active { bottom: 60px; }
+            .header-nav { padding-bottom: 8px; }
+            #header-right-pc { display: none; }
+        }
+
+        .color-option {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .color-option.selected {
+            border-color: #1e293b;
+            transform: scale(1.1);
+        }
+
+        .mobile-nav {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: white;
+            height: 60px;
+            display: flex; justify-content: space-around; align-items: center;
+            border-top: 1px solid #f1f5f9;
+            z-index: 50;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .btn-primary {
+            background: var(--accent-color);
+            color: white;
+            padding: 10px 24px;
+            border-radius: 12px;
+            font-weight: 700;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+            filter: brightness(1.1);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #475569;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 13px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .btn-secondary:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            color: #1e293b;
+        }
+
+        .btn-demo {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 700;
+            transition: all 0.2s;
+        }
+        .btn-demo:hover { background: #e2e8f0; color: #1e293b; }
+
+        .btn-demo-exit {
+            background: #ef4444;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            display: none;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .floating-action-btn {
+            width: 44px; height: 44px;
+            background: white;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #f1f5f9;
+        }
+
+        .floating-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+            color: var(--accent-color);
+        }
+
+        .floating-action-btn.active {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        /* Context Menu for Text Styling */
+        .style-context-menu {
+            position: absolute;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+            padding: 12px;
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 100;
+            border: 1px solid #e2e8f0;
+            width: 220px;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .ctx-section-title {
+            font-size: 10px;
+            font-weight: bold;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 6px;
+        }
+
+        .ctx-color-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+        }
+
+        .ctx-color-btn {
+            width: 24px; height: 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .ctx-color-btn.selected { border-color: #1e293b; transform: scale(1.1); }
+        
+        .ctx-style-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 6px;
+            border-radius: 8px;
+            background: #f1f5f9;
+            font-size: 12px;
+            font-weight: bold;
+            color: #475569;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .ctx-style-btn.active {
+            background: #eff6ff;
+            color: var(--accent-color);
+            border-color: #bfdbfe;
+        }
+
+        .portrait-preview-slot {
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            background-color: #f1f5f9;
+            border: 1px dashed #cbd5e1;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+            background-size: cover; background-position: center;
+        }
+        
+        .row-counter {
+            position: fixed;
+            bottom: 76px;
+            right: 16px;
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(4px);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-family: monospace;
+            font-size: 12px;
+            z-index: 30;
+            display: none;
+            pointer-events: none;
+        }
+
+        @media (min-width: 640px) {
+            .row-counter { bottom: 16px; }
+        }
+
+    </style>
+</head>
+<body class="text-slate-800 antialiased h-screen overflow-hidden flex flex-col">
+
+    <div id="loading-overlay" class="fixed inset-0 bg-white/90 backdrop-blur-sm z-[999] hidden flex-col items-center justify-center">
+        <div class="animate-spin text-blue-500 mb-4"><i data-lucide="loader-2" size="40"></i></div>
+        <div class="text-sm font-bold text-slate-600">処理中...</div>
+    </div>
+
+    <!-- Home View -->
+    <div id="home-view" class="h-full flex flex-col overflow-y-auto bg-slate-50">
+        <header class="bg-white/80 backdrop-blur-md border-b sticky top-0 z-50">
+            <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+                <div class="flex items-center gap-2 text-blue-600">
+                    <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white">
+                        <i data-lucide="layout" size="18"></i>
+                    </div>
+                    <span class="font-bold text-lg tracking-tight">ろぐしあたー</span>
+                </div>
+                <div class="flex gap-4">
+                    <button id="start-app-btn" class="btn-primary text-sm px-6">使ってみる</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1">
+            <section class="hero-gradient pt-20 pb-24 px-6 text-center border-b border-blue-100">
+                <div class="max-w-3xl mx-auto">
+                    <span class="inline-block py-1 px-3 rounded-full bg-blue-100 text-blue-700 text-xs font-bold mb-6">TRPGログを、もっと見やすく。</span>
+                    <h1 class="text-4xl sm:text-5xl font-extrabold text-slate-900 mb-6 leading-tight">
+                        あの日のセッションを、<br><span class="text-blue-600">鮮明に</span>振り返る。
+                    </h1>
+                    <p class="text-slate-600 mb-10 text-lg leading-relaxed">
+                        ココフォリアなどのTRPGオンラインセッションツールのHTMLログを読み込み、<br class="hidden sm:block">
+                        キャラクターごと、タブごとに整理された美しいタイムライン形式で表示します。<br class="hidden sm:block">
+                        立ち絵の設定や、重要なシーンのマーキングもブラウザ上で完結。
+                    </p>
+                </div>
+            </section>
+
+            <section class="py-20 px-6 max-w-6xl mx-auto">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl font-bold text-slate-800 mb-4">主な機能</h2>
+                    <p class="text-slate-500">直感的な操作で、ログを自分好みにカスタマイズ</p>
+                </div>
+                <div class="grid sm:grid-cols-3 gap-8">
+                    <div class="feature-card">
+                        <div class="icon-box"><i data-lucide="columns-3" size="24"></i></div>
+                        <h3 class="text-lg font-bold mb-2">スマートなレイアウト</h3>
+                        <p class="text-sm text-slate-600 leading-relaxed">タブごとに列を自動生成。読みたい情報だけをフィルタリングして表示できます。不要な列の削除も可能です。</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon-box"><i data-lucide="user-square-2" size="24"></i></div>
+                        <h3 class="text-lg font-bold mb-2">立ち絵・画像設定</h3>
+                        <p class="text-sm text-slate-600 leading-relaxed">キャラクターごとに立ち絵をドラッグ＆ドロップで設定可能。顔部分の切り抜き機能も搭載しています。</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon-box"><i data-lucide="highlighter" size="24"></i></div>
+                        <h3 class="text-lg font-bold mb-2">マーカー＆編集機能</h3>
+                        <p class="text-sm text-slate-600 leading-relaxed">名言や重要情報をハイライト。不要な発言の削除や、誤字の修正もブラウザ上で直接行えます。</p>
+                    </div>
+                    <div class="feature-card sm:col-span-3 lg:col-span-1 lg:col-start-2">
+                         <div class="icon-box"><i data-lucide="download" size="24"></i></div>
+                        <h3 class="text-lg font-bold mb-2">編集内容をそのまま保存</h3>
+                        <p class="text-sm text-slate-600 leading-relaxed">立ち絵の設定やマーカー、フィルタリング状態を保持したまま、1つのHTMLファイルとして再保存できます。共有にも便利です。</p>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="bg-slate-900 text-white py-16 px-6 text-center">
+                 <h2 class="text-2xl font-bold mb-6">今すぐログを読み込んでみましょう</h2>
+                 <p class="text-slate-400 mb-8 max-w-2xl mx-auto">
+                    会員登録やログインは不要です。すべての処理はブラウザ上で完結するため、ログデータが外部サーバーに送信されることはありません。
+                 </p>
+                 <button onclick="document.getElementById('start-app-btn').click()" class="bg-blue-500 hover:bg-blue-400 text-white font-bold py-3 px-8 rounded-xl transition-colors shadow-lg shadow-blue-500/30">
+                    ビューアを起動する
+                 </button>
+            </section>
+        </main>
+        
+        <footer class="bg-slate-950 py-8 text-center text-slate-500 text-sm">
+            &copy; 2024 Log Theater. All rights reserved.
+        </footer>
+    </div>
+
+    <!-- App View -->
+    <div id="app-view" class="hidden h-full flex flex-col relative">
+        <div id="setup-screen" class="setup-overlay">
+            <button id="back-to-home-btn" class="absolute top-6 left-6 text-slate-400 hover:text-slate-800 flex items-center gap-2 transition-colors">
+                <i data-lucide="arrow-left" size="20"></i> ホームへ戻る
+            </button>
+            
+            <div class="max-w-md w-full">
+                <div class="text-center mb-8">
+                    <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="file-html" size="32"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-slate-800 mb-2">HTMLログを読み込む</h2>
+                    <p class="text-sm text-slate-500">ココフォリア等で出力したHTMLファイルを選択してください。</p>
+                </div>
+                
+                <div id="drop-zone" class="drop-zone">
+                    <i data-lucide="upload-cloud" size="48" class="mx-auto block"></i>
+                    <p class="text-slate-700 font-bold text-lg mb-2 mt-4">ここにファイルをドロップ</p>
+                    <p class="text-slate-400 text-sm mb-6">または</p>
+                    <span class="btn-primary inline-block">ファイルを選択</span>
+                    <input type="file" id="file-input" accept=".html" class="hidden">
+                </div>
+                
+                <div class="mt-8 text-center">
+                    <p class="text-xs text-slate-400 mb-4">サンプルデータで機能を試すこともできます</p>
+                    <button id="demo-app-btn" class="btn-demo text-sm w-full"><i data-lucide="play-circle" size="16" class="inline mr-2"></i>デモモードで起動</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="fixed right-6 bottom-24 flex flex-col gap-3 z-30 pointer-events-auto">
+            <button id="text-edit-mode-btn" class="floating-action-btn" title="テキスト編集モード（発言をクリックして編集）">
+                <i data-lucide="type" size="20"></i>
+            </button>
+            <button id="edit-mode-toggle-btn" class="floating-action-btn" title="削除モード（発言を個別に削除）">
+                <i data-lucide="eraser" size="20"></i>
+            </button>
+            <button id="marker-toggle-btn" class="floating-action-btn" title="マーカーモード（発言をクリックして装飾）">
+                <i data-lucide="highlighter" size="20"></i>
+            </button>
+            <button id="jump-top" class="floating-action-btn mt-4 shadow-lg"><i data-lucide="arrow-up" size="20"></i></button>
+            <button id="jump-bottom" class="floating-action-btn shadow-lg"><i data-lucide="arrow-down" size="20"></i></button>
+        </div>
+
+        <div id="row-counter" class="row-counter">0 / 0</div>
+
+        <div id="style-context-menu" class="style-context-menu">
+            <div class="flex justify-between items-center border-b pb-2 mb-1">
+                <span class="text-xs font-bold text-slate-600">スタイル設定</span>
+                <button id="close-ctx-menu" class="text-slate-400 hover:text-slate-800"><i data-lucide="x" size="14"></i></button>
+            </div>
+            
+            <div>
+                <div class="ctx-section-title">背景カラー</div>
+                <div class="ctx-color-grid">
+                    <div class="ctx-color-btn" style="background:#fee2e2" data-val="#fee2e2"></div>
+                    <div class="ctx-color-btn" style="background:#fef3c7" data-val="#fef3c7"></div>
+                    <div class="ctx-color-btn" style="background:#d1fae5" data-val="#d1fae5"></div>
+                    <div class="ctx-color-btn" style="background:#dbeafe" data-val="#dbeafe"></div>
+                    <div class="ctx-color-btn" style="background:#f3e8ff" data-val="#f3e8ff"></div>
+                    <div class="ctx-color-btn" style="background:#f1f5f9" data-val="#f1f5f9"></div>
+                    <div class="ctx-color-btn" style="background:#ffe4e6" data-val="#ffe4e6"></div>
+                    <div class="ctx-color-btn" style="background:#ffedd5" data-val="#ffedd5"></div>
+                    <div class="ctx-color-btn" style="background:#e0e7ff" data-val="#e0e7ff"></div>
+                    <div class="ctx-color-btn border-2 border-slate-200" style="background:transparent" data-val=""></div>
+                </div>
+            </div>
+
+            <div>
+                <div class="ctx-section-title">文字装飾</div>
+                <div class="flex gap-2">
+                    <button class="ctx-style-btn flex-1" data-type="bold"><i data-lucide="bold" size="14" class="pointer-events-none"></i> 太字</button>
+                    <button class="ctx-style-btn flex-1" data-type="serif"><i data-lucide="type" size="14" class="pointer-events-none"></i> 明朝</button>
+                </div>
+            </div>
+            
+            <button id="ctx-reset-btn" class="w-full py-1.5 text-xs text-slate-500 hover:bg-slate-50 rounded mt-1 transition-colors">リセット</button>
+        </div>
+
+        <div id="char-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[150] items-center justify-center p-4 hidden">
+            <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
+                <div class="flex items-center justify-between border-b p-4 bg-slate-50">
+                    <h3 class="font-bold text-slate-700 flex items-center gap-2 bg-slate-200 rounded-full pr-4 p-2"><i data-lucide="users" size="20"></i> キャラクター設定</h3>
+                    <button id="close-char-modal" class="p-2 hover:bg-slate-200 rounded-full transition-colors"><i data-lucide="x" size="20"></i></button>
+                </div>
+                <div class="flex border-b bg-white">
+                    <button id="tab-visibility" class="flex-1 px-4 py-3 text-sm font-bold border-b-2 border-blue-500 text-blue-600">表示切替</button>
+                    <button id="tab-icons" class="flex-1 px-4 py-3 text-sm font-bold text-slate-400">立ち絵・画像管理</button>
+                </div>
+                <div id="char-list-view" class="overflow-y-auto p-6 flex-1 bg-slate-50">
+                    <div class="flex gap-3 mb-6">
+                        <button id="btn-all-select" class="text-xs bg-slate-800 text-white px-4 py-2 rounded-lg font-bold hover:bg-slate-700">すべて表示</button>
+                        <button id="btn-all-deselect" class="text-xs bg-white text-slate-600 border border-slate-200 px-4 py-2 rounded-lg font-bold hover:bg-slate-50">すべて非表示</button>
+                    </div>
+                    <div id="char-checkbox-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+                </div>
+                <div id="icon-list-view" class="overflow-y-auto p-6 flex-1 hidden bg-slate-50">
+                    <div id="icon-upload-container" class="space-y-3"></div>
+                </div>
+                <div class="p-5 border-t bg-white flex justify-end">
+                    <button id="close-char-modal-btn" class="btn-primary w-full sm:w-auto px-10">設定を反映する</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="crop-modal" class="fixed inset-0 bg-slate-950/90 z-[200] items-center justify-center p-4 hidden">
+            <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in duration-200">
+                <div class="p-5 border-b text-center font-bold text-slate-800">立ち絵の切り抜き</div>
+                <div class="p-6 bg-slate-900 flex flex-col items-center">
+                    <div id="crop-canvas-container" class="relative overflow-hidden cursor-move rounded-xl border-4 border-slate-800">
+                        <canvas id="crop-canvas"></canvas>
+                        <div id="crop-guide" class="absolute pointer-events-none border-2 border-blue-500 shadow-[0_0_0_9999px_rgba(0,0,0,0.7)] rounded-lg"></div>
+                    </div>
+                </div>
+                <div class="p-5 border-t flex justify-between gap-4">
+                    <button id="cancel-crop" class="flex-1 py-3 text-slate-500 font-bold hover:bg-slate-50 rounded-xl">キャンセル</button>
+                    <button id="apply-crop" class="flex-[2] py-3 bg-blue-600 text-white rounded-xl font-bold shadow-lg shadow-blue-200">この範囲で決定</button>
+                </div>
+            </div>
+        </div>
+
+        <header class="header-nav">
+            <div class="flex items-center gap-4 flex-1">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white" style="background-color: var(--accent-color)">
+                        <i data-lucide="layout" size="18"></i>
+                    </div>
+                    <h1 id="app-title" class="text-base font-bold text-slate-800 tracking-tight">ろぐしあたー</h1>
+                    <button id="exit-demo-btn" class="btn-demo-exit"><i data-lucide="log-out" size="12"></i> デモ終了</button>
+                </div>
+                <div id="search-wrapper" class="relative group ml-4 hidden sm:block">
+                    <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size="14"></i>
+                    <input type="text" id="search-input" placeholder="ログを検索..." class="bg-slate-100 border-none rounded-xl pl-9 pr-4 py-2 text-xs w-64 focus:ring-2 focus:ring-blue-500 transition-all outline-none">
+                    <div id="search-results" class="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-200 shadow-2xl rounded-xl hidden z-[60] max-h-96 overflow-y-auto"></div>
+                </div>
+            </div>
+            <div id="header-right-pc" class="flex items-center gap-2">
+                <button id="pc-open-char-modal-btn" class="btn-secondary"><i data-lucide="users" size="14"></i> キャラ設定</button>
+                <button id="pc-settings-btn" class="btn-secondary px-3"><i data-lucide="sliders-horizontal" size="14"></i></button>
+            </div>
+        </header>
+
+        <div class="sm:hidden px-3 pt-4 pb-2 bg-white border-b border-slate-100">
+            <div class="relative w-full">
+                <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size="14"></i>
+                <input type="text" id="search-input-mobile" placeholder="ログを検索..." class="bg-slate-100 border-none rounded-xl pl-9 pr-4 py-2 text-xs w-full focus:ring-2 focus:ring-blue-500 transition-all outline-none">
+                <div id="search-results-mobile" class="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-200 shadow-2xl rounded-xl hidden z-[60] max-h-64 overflow-y-auto"></div>
+            </div>
+        </div>
+
+        <div id="filter-container" class="filter-section"></div>
+
+        <div id="timeline-viewport" class="timeline-viewport">
+            <div id="sticky-header" class="sticky-header-row"></div>
+            <div id="rows-container" class="flex flex-col pb-24"></div>
+        </div>
+
+        <div id="settings-panel" class="settings-panel">
+            <h4 class="font-bold text-xs text-slate-400 mb-4 uppercase tracking-wider">表示設定</h4>
+            <div class="space-y-6">
+                <div>
+                    <label class="text-xs font-bold text-slate-700 block mb-2">テーマカラー</label>
+                    <div class="flex gap-2">
+                        <div class="color-option" style="background: #3b82f6" data-color="blue" title="ブルー"></div>
+                        <div class="color-option" style="background: #ef4444" data-color="red" title="レッド"></div>
+                        <div class="color-option" style="background: #10b981" data-color="green" title="グリーン"></div>
+                        <div class="color-option" style="background: #8b5cf6" data-color="purple" title="パープル"></div>
+                        <div class="color-option" style="background: #64748b" data-color="mono" title="モノクロ"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="text-xs font-bold text-slate-700">カラム幅</label>
+                        <span id="col-val" class="text-[10px] font-mono text-blue-600 bg-blue-50 px-2 py-1 rounded">350px</span>
+                    </div>
+                    <input type="range" id="col-slider" min="200" max="600" value="350" class="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer">
+                </div>
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="text-xs font-bold text-slate-700">文字サイズ</label>
+                        <span id="font-val" class="text-[10px] font-mono text-blue-600 bg-blue-50 px-2 py-1 rounded">14px</span>
+                    </div>
+                    <input type="range" id="font-slider" min="10" max="24" value="14" class="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer">
+                </div>
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="text-xs font-bold text-slate-700">立ち絵サイズ</label>
+                        <span id="portrait-val" class="text-[10px] font-mono text-blue-600 bg-blue-50 px-2 py-1 rounded">50px</span>
+                    </div>
+                    <input type="range" id="portrait-slider" min="30" max="150" value="50" class="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer">
+                </div>
+            </div>
+            <div class="mt-6 pt-4 border-t flex flex-col gap-2">
+                <button id="download-btn" class="btn-primary w-full flex items-center justify-center gap-2"><i data-lucide="download" size="14"></i> HTMLとして保存</button>
+                <button id="reset-btn" class="text-[10px] text-slate-400 hover:text-red-500 transition-colors py-2">ログをリセットする</button>
+            </div>
+        </div>
+
+        <nav class="mobile-nav">
+            <button id="mb-nav-filter" class="flex flex-col items-center gap-1 text-slate-400"><i data-lucide="columns" size="20"></i><span class="text-[10px] font-bold">カラム</span></button>
+            <button id="mb-nav-char" class="flex flex-col items-center gap-1 text-slate-400"><i data-lucide="users" size="20"></i><span class="text-[10px] font-bold">キャラ設定</span></button>
+            <button id="mb-nav-settings" class="flex flex-col items-center gap-1 text-slate-400"><i data-lucide="sliders-horizontal" size="20"></i><span class="text-[10px] font-bold">表示設定</span></button>
+        </nav>
+    </div>
+
+    <!-- Data Storage -->
+    <script id="icon-data-storage" type="application/json">{}</script>
+    <script id="loc-data-storage" type="application/json">[]</script>
+    <script id="log-data-storage" type="application/json">[]</script>
+    <script id="style-data-storage" type="application/json">{"col":"350px","font":"14px","port":"50px","theme":"blue"}</script>
+    <script id="source-filename-storage" type="application/json">""</script>
+
+    <script>
+        (function() {
+            let charIcons = {};
+            let logData = [];
+            let allLocations = [];
+            let characters = new Set();
+            let currentCropImg = null, currentCropChar = "";
+            let cropState = { x: 0, y: 0, size: 200, scale: 1 };
+            let isDragging = false, dragStart = { x: 0, y: 0 };
+            let sourceFileName = "log";
+            let currentTheme = "blue";
+            let isMarkerMode = false;
+            let isEditMode = false;     // This is "Delete Mode"
+            let isTextEditMode = false; // This is "Text Edit Mode"
+            let currentEditingId = null;
+
+            const themes = {
+                blue:   { accent: '#3b82f6', bg: '#709cdb' },
+                red:    { accent: '#ef4444', bg: '#fca5a5' },
+                green:  { accent: '#10b981', bg: '#6ee7b7' },
+                purple: { accent: '#8b5cf6', bg: '#c4b5fd' },
+                mono:   { accent: '#64748b', bg: '#94a3b8' }
+            };
+
+            const getEl = (id) => document.getElementById(id);
+
+            function init() {
+                lucide.createIcons();
+                bindEvents();
+                if (hasStoredData()) {
+                    showAppView();
+                    restore();
+                }
+            }
+            
+            function hasStoredData() {
+                try {
+                    const logRaw = getEl('log-data-storage').textContent;
+                    const data = JSON.parse(logRaw || '[]');
+                    return data.length > 0;
+                } catch(e) { return false; }
+            }
+            
+            function showAppView() {
+                getEl('home-view').classList.add('hidden');
+                getEl('app-view').classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+                lucide.createIcons();
+            }
+
+            function showHomeView() {
+                getEl('app-view').classList.add('hidden');
+                getEl('home-view').classList.remove('hidden');
+                document.body.style.overflow = 'auto';
+            }
+
+            function getSafeClassName(name) {
+                return 'pc-' + encodeURIComponent(name).replace(/[%().'!~*]/g, '_');
+            }
+
+            function bindEvents() {
+                getEl('start-app-btn').addEventListener('click', () => showAppView());
+                getEl('back-to-home-btn').addEventListener('click', () => showHomeView());
+                getEl('demo-app-btn').addEventListener('click', loadDemo);
+                getEl('exit-demo-btn').addEventListener('click', exitDemo);
+
+                getEl('jump-top').onclick = () => getEl('timeline-viewport').scrollTo({ top: 0, behavior: 'smooth' });
+                getEl('jump-bottom').onclick = () => { const vp = getEl('timeline-viewport'); vp.scrollTo({ top: vp.scrollHeight, behavior: 'smooth' }); };
+                
+                getEl('marker-toggle-btn').onclick = toggleMarkerMode;
+                getEl('edit-mode-toggle-btn').onclick = toggleEditMode;
+                getEl('text-edit-mode-btn').onclick = toggleTextEditMode;
+                getEl('close-ctx-menu').onclick = hideContextMenu;
+                getEl('ctx-reset-btn').onclick = resetBubbleStyle;
+
+                // Color pickers in Context Menu
+                document.querySelectorAll('.ctx-color-btn').forEach(btn => {
+                    btn.onclick = (e) => applyBubbleStyle('bg', e.target.dataset.val);
+                });
+                
+                // Style toggles in Context Menu
+                document.querySelectorAll('.ctx-style-btn').forEach(btn => {
+                    btn.onclick = (e) => applyBubbleStyle(e.target.dataset.type, null);
+                });
+
+                document.querySelectorAll('.color-option').forEach(el => {
+                    el.onclick = () => setTheme(el.dataset.color);
+                });
+
+                const fileInput = getEl('file-input');
+                const dropZone = getEl('drop-zone');
+                dropZone.onclick = () => fileInput.click();
+                dropZone.addEventListener('dragover', (e) => { e.preventDefault(); e.stopPropagation(); dropZone.classList.add('border-blue-500', 'bg-blue-50'); });
+                dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); e.stopPropagation(); dropZone.classList.remove('border-blue-500', 'bg-blue-50'); });
+                dropZone.addEventListener('drop', (e) => { e.preventDefault(); e.stopPropagation(); dropZone.classList.remove('border-blue-500', 'bg-blue-50'); if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
+                fileInput.onchange = (e) => { if (e.target.files[0]) handleFile(e.target.files[0]); };
+
+                getEl('search-input').oninput = (e) => handleSearch(e, 'search-results');
+                getEl('search-input-mobile').oninput = (e) => handleSearch(e, 'search-results-mobile');
+
+                const toggleSettings = (e) => { e.stopPropagation(); getEl('filter-container').classList.remove('active'); getEl('settings-panel').classList.toggle('active'); };
+                const toggleFilterMobile = (e) => { e.stopPropagation(); getEl('settings-panel').classList.remove('active'); getEl('filter-container').classList.toggle('active'); };
+                const openCharModal = () => { getEl('char-modal').classList.remove('hidden'); getEl('char-modal').classList.add('flex'); renderIconUploads(); };
+
+                getEl('pc-settings-btn').addEventListener('click', toggleSettings);
+                getEl('pc-open-char-modal-btn').addEventListener('click', openCharModal);
+                getEl('mb-nav-settings').addEventListener('click', toggleSettings);
+                getEl('mb-nav-filter').addEventListener('click', toggleFilterMobile);
+                getEl('mb-nav-char').addEventListener('click', openCharModal);
+
+                getEl('close-char-modal').onclick = () => getEl('char-modal').classList.add('hidden');
+                getEl('close-char-modal-btn').onclick = () => getEl('char-modal').classList.add('hidden');
+
+                getEl('col-slider').oninput = (e) => updateStyle('--column-width', e.target.value + 'px', 'col-val');
+                getEl('font-slider').oninput = (e) => updateStyle('--base-font-size', e.target.value + 'px', 'font-val');
+                getEl('portrait-slider').oninput = (e) => updateStyle('--portrait-size', e.target.value + 'px', 'portrait-val');
+
+                const cropBox = getEl('crop-canvas-container');
+                cropBox.onmousedown = startDrag;
+                cropBox.ontouchstart = (e) => { if(e.touches.length === 1) startDrag(e.touches[0]); };
+                cropBox.onwheel = handleWheel;
+                window.addEventListener('mousemove', doDrag);
+                window.addEventListener('touchmove', (e) => { if(e.touches.length === 1) doDrag(e.touches[0]); });
+                window.addEventListener('mouseup', endDrag);
+                window.addEventListener('touchend', endDrag);
+
+                getEl('apply-crop').onclick = applyCrop;
+                getEl('cancel-crop').onclick = () => getEl('crop-modal').classList.add('hidden');
+                getEl('download-btn').onclick = downloadHTML;
+                getEl('reset-btn').onclick = () => { if(confirm("初期化してもよろしいですか？")) { clearStorage(); location.reload(); } };
+                getEl('tab-visibility').onclick = () => switchTab('visibility');
+                getEl('tab-icons').onclick = () => switchTab('icons');
+                
+                getEl('timeline-viewport').addEventListener('scroll', updateRowCounter);
+
+                document.addEventListener('click', (e) => {
+                    const panel = getEl('settings-panel');
+                    const ctxMenu = getEl('style-context-menu');
+                    
+                    if (panel && !panel.contains(e.target) && !e.target.closest('button')) { panel.classList.remove('active'); }
+                    if (getEl('search-wrapper') && !e.target.closest('#search-wrapper') && !e.target.closest('#search-input-mobile')) {
+                        getEl('search-results').classList.add('hidden');
+                        getEl('search-results-mobile').classList.add('hidden');
+                    }
+                    // Close context menu if clicked outside
+                    if (ctxMenu && ctxMenu.style.display === 'flex' && !ctxMenu.contains(e.target) && !e.target.classList.contains('bubble')) {
+                        hideContextMenu();
+                    }
+                });
+            }
+
+            function clearStorage() {
+                getEl('icon-data-storage').textContent = "{}";
+                getEl('loc-data-storage').textContent = "[]";
+                getEl('log-data-storage').textContent = "[]";
+                getEl('source-filename-storage').textContent = '""';
+            }
+
+            function setTheme(themeName) {
+                if (!themes[themeName]) return;
+                currentTheme = themeName;
+                const t = themes[themeName];
+                updateStyle('--accent-color', t.accent);
+                updateStyle('--bg-timeline', t.bg);
+                document.querySelectorAll('.color-option').forEach(el => {
+                    el.classList.toggle('selected', el.dataset.color === themeName);
+                });
+            }
+            
+            function toggleMarkerMode() {
+                if (isEditMode) toggleEditMode();
+                if (isTextEditMode) toggleTextEditMode();
+                isMarkerMode = !isMarkerMode;
+                getEl('marker-toggle-btn').classList.toggle('active', isMarkerMode);
+                document.body.classList.toggle('marker-mode-active', isMarkerMode);
+                if (!isMarkerMode) hideContextMenu();
+            }
+
+            function toggleEditMode() {
+                if (isMarkerMode) toggleMarkerMode();
+                if (isTextEditMode) toggleTextEditMode();
+                isEditMode = !isEditMode;
+                getEl('edit-mode-toggle-btn').classList.toggle('active', isEditMode);
+                document.body.classList.toggle('edit-mode-active', isEditMode);
+            }
+
+            function toggleTextEditMode() {
+                if (isMarkerMode) toggleMarkerMode();
+                if (isEditMode) toggleEditMode();
+                isTextEditMode = !isTextEditMode;
+                getEl('text-edit-mode-btn').classList.toggle('active', isTextEditMode);
+                document.body.classList.toggle('text-edit-mode-active', isTextEditMode);
+            }
+
+            function deleteColumn(loc) {
+                if (!confirm(`「${loc}」カラムと、そこに含まれるすべての発言を削除しますか？\nこの操作は元に戻せません。`)) return;
+                logData = logData.filter(d => d.loc !== loc);
+                allLocations = allLocations.filter(l => l !== loc);
+                renderLayout();
+                getEl('rows-container').innerHTML = ''; 
+                logData.forEach(m => { createRow(m.id, m.loc, m.char, m.color, m.rawMsg, m.style); });
+                updateRowCounter();
+            }
+
+            function deleteMessage(id) {
+                if (!confirm('この発言を削除しますか？')) return;
+                logData = logData.filter(d => d.id !== id);
+                getEl('rows-container').innerHTML = ''; 
+                logData.forEach(m => { createRow(m.id, m.loc, m.char, m.color, m.rawMsg, m.style); });
+                updateRowCounter();
+            }
+            
+            function handleBubbleClick(e, id) {
+                e.stopPropagation();
+                
+                // 1. MARKER MODE
+                if (isMarkerMode) {
+                    currentEditingId = id;
+                    showContextMenu(e.target);
+                    return;
+                }
+                
+                // 2. TEXT EDIT MODE
+                if (isTextEditMode) {
+                    const bubble = e.target.closest('.bubble');
+                    if (bubble.querySelector('textarea')) return; // Already editing
+                    
+                    const data = logData.find(d => d.id === id);
+                    if (!data) return;
+
+                    const currentText = data.rawMsg.replace(/<br>/g, '\n');
+                    bubble.innerHTML = '';
+                    
+                    const textarea = document.createElement('textarea');
+                    textarea.className = 'bubble-textarea';
+                    textarea.value = currentText;
+                    
+                    textarea.onblur = () => {
+                        const newText = textarea.value;
+                        const formattedText = newText.replace(/\n/g, '<br>');
+                        // Update data
+                        const dataIndex = logData.findIndex(d => d.id === id);
+                        if (dataIndex > -1) {
+                            logData[dataIndex].rawMsg = formattedText;
+                            logData[dataIndex].msg = formattedText.replace(/<[^>]+>/g, '');
+                        }
+                        // Re-render this specific bubble nicely
+                        // To be safe, just re-render row or manual reconstruct
+                        const parent = bubble.parentNode;
+                        bubble.innerHTML = formattedText + `<div class="delete-msg-btn"><i data-lucide="x" size="14"></i></div>`;
+                        // Re-attach delete listener
+                        const delBtn = bubble.querySelector('.delete-msg-btn');
+                        if(delBtn) delBtn.onclick = (e) => { e.stopPropagation(); deleteMessage(id); };
+                        lucide.createIcons();
+                    };
+                    
+                    // Stop propagation on click so we can type
+                    textarea.onclick = (e) => e.stopPropagation();
+                    
+                    bubble.appendChild(textarea);
+                    textarea.focus();
+                }
+            }
+
+            function showContextMenu(targetElement) {
+                const menu = getEl('style-context-menu');
+                const rect = targetElement.getBoundingClientRect();
+                const viewport = getEl('timeline-viewport').getBoundingClientRect();
+                
+                const logItem = logData.find(d => d.id === currentEditingId);
+                const currentStyle = logItem && logItem.style ? logItem.style : {};
+
+                document.querySelectorAll('.ctx-color-btn').forEach(btn => {
+                    btn.classList.toggle('selected', btn.dataset.val === (currentStyle.bg || ''));
+                });
+                document.querySelector('.ctx-style-btn[data-type="bold"]').classList.toggle('active', !!currentStyle.bold);
+                document.querySelector('.ctx-style-btn[data-type="serif"]').classList.toggle('active', !!currentStyle.serif);
+
+                menu.style.display = 'flex';
+                let top = rect.top + window.scrollY;
+                let left = rect.right + 10;
+
+                if (window.innerWidth < 640 || left + 220 > window.innerWidth) {
+                    left = rect.left;
+                    top = rect.bottom + 10;
+                }
+                if (top + 200 > window.innerHeight) {
+                    top = rect.top - 200;
+                }
+                menu.style.top = top + 'px';
+                menu.style.left = left + 'px';
+            }
+
+            function hideContextMenu() {
+                getEl('style-context-menu').style.display = 'none';
+                currentEditingId = null;
+            }
+
+            function applyBubbleStyle(type, value) {
+                if (currentEditingId === null) return;
+                const index = logData.findIndex(d => d.id === currentEditingId);
+                if (index === -1) return;
+
+                if (!logData[index].style) logData[index].style = {};
+
+                if (type === 'bg') {
+                    logData[index].style.bg = value;
+                    document.querySelectorAll('.ctx-color-btn').forEach(btn => {
+                        btn.classList.toggle('selected', btn.dataset.val === value);
+                    });
+                } else if (type === 'bold') {
+                    logData[index].style.bold = !logData[index].style.bold;
+                    document.querySelector('.ctx-style-btn[data-type="bold"]').classList.toggle('active', logData[index].style.bold);
+                } else if (type === 'serif') {
+                    logData[index].style.serif = !logData[index].style.serif;
+                    document.querySelector('.ctx-style-btn[data-type="serif"]').classList.toggle('active', logData[index].style.serif);
+                }
+                updateBubbleDOM(currentEditingId, logData[index].style);
+            }
+
+            function resetBubbleStyle() {
+                if (currentEditingId === null) return;
+                const index = logData.findIndex(d => d.id === currentEditingId);
+                if (index === -1) return;
+                
+                logData[index].style = {}; 
+                updateBubbleDOM(currentEditingId, {});
+                hideContextMenu();
+            }
+
+            function updateBubbleDOM(id, style) {
+                const bubble = document.querySelector(`.bubble[data-id="${id}"]`);
+                if (!bubble) return;
+                if (style.bg) {
+                    bubble.style.backgroundColor = style.bg;
+                    bubble.style.borderColor = '#fbbf24';
+                } else {
+                    bubble.style.backgroundColor = '';
+                    bubble.style.borderColor = '';
+                }
+                bubble.classList.toggle('font-bold', !!style.bold);
+                bubble.classList.toggle('font-serif', !!style.serif);
+            }
+
+            function loadDemo() {
+                const dummyHTML = `<!DOCTYPE html><html><head></head><body><p style="color:#888888"><span> [情報] </span><span>GM</span><span><br>物語は、古びた洋館の扉の前から始まります。<br>風が吹き抜け、枯れ葉が舞う中、あなたたちは重厚な扉を見上げている。</span></p><p style="color:#e60033"><span> [メイン] </span><span>探偵</span><span>ゴクリ……。ついに来てしまったか。ここが噂の幽霊屋敷か。</span></p><p style="color:#2288cc"><span> [メイン] </span><span>助手</span><span>先生、帰りましょうよぉ……。僕、オカルトとか苦手なんですよ。</span></p><p style="color:#888888"><span> [雑談] </span><span>PL2</span><span>助手くんのビビりRP最高ｗ</span></p><p style="color:#e60033"><span> [メイン] </span><span>探偵</span><span>馬鹿を言うな。依頼を受けた以上、調査を完遂するのがプロというものだ。<br>さあ、行くぞ！</span></p><p style="color:#888888"><span> [メイン] </span><span>GM</span><span>探偵は扉に手をかける。鍵はかかっておらず、錆びついた蝶番が悲鳴のような音を立てて開いた。<br>ギィィィィィ……</span></p><p style="color:#2288cc"><span> [メイン] </span><span>助手</span><span>うわぁ！今の音なに！？幽霊！？</span></p><p style="color:#e60033"><span> [メイン] </span><span>探偵</span><span>落ち着け。ただの蝶番の音だ。<br>……だが、中は真っ暗だな。懐中電灯をつけるぞ。</span></p><p style="color:#888888"><span> [情報] </span><span>GM</span><span>懐中電灯の光が廊下を照らす。<br>壁には何枚かの肖像画が飾られており、その視線があなたたちを追っているように感じる。<br>【目星】を振れます。</span></p><p style="color:#e60033"><span> [メイン] </span><span>探偵</span><span>ふむ、肖像画か。何か手がかりがあるかもしれん。<br>CC<=70 【目星】 (1D100<=70) ＞ 15 ＞ 成功</span></p><p style="color:#888888"><span> [情報] </span><span>GM</span><span>成功ですね。では、探偵は一枚の肖像画に違和感を覚えます。<br>他の絵は人物画ですが、その絵だけは「真っ赤な果実」が描かれています。<br>そして、その果実の部分だけ、絵の具がまだ新しいように見えます。</span></p><p style="color:#888888"><span> [雑談] </span><span>PL1</span><span>真っ赤な果実……リンゴ？それとも心臓？</span></p><p style="color:#2288cc"><span> [メイン] </span><span>助手</span><span>先生、あれ見てください！あの絵、なんか変ですよ。</span></p><p style="color:#e60033"><span> [メイン] </span><span>探偵</span><span>ああ、気づいている。<br>……おい助手、少し触ってみてくれないか？</span></p><p style="color:#2288cc"><span> [メイン] </span><span>助手</span><span>ええ！？なんで僕が！？嫌ですよ！</span></p><p style="color:#888888"><span> [雑談] </span><span>PL2</span><span>安定の生贄ｗ</span></p></body></html>`;
+                sourceFileName = "Demo Session";
+                parse(dummyHTML);
+                showAppView();
+                getEl('app-title').textContent = sourceFileName;
+                getEl('setup-screen').classList.add('hidden');
+                getEl('exit-demo-btn').style.display = 'flex';
+                getEl('row-counter').style.display = 'block'; 
+                setTimeout(updateRowCounter, 100);
+            }
+
+            function exitDemo() { clearStorage(); location.reload(); }
+
+            function handleFile(file) {
+                sourceFileName = file.name.replace('.html','');
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        parse(e.target.result);
+                        getEl('app-title').textContent = sourceFileName;
+                        getEl('setup-screen').classList.add('hidden');
+                        getEl('exit-demo-btn').style.display = 'none';
+                        getEl('row-counter').style.display = 'block';
+                        setTimeout(updateRowCounter, 300);
+                    } catch (err) { console.error("Log parsing error:", err); }
+                };
+                reader.readAsText(file, 'UTF-8');
+            }
+
+            function parse(html) {
+                const doc = new DOMParser().parseFromString(html, 'text/html');
+                const ps = doc.querySelectorAll('p');
+                const locSet = new Set();
+                const tempLogData = [];
+                characters.clear(); 
+                ps.forEach((p, idx) => {
+                    try {
+                        const spans = p.querySelectorAll('span');
+                        if (spans.length < 3) return;
+                        const loc = spans[0].textContent.trim();
+                        const char = spans[1].textContent.trim();
+                        const color = p.style.color || '#1e293b';
+                        let msg = ""; for(let i=2; i<spans.length; i++) msg += spans[i].innerHTML;
+                        locSet.add(loc); characters.add(char);
+                        tempLogData.push({ id: idx, loc, char, msg: msg.replace(/<[^>]+>/g, ''), color: color, rawMsg: msg, style: {} });
+                    } catch(e) {}
+                });
+                logData = tempLogData;
+                const locArray = Array.from(locSet).sort(); 
+                const getPriority = (name) => {
+                    const n = name.toLowerCase();
+                    if (n.includes('main') || n.includes('メイン')) return 1;
+                    if (n.includes('info') || n.includes('情報')) return 2;
+                    if (n.includes('other') || n.includes('雑談')) return 3;
+                    return 100;
+                };
+                allLocations = locArray.sort((a, b) => {
+                    const priA = getPriority(a); const priB = getPriority(b);
+                    if (priA !== priB) return priA - priB;
+                    return locArray.indexOf(a) - locArray.indexOf(b);
+                });
+
+                renderLayout();
+                getEl('rows-container').innerHTML = ''; 
+                logData.forEach(m => { createRow(m.id, m.loc, m.char, m.color, m.rawMsg, m.style); });
+                refreshIcons();
+            }
+
+            function createRow(idx, loc, char, color, msg, style = {}) {
+                const row = document.createElement('div');
+                row.className = 'timeline-row'; row.id = `row-${idx}`; row.setAttribute('data-char', char); row.setAttribute('data-loc', loc);
+                const safeCharClass = getSafeClassName(char);
+                allLocations.forEach((l, lIdx) => {
+                    const cell = document.createElement('div'); cell.className = `timeline-cell col-idx-${lIdx}`;
+                    if (l === loc) {
+                        cell.innerHTML = `<div class="msg-container"><div class="char-portrait ${safeCharClass}"></div><div class="msg-content-wrapper"><div class="msg-info"><span class="char-name-bg" style="border-left: 3px solid ${color}"><span class="char-name" data-name="${char}" style="color:${color}">${char}</span></span></div><div class="bubble" data-id="${idx}">${msg}<div class="delete-msg-btn"><i data-lucide="x" size="14"></i></div></div></div>`;
+                        const bubble = cell.querySelector('.bubble');
+                        bubble.onclick = (e) => handleBubbleClick(e, idx);
+                        const delBtn = cell.querySelector('.delete-msg-btn');
+                        if (delBtn) delBtn.onclick = (e) => { e.stopPropagation(); deleteMessage(idx); };
+                        
+                        if(style.bg) { bubble.style.backgroundColor = style.bg; bubble.style.borderColor = '#fbbf24'; }
+                        if(style.bold) bubble.classList.add('font-bold');
+                        if(style.serif) bubble.classList.add('font-serif');
+                    }
+                    row.appendChild(cell);
+                });
+                getEl('rows-container').appendChild(row);
+            }
+
+            function updateRowCounter() {
+                const viewport = getEl('timeline-viewport');
+                const counter = getEl('row-counter');
+                const allRows = Array.from(document.querySelectorAll('.timeline-row:not(.hidden):not(.column-hidden)'));
+                if (allRows.length === 0) { counter.textContent = "0 / 0"; return; }
+                const viewportRect = viewport.getBoundingClientRect();
+                const viewportCenter = viewportRect.top + (viewportRect.height / 2);
+                let closestRowIndex = 0; let minDistance = Infinity;
+                allRows.forEach((row, index) => {
+                    const rect = row.getBoundingClientRect();
+                    const dist = Math.abs(viewportCenter - (rect.top + rect.height/2));
+                    if (dist < minDistance) { minDistance = dist; closestRowIndex = index + 1; }
+                });
+                counter.textContent = `${closestRowIndex} / ${allRows.length}`;
+            }
+
+            function renderLayout() {
+                getEl('sticky-header').innerHTML = ''; getEl('filter-container').innerHTML = '';
+                allLocations.forEach((loc, idx) => {
+                    const h = document.createElement('div'); h.className = `column-header col-idx-${idx}`;
+                    h.innerHTML = `<span>${loc}</span><div class="delete-col-btn" title="この列を削除"><i data-lucide="trash-2" size="12"></i></div>`;
+                    const delColBtn = h.querySelector('.delete-col-btn');
+                    if(delColBtn) delColBtn.onclick = (e) => { e.stopPropagation(); deleteColumn(loc); };
+
+                    getEl('sticky-header').appendChild(h);
+                    
+                    const chip = document.createElement('div'); chip.className = 'filter-chip active'; chip.textContent = loc;
+                    chip.onclick = () => {
+                        const active = chip.classList.toggle('active');
+                        document.querySelectorAll(`.col-idx-${idx}`).forEach(e => active ? e.classList.remove('column-hidden') : e.classList.add('column-hidden'));
+                        document.querySelectorAll(`.timeline-row[data-loc="${loc}"]`).forEach(r => r.classList.toggle('column-hidden', !active));
+                        updateRowCounter();
+                    };
+                    getEl('filter-container').appendChild(chip);
+                });
+                renderCharList();
+                lucide.createIcons();
+            }
+
+            function renderCharList() {
+                const container = getEl('char-checkbox-container'); container.innerHTML = '';
+                Array.from(characters).sort().forEach(name => {
+                    const label = document.createElement('label'); label.className = 'flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-xl cursor-pointer text-sm font-medium';
+                    const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = true; cb.className = 'w-4 h-4 rounded text-blue-600';
+                    cb.onchange = () => { document.querySelectorAll(`.timeline-row[data-char="${name}"]`).forEach(r => r.classList.toggle('hidden', !cb.checked)); updateRowCounter(); };
+                    label.appendChild(cb); label.appendChild(document.createTextNode(name)); container.appendChild(label);
+                });
+                getEl('btn-all-select').onclick = () => container.querySelectorAll('input').forEach(c => { c.checked = true; c.dispatchEvent(new Event('change')); });
+                getEl('btn-all-deselect').onclick = () => container.querySelectorAll('input').forEach(c => { c.checked = false; c.dispatchEvent(new Event('change')); });
+            }
+
+            function handleSearch(e, resultsId) {
+                const q = e.target.value.toLowerCase().trim(); const res = getEl(resultsId); res.innerHTML = '';
+                if (!q) { res.classList.add('hidden'); return; }
+                const matches = logData.filter(d => d.msg.toLowerCase().includes(q) || d.char.toLowerCase().includes(q));
+                if (matches.length > 0) {
+                    res.classList.remove('hidden');
+                    matches.forEach(m => {
+                        const d = document.createElement('div'); d.className = 'p-3 text-xs border-b border-slate-50 hover:bg-blue-50 cursor-pointer transition-colors';
+                        d.innerHTML = `<div class="flex justify-between mb-1"><span class="font-bold text-blue-600">${m.char}</span><span class="text-[10px] text-slate-400 font-mono">${m.loc}</span></div><div class="text-slate-600 truncate">${m.msg}</div>`;
+                        d.onclick = (ev) => {
+                            ev.stopPropagation();
+                            const row = getEl(`row-${m.id}`);
+                            if (row) {
+                                // Find the specific bubble within the row
+                                const targetBubble = row.querySelector(`.bubble[data-id="${m.id}"]`);
+                                
+                                if (targetBubble) {
+                                    // Scroll into view horizontally and vertically
+                                    targetBubble.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+                                    
+                                    // Highlight animation on the bubble
+                                    targetBubble.classList.add('highlight-jump');
+                                    setTimeout(() => targetBubble.classList.remove('highlight-jump'), 2500);
+                                } else {
+                                    // Fallback to row scroll if bubble not found
+                                    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                    row.classList.add('highlight-jump');
+                                    setTimeout(() => row.classList.remove('highlight-jump'), 2500);
+                                }
+                            }
+                            res.classList.add('hidden');
+                        };
+                        res.appendChild(d);
+                    });
+                } else { res.innerHTML = '<div class="p-4 text-xs text-center text-slate-400">見つかりませんでした</div>'; res.classList.remove('hidden'); }
+            }
+
+            function renderIconUploads() {
+                const container = getEl('icon-upload-container'); container.innerHTML = '';
+                Array.from(characters).sort().forEach(name => {
+                    const row = document.createElement('div'); row.className = 'group flex items-center gap-4 p-4 border border-slate-200 rounded-2xl bg-white hover:border-blue-400 transition-all shadow-sm';
+                    row.innerHTML = `<div class="portrait-preview-slot" style="${charIcons[name] ? `background-image:url(${charIcons[name]})` : ''}"></div><div class="flex-1 text-sm font-bold text-slate-700">${name}</div><div class="flex items-center gap-2"><span class="text-[10px] text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:inline">画像をD&D</span>${charIcons[name] ? `<button class="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-colors"><i data-lucide="trash-2" size="16"></i></button>` : ''}</div>`;
+                    const delBtn = row.querySelector('button'); if(delBtn) delBtn.onclick = (e) => { e.stopPropagation(); delete charIcons[name]; renderIconUploads(); refreshIcons(); };
+                    row.ondragover = (e) => { e.preventDefault(); row.classList.add('ring-2', 'ring-blue-500', 'bg-blue-50'); };
+                    row.ondragleave = () => { row.classList.remove('ring-2', 'ring-blue-500', 'bg-blue-50'); };
+                    row.ondrop = (e) => { e.preventDefault(); row.classList.remove('ring-2', 'ring-blue-500', 'bg-blue-50'); const file = e.dataTransfer.files[0]; if (file && file.type.startsWith('image/')) startCrop(name, file); };
+                    row.onclick = () => { const input = document.createElement('input'); input.type = 'file'; input.accept = 'image/*'; input.onchange = (e) => { if(e.target.files[0]) startCrop(name, e.target.files[0]); }; input.click(); };
+                    container.appendChild(row);
+                });
+                lucide.createIcons();
+            }
+
+            function startCrop(name, file) {
+                currentCropChar = name; const r = new FileReader();
+                r.onload = (e) => {
+                    const img = new Image(); img.onload = () => {
+                        currentCropImg = img; getEl('crop-modal').classList.remove('hidden');
+                        const canvas = getEl('crop-canvas'); const mw = Math.min(window.innerWidth - 80, 400);
+                        cropState.scale = Math.min(mw/img.width, mw/img.height, 1);
+                        canvas.width = img.width * cropState.scale; canvas.height = img.height * cropState.scale;
+                        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                        cropState.size = Math.min(canvas.width, canvas.height) * 0.8;
+                        cropState.x = (canvas.width - cropState.size) / 2; cropState.y = (canvas.height - cropState.size) / 2;
+                        updateGuide();
+                    }; img.src = e.target.result;
+                }; r.readAsDataURL(file);
+            }
+            function updateGuide() { const g = getEl('crop-guide'); g.style.width = g.style.height = cropState.size + 'px'; g.style.left = cropState.x + 'px'; g.style.top = cropState.y + 'px'; }
+            function startDrag(e) { isDragging = true; dragStart = { x: (e.clientX || e.touches[0].clientX) - cropState.x, y: (e.clientY || e.touches[0].clientY) - cropState.y }; }
+            function doDrag(e) { if(!isDragging) return; const canvas = getEl('crop-canvas'); const cx = e.clientX || e.touches?.[0]?.clientX; const cy = e.clientY || e.touches?.[0]?.clientY; if(!cx) return; cropState.x = Math.max(0, Math.min(cx - dragStart.x, canvas.width - cropState.size)); cropState.y = Math.max(0, Math.min(cy - dragStart.y, canvas.height - cropState.size)); updateGuide(); }
+            function endDrag() { isDragging = false; }
+            function handleWheel(e) { e.preventDefault(); const canvas = getEl('crop-canvas'); const d = e.deltaY > 0 ? -12 : 12; const ns = Math.max(30, Math.min(cropState.size + d, canvas.width, canvas.height)); cropState.x = Math.max(0, Math.min(cropState.x - (ns-cropState.size)/2, canvas.width - ns)); cropState.y = Math.max(0, Math.min(cropState.y - (ns-cropState.size)/2, canvas.height - ns)); cropState.size = ns; updateGuide(); }
+            function applyCrop() { const cv = document.createElement('canvas'); cv.width = cv.height = 256; const s = cropState.scale; cv.getContext('2d').drawImage(currentCropImg, cropState.x/s, cropState.y/s, cropState.size/s, cropState.size/s, 0, 0, 256, 256); charIcons[currentCropChar] = cv.toDataURL('image/png'); getEl('crop-modal').classList.add('hidden'); renderIconUploads(); refreshIcons(); }
+            function refreshIcons() {
+                Array.from(characters).forEach(name => {
+                    const data = charIcons[name]; const safeCharClass = getSafeClassName(name);
+                    document.querySelectorAll(`.${safeCharClass}`).forEach(p => { if(data) { p.style.backgroundImage = `url(${data})`; p.style.display = 'block'; } else { p.style.display = 'none'; } });
+                });
+            }
+            function updateStyle(prop, val, labelId) { if(labelId) getEl(labelId).textContent = val; document.documentElement.style.setProperty(prop, val); }
+            function switchTab(t) {
+                const isVis = t === 'visibility';
+                getEl('tab-visibility').className = isVis ? "flex-1 px-4 py-3 text-sm font-bold border-b-2 border-blue-500 text-blue-600" : "flex-1 px-4 py-3 text-sm font-bold text-slate-400";
+                getEl('tab-icons').className = !isVis ? "flex-1 px-4 py-3 text-sm font-bold border-b-2 border-blue-500 text-blue-600" : "flex-1 px-4 py-3 text-sm font-bold text-slate-400";
+                getEl('char-list-view').classList.toggle('hidden', !isVis); getEl('icon-list-view').classList.toggle('hidden', isVis);
+            }
+            function restore() {
+                try {
+                    const iconRaw = getEl('icon-data-storage').textContent; const locRaw = getEl('loc-data-storage').textContent; const logRaw = getEl('log-data-storage').textContent; const styleRaw = getEl('style-data-storage').textContent; const nameRaw = getEl('source-filename-storage').textContent;
+                    charIcons = JSON.parse(iconRaw || '{}'); allLocations = JSON.parse(locRaw || '[]'); logData = JSON.parse(logRaw || '[]'); sourceFileName = JSON.parse(nameRaw || '"log"');
+                    const styles = JSON.parse(styleRaw || '{}');
+                    if(styles.col) { getEl('col-slider').value = parseInt(styles.col); updateStyle('--column-width', styles.col, 'col-val'); }
+                    if(styles.font) { getEl('font-slider').value = parseInt(styles.font); updateStyle('--base-font-size', styles.font, 'font-val'); }
+                    if(styles.port) { getEl('portrait-slider').value = parseInt(styles.port); updateStyle('--portrait-size', styles.port, 'portrait-val'); }
+                    if(styles.theme) setTheme(styles.theme);
+                    if (logData.length > 0) {
+                        getEl('setup-screen').classList.add('hidden'); getEl('app-title').textContent = sourceFileName; getEl('row-counter').style.display = 'block';
+                        characters.clear(); logData.forEach(d => characters.add(d.char));
+                        renderLayout(); getEl('rows-container').innerHTML = '';
+                        logData.forEach(m => { createRow(m.id, m.loc, m.char, m.color || '#000', m.rawMsg || m.msg, m.style); });
+                        refreshIcons(); setTimeout(updateRowCounter, 300);
+                    }
+                } catch(e) { console.error("Restore failed", e); }
+            }
+            function downloadHTML() {
+                const loading = getEl('loading-overlay');
+                loading.classList.remove('hidden'); loading.classList.add('flex');
+
+                setTimeout(() => {
+                    try {
+                        getEl('icon-data-storage').textContent = JSON.stringify(charIcons); getEl('loc-data-storage').textContent = JSON.stringify(allLocations); getEl('log-data-storage').textContent = JSON.stringify(logData); getEl('source-filename-storage').textContent = JSON.stringify(sourceFileName);
+                        getEl('style-data-storage').textContent = JSON.stringify({ col: getComputedStyle(document.documentElement).getPropertyValue('--column-width').trim(), font: getComputedStyle(document.documentElement).getPropertyValue('--base-font-size').trim(), port: getComputedStyle(document.documentElement).getPropertyValue('--portrait-size').trim(), theme: currentTheme });
+                        
+                        const clone = document.documentElement.cloneNode(true);
+                        clone.querySelector('#settings-panel').classList.remove('active'); clone.querySelector('#filter-container').classList.remove('active');
+                        clone.querySelector('#search-results').innerHTML = ''; clone.querySelector('#search-results').classList.add('hidden');
+                        clone.querySelector('#search-results-mobile').innerHTML = ''; clone.querySelector('#search-results-mobile').classList.add('hidden');
+                        clone.querySelector('#search-input').value = ''; clone.querySelector('#search-input-mobile').value = '';
+                        clone.querySelector('#setup-screen').classList.add('hidden'); clone.querySelector('#exit-demo-btn').style.display = 'none';
+                        clone.querySelector('#home-view').classList.add('hidden'); clone.querySelector('#app-view').classList.remove('hidden');
+                        
+                        // Clean states
+                        clone.querySelector('body').classList.remove('marker-mode-active', 'edit-mode-active', 'text-edit-mode-active');
+                        
+                        // Remove loading overlay from the saved file
+                        const cloneLoading = clone.querySelector('#loading-overlay');
+                        if(cloneLoading) cloneLoading.remove();
+                        
+                        const now = new Date(); const safeDateStr = `${now.getFullYear()}_${String(now.getMonth() + 1).padStart(2, '0')}_${String(now.getDate()).padStart(2, '0')}`;
+                        const fileName = `${sourceFileName}_formatted_${safeDateStr}.html`;
+                        const blob = new Blob(['<!DOCTYPE html>' + clone.outerHTML], { type: 'text/html' });
+                        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = fileName; a.click();
+                        
+                        // Clean up URL object
+                        setTimeout(() => URL.revokeObjectURL(a.href), 100);
+                    } catch(e) {
+                        console.error("Save error:", e);
+                        alert("保存中にエラーが発生しました。\nログサイズが大きすぎる可能性があります。");
+                    } finally {
+                        loading.classList.add('hidden'); loading.classList.remove('flex');
+                    }
+                }, 100);
+            }
+            init();
+        })();
+    </script>
+</body>
+</html>
