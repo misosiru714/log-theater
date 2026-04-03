@@ -768,7 +768,7 @@
             </a>
         </nav>
         <section class="flex-1 flex flex-col items-center justify-center text-center px-4 py-12 md:py-20">
-            <div class="inline-block mb-4 px-4 py-1.5 rounded-full bg-blue-100 text-blue-700 text-sm font-bold tracking-wide">v1.5.0</div>
+            <div class="inline-block mb-4 px-4 py-1.5 rounded-full bg-blue-100 text-blue-700 text-sm font-bold tracking-wide">v1.0.0</div>
             <h1 class="text-4xl md:text-6xl font-extrabold text-slate-900 mb-6 tracking-tight leading-tight">
                 あなたのセッションログを、<br><span style="color: var(--accent-color)">物語</span>として保存しよう。
             </h1>
@@ -915,7 +915,6 @@
             <button id="text-edit-mode-btn" class="jump-btn" title="文字編集モード(クリックして修正)"><i data-lucide="pencil" size="20"></i></button>
             <button id="edit-mode-toggle-btn" class="jump-btn" title="削除モード(行・発言の削除 / タブヘッダーをD&Dで並び替え)"><i data-lucide="trash-2" size="20"></i></button>
             <button id="marker-toggle-btn" class="jump-btn" title="マーカーモード(スタイル変更)"><i data-lucide="highlighter" size="20"></i></button>
-            <button id="undo-btn" class="jump-btn" title="元に戻す（履歴なし）" disabled style="opacity:0.35"><i data-lucide="undo-2" size="20"></i></button>
             
             <div class="w-full h-[1px] bg-slate-200 my-1"></div>
             
@@ -1136,11 +1135,9 @@
             let sourceFileName = "log";
             let currentTheme = "blue";
             let isMarkerMode = false;
-            let isEditMode = false;
-            let isTextEditMode = false;
+            let isEditMode = false;     // This is "Delete Mode"
+            let isTextEditMode = false; // This is "Text Edit Mode"
             let currentEditingId = null;
-            let undoStack = []; // { logData, allLocations } のスナップショット
-            const UNDO_MAX = 10;
 
             const themes = {
                 blue:   { accent: '#3b82f6', bg: '#709cdb' },
@@ -1180,39 +1177,6 @@
                 getEl('app-view').classList.add('hidden');
                 getEl('home-view').classList.remove('hidden');
                 document.body.style.overflow = 'auto';
-            }
-
-            function pushUndo() {
-                undoStack.push({
-                    logData: JSON.parse(JSON.stringify(logData)),
-                    allLocations: [...allLocations]
-                });
-                if (undoStack.length > UNDO_MAX) undoStack.shift();
-                updateUndoBtn();
-            }
-
-            function undo() {
-                if (undoStack.length === 0) return;
-                const snapshot = undoStack.pop();
-                logData = snapshot.logData;
-                allLocations = snapshot.allLocations;
-                characters.clear();
-                logData.forEach(d => characters.add(d.char));
-                renderLayout();
-                getEl('rows-container').innerHTML = '';
-                logData.forEach(m => createRow(m.id, m.loc, m.char, m.color, m.rawMsg, m.style || {}));
-                refreshIcons();
-                updateRowCounter();
-                updateUndoBtn();
-            }
-
-            function updateUndoBtn() {
-                const btn = getEl('undo-btn');
-                if (!btn) return;
-                const has = undoStack.length > 0;
-                btn.disabled = !has;
-                btn.style.opacity = has ? '1' : '0.35';
-                btn.title = has ? `元に戻す（${undoStack.length}件）` : '元に戻す（履歴なし）';
             }
 
             function getSafeClassName(name) {
@@ -1276,7 +1240,6 @@
 
                 getEl('jump-top').onclick = () => getEl('timeline-viewport').scrollTo({ top: 0, behavior: 'smooth' });
                 getEl('jump-bottom').onclick = () => { const vp = getEl('timeline-viewport'); vp.scrollTo({ top: vp.scrollHeight, behavior: 'smooth' }); };
-                getEl('undo-btn').onclick = undo;
                 
                 getEl('marker-toggle-btn').onclick = toggleMarkerMode;
                 getEl('edit-mode-toggle-btn').onclick = toggleEditMode;
@@ -1408,8 +1371,7 @@
             }
 
             function deleteColumn(loc) {
-                if (!confirm(`「${loc}」カラムと、そこに含まれるすべての発言を削除しますか？`)) return;
-                pushUndo();
+                if (!confirm(`「${loc}」カラムと、そこに含まれるすべての発言を削除しますか？\nこの操作は元に戻せません。`)) return;
                 logData = logData.filter(d => d.loc !== loc);
                 allLocations = allLocations.filter(l => l !== loc);
                 renderLayout();
@@ -1420,7 +1382,6 @@
 
             function deleteMessage(id) {
                 if (!confirm('この発言を削除しますか？')) return;
-                pushUndo();
                 logData = logData.filter(d => d.id !== id);
                 getEl('rows-container').innerHTML = ''; 
                 logData.forEach(m => { createRow(m.id, m.loc, m.char, m.color, m.rawMsg, m.style); });
