@@ -1966,10 +1966,19 @@
                 buildPrintLayout(mainLocs, subLocs);
                 closePdfModal();
 
+                // HTMLと同じ命名規則でdocument.titleを一時的に書き換え
+                // Chrome系はdocument.titleをPDFデフォルトファイル名に使う
+                const now = new Date();
+                const safeDateStr = `${now.getFullYear()}_${String(now.getMonth()+1).padStart(2,'0')}_${String(now.getDate()).padStart(2,'0')}`;
+                const pdfName = `${sourceFileName}_formatted_${safeDateStr}`;
+                const prevTitle = document.title;
+                document.title = pdfName;
+
                 setTimeout(() => {
                     window.print();
-                    // 印刷後にprint-layoutを削除
+                    // 印刷ダイアログを閉じた後にtitleとlayoutを戻す
                     setTimeout(() => {
+                        document.title = prevTitle;
                         const pl = getEl('print-layout');
                         if (pl) pl.remove();
                     }, 1000);
