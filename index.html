@@ -1208,6 +1208,14 @@
                     </div>
                     <input type="range" id="portrait-slider" min="30" max="150" value="50" class="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer">
                 </div>
+                <div>
+                    <label class="flex items-center justify-between py-1 cursor-pointer">
+                        <span class="text-xs font-bold text-slate-700">立ち絵を表示</span>
+                        <div id="portrait-toggle" class="relative w-10 h-5 rounded-full bg-blue-500 transition-colors cursor-pointer">
+                            <div class="absolute top-0.5 right-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform"></div>
+                        </div>
+                    </label>
+                </div>
             </div>
             <div class="mt-6 pt-4 border-t flex flex-col gap-2">
                 <label class="flex items-center justify-between py-2 cursor-pointer">
@@ -1256,6 +1264,7 @@
             let undoStack = [];
             const UNDO_MAX = 10;
             let showEditButtons = true;
+            let showPortraits = true;
 
             const themes = {
                 blue:   { accent: '#3b82f6', bg: '#709cdb' },
@@ -1313,6 +1322,17 @@
                     toggle.style.backgroundColor = '#cbd5e1';
                     toggle.querySelector('div').style.transform = 'translateX(-20px)';
                 }
+            }
+
+            function applyPortraitVisibility() {
+                const toggle = getEl('portrait-toggle');
+                if (showPortraits) {
+                    refreshIcons(); // アイコンデータを再適用して表示
+                } else {
+                    document.querySelectorAll('.char-portrait').forEach(p => { p.style.display = 'none'; });
+                }
+                toggle.style.backgroundColor = showPortraits ? '#3b82f6' : '#cbd5e1';
+                toggle.querySelector('div').style.transform = showPortraits ? 'translateX(0)' : 'translateX(-20px)';
             }
 
             function pushUndo() {
@@ -1481,6 +1501,12 @@
                 getEl('edit-btn-toggle').onclick = () => {
                     showEditButtons = !showEditButtons;
                     applyEditButtonVisibility();
+                };
+
+                // 立ち絵表示トグル
+                getEl('portrait-toggle').onclick = () => {
+                    showPortraits = !showPortraits;
+                    applyPortraitVisibility();
                 };
                 getEl('reset-btn').onclick = () => { if(confirm("初期化してもよろしいですか？")) { clearStorage(); location.reload(); } };
                 getEl('tab-visibility').onclick = () => switchTab('visibility');
@@ -2186,7 +2212,10 @@
             function refreshIcons() {
                 Array.from(characters).forEach(name => {
                     const data = charIcons[name]; const safeCharClass = getSafeClassName(name);
-                    document.querySelectorAll(`.${safeCharClass}`).forEach(p => { if(data) { p.style.backgroundImage = `url(${data})`; p.style.display = 'block'; } else { p.style.display = 'none'; } });
+                    document.querySelectorAll(`.${safeCharClass}`).forEach(p => {
+                        if (data && showPortraits) { p.style.backgroundImage = `url(${data})`; p.style.display = 'block'; }
+                        else { p.style.display = 'none'; }
+                    });
                 });
             }
             function updateStyle(prop, val, labelId) { if(labelId) getEl(labelId).textContent = val; document.documentElement.style.setProperty(prop, val); }
