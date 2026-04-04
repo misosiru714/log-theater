@@ -875,14 +875,14 @@
                             <i data-lucide="columns" size="24"></i>
                         </div>
                         <h3 class="text-xl font-bold text-slate-800 mb-3">マルチカラム表示</h3>
-                        <p class="text-slate-500 leading-relaxed">メイン、雑談、情報を並列表示。会話の流れを一目で追えます。</p>
+                        <p class="text-slate-500 leading-relaxed">メイン・雑談・情報を並列表示。メイン→情報→雑談の順で自動整列。カラムの並び替え・追加・名前変更も自由にできます。</p>
                     </div>
                     <div class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100">
                         <div class="w-12 h-12 bg-pink-100 text-pink-600 rounded-xl flex items-center justify-center mb-6">
                             <i data-lucide="image" size="24"></i>
                         </div>
                         <h3 class="text-xl font-bold text-slate-800 mb-3">立ち絵設定</h3>
-                        <p class="text-slate-500 leading-relaxed">D&Dで簡単設定。画像はHTML内に保存できます。</p>
+                        <p class="text-slate-500 leading-relaxed">D&Dで簡単設定・トリミング対応。画像はHTML内にbase64で保存されるので、ファイルひとつで完結します。</p>
                     </div>
                     <div class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100">
                         <div class="w-12 h-12 bg-green-100 text-green-600 rounded-xl flex items-center justify-center mb-6">
@@ -895,22 +895,43 @@
                         <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center mb-6">
                             <i data-lucide="edit" size="24"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-slate-800 mb-3">編集機能</h3>
-                        <p class="text-slate-500 leading-relaxed">コメントを編集したり、太字にしたり、フォントを変えたりできます。<br>コメントやタブを削除もできるよ。</p>
+                        <h3 class="text-xl font-bold text-slate-800 mb-3">豊富な編集機能</h3>
+                        <p class="text-slate-500 leading-relaxed">テキスト修正・削除・マーカー装飾・カラム間のコメント移動に対応。操作はUndo（最大10回）で元に戻せます。</p>
                     </div>
                     <div class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100 shadow-sm">
                         <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center mb-6">
-                            <i data-lucide="eye" size="24"></i>
+                            <i data-lucide="dice-6" size="24"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-slate-800 mb-3">表示非表示</h3>
-                        <p class="text-slate-500 leading-relaxed">発言者ごと、タブごとに表示非表示できるよ。</p>
+                        <h3 class="text-xl font-bold text-slate-800 mb-3">BCDiceダイス強調</h3>
+                        <p class="text-slate-500 leading-relaxed">BCDiceのロール結果を自動検出し、成功・失敗・クリティカル・ファンブルなどを色付きバッジで強調表示。</p>
                     </div>
                     <div class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100 shadow-sm">
                         <div class="w-12 h-12 bg-teal-100 text-teal-600 rounded-xl flex items-center justify-center mb-6">
                             <i data-lucide="save" size="24"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-slate-800 mb-3">保存機能</h3>
-                        <p class="text-slate-500 leading-relaxed">色々と整えたログをHTMLファイルとして保存できるよ。</p>
+                        <h3 class="text-xl font-bold text-slate-800 mb-3">保存・再読み込み</h3>
+                        <p class="text-slate-500 leading-relaxed">整形済みHTMLを保存。次回はそのファイルを読み込むだけで最新バージョンで編集を再開できます。</p>
+                    </div>
+                    <div class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100 shadow-sm">
+                        <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center mb-6">
+                            <i data-lucide="printer" size="24"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-800 mb-3">PDF出力</h3>
+                        <p class="text-slate-500 leading-relaxed">カラムをメイン・サブに振り分けて2カラムPDFとして出力。立ち絵アイコン付き、テーマカラーも反映されます。</p>
+                    </div>
+                    <div class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100 shadow-sm">
+                        <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-xl flex items-center justify-center mb-6">
+                            <i data-lucide="eye" size="24"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-800 mb-3">表示カスタマイズ</h3>
+                        <p class="text-slate-500 leading-relaxed">発言者・タブごとの表示切替、テーマカラー・文字サイズ・立ち絵サイズの調整。編集ボタンの表示/非表示も設定できます。</p>
+                    </div>
+                    <div class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100 shadow-sm">
+                        <div class="w-12 h-12 bg-slate-100 text-slate-600 rounded-xl flex items-center justify-center mb-6">
+                            <i data-lucide="shield" size="24"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-800 mb-3">完全ローカル処理</h3>
+                        <p class="text-slate-500 leading-relaxed">読み込んだログはすべてブラウザ内で処理。外部サーバーへの送信はなく、大切なセッションの記録を安全に扱えます。</p>
                     </div>
                 </div>
             </div>
@@ -987,7 +1008,7 @@
         <div id="jump-controls">
             <button id="text-edit-mode-btn" class="jump-btn" title="文字編集モード(クリックして修正)"><i data-lucide="pencil" size="20"></i></button>
             <button id="edit-mode-toggle-btn" class="jump-btn" title="削除モード(発言・カラムの削除)"><i data-lucide="trash-2" size="20"></i></button>
-            <button id="move-mode-btn" class="jump-btn" title="並び替えモード(カラム追加・並び替え・コメント移動)"><i data-lucide="arrows-up-down" size="20"></i></button>
+            <button id="move-mode-btn" class="jump-btn" title="構造編集モード(カラム追加・並び替え・コメント移動)"><i data-lucide="layout-grid" size="20"></i></button>
             <button id="marker-toggle-btn" class="jump-btn" title="マーカーモード(スタイル変更)"><i data-lucide="highlighter" size="20"></i></button>
             <button id="undo-btn" class="jump-btn" title="元に戻す（履歴なし）" disabled style="opacity:0.35"><i data-lucide="undo-2" size="20"></i></button>
             
@@ -1184,6 +1205,12 @@
                 </div>
             </div>
             <div class="mt-6 pt-4 border-t flex flex-col gap-2">
+                <label class="flex items-center justify-between py-2 cursor-pointer">
+                    <span class="text-xs font-bold text-slate-700">編集ボタンを表示</span>
+                    <div id="edit-btn-toggle" class="relative w-10 h-5 rounded-full bg-blue-500 transition-colors cursor-pointer">
+                        <div class="absolute top-0.5 right-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform"></div>
+                    </div>
+                </label>
                 <button id="download-btn" class="btn-primary w-full flex items-center justify-center gap-2"><i data-lucide="download" size="14"></i> HTMLとして保存</button>
                 <button id="pdf-btn" class="w-full flex items-center justify-center gap-2 py-2 px-4 rounded-xl border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50 transition-colors"><i data-lucide="printer" size="14"></i> PDF出力</button>
                 <button id="reset-btn" class="text-[10px] text-slate-400 hover:text-red-500 transition-colors py-2">ログをリセットする</button>
@@ -1223,6 +1250,7 @@
             let draggingBubbleId = null;
             let undoStack = [];
             const UNDO_MAX = 10;
+            let showEditButtons = true;
 
             const themes = {
                 blue:   { accent: '#3b82f6', bg: '#709cdb' },
@@ -1262,6 +1290,25 @@
                 getEl('app-view').classList.add('hidden');
                 getEl('home-view').classList.remove('hidden');
                 document.body.style.overflow = 'auto';
+            }
+
+            function applyEditButtonVisibility() {
+                const toggle = getEl('edit-btn-toggle');
+                const controls = getEl('jump-controls');
+                if (showEditButtons) {
+                    controls.style.display = '';
+                    toggle.style.backgroundColor = '#3b82f6';
+                    toggle.querySelector('div').style.transform = 'translateX(0)';
+                } else {
+                    // モードをすべてオフに
+                    if (isEditMode) toggleEditMode();
+                    if (isTextEditMode) toggleTextEditMode();
+                    if (isMoveMode) toggleMoveMode();
+                    if (isMarkerMode) toggleMarkerMode();
+                    controls.style.display = 'none';
+                    toggle.style.backgroundColor = '#cbd5e1';
+                    toggle.querySelector('div').style.transform = 'translateX(-20px)';
+                }
             }
 
             function pushUndo() {
@@ -1425,6 +1472,12 @@
                 getEl('exec-pdf-btn').onclick = executePrint;
                 getEl('download-btn').onclick = downloadHTML;
                 getEl('pdf-btn').onclick = openPdfModal;
+
+                // 編集ボタン表示トグル
+                getEl('edit-btn-toggle').onclick = () => {
+                    showEditButtons = !showEditButtons;
+                    applyEditButtonVisibility();
+                };
                 getEl('reset-btn').onclick = () => { if(confirm("初期化してもよろしいですか？")) { clearStorage(); location.reload(); } };
                 getEl('tab-visibility').onclick = () => switchTab('visibility');
                 getEl('tab-icons').onclick = () => switchTab('icons');
@@ -1504,6 +1557,10 @@
                 getEl('move-mode-btn').classList.toggle('active', isMoveMode);
                 document.body.classList.toggle('move-mode-active', isMoveMode);
                 if (!isMoveMode) hideMoveMenu();
+                // バブルのdraggableをモードに合わせて切り替え
+                document.querySelectorAll('.bubble').forEach(b => {
+                    b.setAttribute('draggable', isMoveMode ? 'true' : 'false');
+                });
             }
 
             function showMoveMenu(e, id) {
@@ -1843,17 +1900,22 @@
 
                     // 並び替えモード: バブルのドロップ先としてcellを設定
                     cell.addEventListener('dragover', (e) => {
-                        if (!isMoveMode || !draggingBubbleId) return;
+                        if (!isMoveMode || draggingBubbleId === null) return;
                         const dragData = logData.find(d => d.id === draggingBubbleId);
                         if (!dragData || dragData.loc === l) return;
                         e.preventDefault();
+                        e.dataTransfer.dropEffect = 'move';
                         cell.classList.add('drop-target-cell');
                     });
-                    cell.addEventListener('dragleave', () => cell.classList.remove('drop-target-cell'));
+                    cell.addEventListener('dragleave', (e) => {
+                        if (!cell.contains(e.relatedTarget)) {
+                            cell.classList.remove('drop-target-cell');
+                        }
+                    });
                     cell.addEventListener('drop', (e) => {
                         e.preventDefault();
                         cell.classList.remove('drop-target-cell');
-                        if (!isMoveMode || !draggingBubbleId) return;
+                        if (!isMoveMode || draggingBubbleId === null) return;
                         moveMessage(draggingBubbleId, l);
                         draggingBubbleId = null;
                     });
@@ -1865,17 +1927,18 @@
                         const delBtn = cell.querySelector('.delete-msg-btn');
                         if (delBtn) delBtn.onclick = (e) => { e.stopPropagation(); deleteMessage(idx); };
 
-                        // 並び替えモード: バブルをドラッグ可能に
-                        bubble.setAttribute('draggable', true);
+                        // 並び替えモード: バブルをドラッグ可能に（モードオン時のみdraggable=true）
+                        bubble.setAttribute('draggable', isMoveMode ? 'true' : 'false');
                         bubble.addEventListener('dragstart', (e) => {
-                            if (!isMoveMode) { e.preventDefault(); return; }
                             draggingBubbleId = idx;
                             setTimeout(() => bubble.classList.add('dragging-bubble'), 0);
                             e.dataTransfer.effectAllowed = 'move';
+                            e.dataTransfer.setData('text/plain', String(idx));
                         });
                         bubble.addEventListener('dragend', () => {
                             bubble.classList.remove('dragging-bubble');
                             draggingBubbleId = null;
+                            document.querySelectorAll('.drop-target-cell').forEach(c => c.classList.remove('drop-target-cell'));
                         });
 
                         if(style.bg) { bubble.style.backgroundColor = style.bg; bubble.style.borderColor = '#fbbf24'; }
@@ -2356,7 +2419,10 @@
                         clone.querySelector('#home-view').classList.add('hidden'); clone.querySelector('#app-view').classList.remove('hidden');
                         
                         // Clean states
-                        clone.querySelector('body').classList.remove('marker-mode-active', 'edit-mode-active', 'text-edit-mode-active');
+                        clone.querySelector('body').classList.remove('marker-mode-active', 'edit-mode-active', 'text-edit-mode-active', 'move-mode-active');
+                        // 保存HTMLでは編集ボタンをデフォルト非表示
+                        const cloneControls = clone.querySelector('#jump-controls');
+                        if (cloneControls) cloneControls.style.display = 'none';
                         
                         // Remove loading overlay from the saved file
                         const cloneLoading = clone.querySelector('#loading-overlay');
