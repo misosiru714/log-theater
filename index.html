@@ -535,15 +535,89 @@
         @media (max-width: 640px) { .mobile-nav { display: flex; align-items: center; justify-content: space-around; } }
         .font-maru { font-family: 'Zen Maru Gothic', sans-serif; }
 
-        /* カラムD&Dソート */
+        /* カラムD&Dソート・並び替えモード */
         .column-header.dragging { opacity: 0.4; }
         .column-header.drag-over {
-            outline: 2px dashed #3b82f6;
+            outline: 2px dashed #f59e0b;
             outline-offset: -2px;
-            background: rgba(219, 234, 254, 0.8);
+            background: rgba(254, 243, 199, 0.9);
         }
-        body.edit-mode-active .column-header { cursor: grab; }
-        body.edit-mode-active .column-header:active { cursor: grabbing; }
+        body.move-mode-active .column-header { cursor: grab; }
+        body.move-mode-active .column-header:active { cursor: grabbing; }
+        body.move-mode-active .column-header span:hover {
+            text-decoration: underline dotted;
+            cursor: text;
+        }
+
+        /* 並び替えモード */
+        body.move-mode-active .timeline-viewport {
+            border: 4px solid #f59e0b;
+        }
+        body.move-mode-active .jump-btn:not(#move-mode-btn) { opacity: 0.5; pointer-events: none; }
+        body.move-mode-active #move-mode-btn { opacity: 1; pointer-events: auto; background-color: #fef3c7; color: #d97706; border-color: #f59e0b; }
+
+        /* バブルドラッグ（並び替えモード） */
+        body.move-mode-active .bubble { cursor: grab; }
+        body.move-mode-active .bubble:active { cursor: grabbing; }
+        body.move-mode-active .bubble:hover {
+            box-shadow: 0 0 0 2px #f59e0b;
+            transform: translateY(-1px);
+        }
+        body.move-mode-active .bubble.dragging-bubble {
+            opacity: 0.4;
+        }
+        /* バブルのドロップ先カラム */
+        body.move-mode-active .timeline-cell.drop-target-cell {
+            background: rgba(254, 243, 199, 0.5);
+            outline: 2px dashed #f59e0b;
+            outline-offset: -2px;
+            border-radius: 8px;
+        }
+
+        /* コメント移動メニュー */
+        #move-menu {
+            display: none;
+            position: fixed;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            z-index: 200;
+            padding: 8px;
+            min-width: 160px;
+        }
+        .move-menu-item {
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            color: #334155;
+            transition: background 0.15s;
+        }
+        .move-menu-item:hover { background: #fef3c7; color: #d97706; }
+        .move-menu-item.current { opacity: 0.4; pointer-events: none; }
+
+        /* カラム追加ボタン */
+        .add-col-btn {
+            flex: 0 0 auto;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 100%;
+            background: rgba(255,255,255,0.5);
+            border-radius: 12px 12px 0 0;
+            border: 2px dashed rgba(255,255,255,0.7);
+            cursor: pointer;
+            color: rgba(255,255,255,0.9);
+            font-size: 20px;
+            font-weight: 300;
+            transition: all 0.2s;
+            backdrop-filter: blur(4px);
+        }
+        .add-col-btn:hover { background: rgba(255,255,255,0.8); color: #f59e0b; border-color: #f59e0b; }
+        body.move-mode-active .add-col-btn { display: flex; }
 
         /* ===== PDF / 印刷レイアウト ===== */
         @media print {
@@ -911,9 +985,9 @@
         <div id="row-counter">0 / 0</div>
 
         <div id="jump-controls">
-            <!-- 編集モード系ボタンを整理 -->
             <button id="text-edit-mode-btn" class="jump-btn" title="文字編集モード(クリックして修正)"><i data-lucide="pencil" size="20"></i></button>
-            <button id="edit-mode-toggle-btn" class="jump-btn" title="削除モード(行・発言の削除 / タブヘッダーをD&Dで並び替え)"><i data-lucide="trash-2" size="20"></i></button>
+            <button id="edit-mode-toggle-btn" class="jump-btn" title="削除モード(発言・カラムの削除)"><i data-lucide="trash-2" size="20"></i></button>
+            <button id="move-mode-btn" class="jump-btn" title="並び替えモード(カラム追加・並び替え・コメント移動)"><i data-lucide="arrows-up-down" size="20"></i></button>
             <button id="marker-toggle-btn" class="jump-btn" title="マーカーモード(スタイル変更)"><i data-lucide="highlighter" size="20"></i></button>
             <button id="undo-btn" class="jump-btn" title="元に戻す（履歴なし）" disabled style="opacity:0.35"><i data-lucide="undo-2" size="20"></i></button>
             
@@ -921,6 +995,12 @@
             
             <button id="jump-top" class="jump-btn" title="一番上へ"><i data-lucide="arrow-up" size="20"></i></button>
             <button id="jump-bottom" class="jump-btn" title="一番下へ"><i data-lucide="arrow-down" size="20"></i></button>
+        </div>
+
+        <!-- コメント移動メニュー -->
+        <div id="move-menu">
+            <div class="text-[10px] font-bold text-slate-400 px-2 pb-1 mb-1 border-b border-slate-100">移動先カラム</div>
+            <div id="move-menu-items"></div>
         </div>
 
         <div id="style-context-menu">
@@ -1138,8 +1218,10 @@
             let isMarkerMode = false;
             let isEditMode = false;
             let isTextEditMode = false;
+            let isMoveMode = false;
             let currentEditingId = null;
-            let undoStack = []; // { logData, allLocations } のスナップショット
+            let draggingBubbleId = null;
+            let undoStack = [];
             const UNDO_MAX = 10;
 
             const themes = {
@@ -1277,6 +1359,7 @@
                 getEl('jump-top').onclick = () => getEl('timeline-viewport').scrollTo({ top: 0, behavior: 'smooth' });
                 getEl('jump-bottom').onclick = () => { const vp = getEl('timeline-viewport'); vp.scrollTo({ top: vp.scrollHeight, behavior: 'smooth' }); };
                 getEl('undo-btn').onclick = undo;
+                getEl('move-mode-btn').onclick = toggleMoveMode;
                 
                 getEl('marker-toggle-btn').onclick = toggleMarkerMode;
                 getEl('edit-mode-toggle-btn').onclick = toggleEditMode;
@@ -1351,15 +1434,18 @@
                 document.addEventListener('click', (e) => {
                     const panel = getEl('settings-panel');
                     const ctxMenu = getEl('style-context-menu');
+                    const moveMenu = getEl('move-menu');
                     
                     if (panel && !panel.contains(e.target) && !e.target.closest('button')) { panel.classList.remove('active'); }
                     if (getEl('search-wrapper') && !e.target.closest('#search-wrapper') && !e.target.closest('#search-input-mobile')) {
                         getEl('search-results').classList.add('hidden');
                         getEl('search-results-mobile').classList.add('hidden');
                     }
-                    // Close context menu if clicked outside
                     if (ctxMenu && ctxMenu.style.display === 'flex' && !ctxMenu.contains(e.target) && !e.target.classList.contains('bubble')) {
                         hideContextMenu();
+                    }
+                    if (moveMenu && moveMenu.style.display === 'block' && !moveMenu.contains(e.target) && !e.target.classList.contains('bubble')) {
+                        hideMoveMenu();
                     }
                 });
             }
@@ -1385,6 +1471,7 @@
             function toggleMarkerMode() {
                 if (isEditMode) toggleEditMode();
                 if (isTextEditMode) toggleTextEditMode();
+                if (isMoveMode) toggleMoveMode();
                 isMarkerMode = !isMarkerMode;
                 getEl('marker-toggle-btn').classList.toggle('active', isMarkerMode);
                 document.body.classList.toggle('marker-mode-active', isMarkerMode);
@@ -1394,6 +1481,7 @@
             function toggleEditMode() {
                 if (isMarkerMode) toggleMarkerMode();
                 if (isTextEditMode) toggleTextEditMode();
+                if (isMoveMode) toggleMoveMode();
                 isEditMode = !isEditMode;
                 getEl('edit-mode-toggle-btn').classList.toggle('active', isEditMode);
                 document.body.classList.toggle('edit-mode-active', isEditMode);
@@ -1402,9 +1490,74 @@
             function toggleTextEditMode() {
                 if (isMarkerMode) toggleMarkerMode();
                 if (isEditMode) toggleEditMode();
+                if (isMoveMode) toggleMoveMode();
                 isTextEditMode = !isTextEditMode;
                 getEl('text-edit-mode-btn').classList.toggle('active', isTextEditMode);
                 document.body.classList.toggle('text-edit-mode-active', isTextEditMode);
+            }
+
+            function toggleMoveMode() {
+                if (isMarkerMode) toggleMarkerMode();
+                if (isEditMode) toggleEditMode();
+                if (isTextEditMode) toggleTextEditMode();
+                isMoveMode = !isMoveMode;
+                getEl('move-mode-btn').classList.toggle('active', isMoveMode);
+                document.body.classList.toggle('move-mode-active', isMoveMode);
+                if (!isMoveMode) hideMoveMenu();
+            }
+
+            function showMoveMenu(e, id) {
+                e.stopPropagation();
+                const data = logData.find(d => d.id === id);
+                if (!data) return;
+                const menu = getEl('move-menu');
+                const items = getEl('move-menu-items');
+                items.innerHTML = '';
+                allLocations.forEach(loc => {
+                    const item = document.createElement('div');
+                    item.className = 'move-menu-item' + (loc === data.loc ? ' current' : '');
+                    item.textContent = loc === data.loc ? `${loc}（現在）` : loc;
+                    item.onclick = () => { moveMessage(id, loc); hideMoveMenu(); };
+                    items.appendChild(item);
+                });
+                menu.style.display = 'block';
+                const rect = e.target.closest('.bubble').getBoundingClientRect();
+                let top = rect.bottom + 6;
+                let left = rect.left;
+                if (left + 170 > window.innerWidth) left = window.innerWidth - 180;
+                if (top + 200 > window.innerHeight) top = rect.top - 210;
+                menu.style.top = top + 'px';
+                menu.style.left = left + 'px';
+            }
+
+            function hideMoveMenu() {
+                getEl('move-menu').style.display = 'none';
+            }
+
+            function moveMessage(id, newLoc) {
+                pushUndo();
+                const idx = logData.findIndex(d => d.id === id);
+                if (idx === -1) return;
+                logData[idx].loc = newLoc;
+                getEl('rows-container').innerHTML = '';
+                logData.forEach(m => createRow(m.id, m.loc, m.char, m.color, m.rawMsg, m.style || {}));
+                updateRowCounter();
+            }
+
+            function addColumn() {
+                const name = prompt('新しいカラム名を入力してください：');
+                if (!name || !name.trim()) return;
+                const trimmed = name.trim();
+                if (allLocations.includes(trimmed)) {
+                    alert(`「${trimmed}」はすでに存在します。`);
+                    return;
+                }
+                pushUndo();
+                allLocations.push(trimmed);
+                renderLayout();
+                getEl('rows-container').innerHTML = '';
+                logData.forEach(m => createRow(m.id, m.loc, m.char, m.color, m.rawMsg, m.style || {}));
+                updateRowCounter();
             }
 
             function deleteColumn(loc) {
@@ -1430,6 +1583,12 @@
             function handleBubbleClick(e, id) {
                 e.stopPropagation();
                 
+                // 0. MOVE MODE
+                if (isMoveMode) {
+                    showMoveMenu(e, id);
+                    return;
+                }
+
                 // 1. MARKER MODE
                 if (isMarkerMode) {
                     currentEditingId = id;
@@ -1677,18 +1836,48 @@
                 row.className = 'timeline-row'; row.id = `row-${idx}`; row.setAttribute('data-char', char); row.setAttribute('data-loc', loc);
                 const safeCharClass = getSafeClassName(char);
 
-                // ダイスロール行を強調整形
                 const displayMsg = formatDiceLines(msg);
 
                 allLocations.forEach((l, lIdx) => {
                     const cell = document.createElement('div'); cell.className = `timeline-cell col-idx-${lIdx}`;
+
+                    // 並び替えモード: バブルのドロップ先としてcellを設定
+                    cell.addEventListener('dragover', (e) => {
+                        if (!isMoveMode || !draggingBubbleId) return;
+                        const dragData = logData.find(d => d.id === draggingBubbleId);
+                        if (!dragData || dragData.loc === l) return;
+                        e.preventDefault();
+                        cell.classList.add('drop-target-cell');
+                    });
+                    cell.addEventListener('dragleave', () => cell.classList.remove('drop-target-cell'));
+                    cell.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        cell.classList.remove('drop-target-cell');
+                        if (!isMoveMode || !draggingBubbleId) return;
+                        moveMessage(draggingBubbleId, l);
+                        draggingBubbleId = null;
+                    });
+
                     if (l === loc) {
                         cell.innerHTML = `<div class="msg-container"><div class="char-portrait ${safeCharClass}"></div><div class="msg-content-wrapper"><div class="msg-info"><span class="char-name-bg" style="border-left: 3px solid ${color}"><span class="char-name" data-name="${char}" style="color:${color}">${char}</span></span></div><div class="bubble" data-id="${idx}">${displayMsg}<div class="delete-msg-btn"><i data-lucide="x" size="14"></i></div></div></div>`;
                         const bubble = cell.querySelector('.bubble');
                         bubble.onclick = (e) => handleBubbleClick(e, idx);
                         const delBtn = cell.querySelector('.delete-msg-btn');
                         if (delBtn) delBtn.onclick = (e) => { e.stopPropagation(); deleteMessage(idx); };
-                        
+
+                        // 並び替えモード: バブルをドラッグ可能に
+                        bubble.setAttribute('draggable', true);
+                        bubble.addEventListener('dragstart', (e) => {
+                            if (!isMoveMode) { e.preventDefault(); return; }
+                            draggingBubbleId = idx;
+                            setTimeout(() => bubble.classList.add('dragging-bubble'), 0);
+                            e.dataTransfer.effectAllowed = 'move';
+                        });
+                        bubble.addEventListener('dragend', () => {
+                            bubble.classList.remove('dragging-bubble');
+                            draggingBubbleId = null;
+                        });
+
                         if(style.bg) { bubble.style.backgroundColor = style.bg; bubble.style.borderColor = '#fbbf24'; }
                         if(style.bold) bubble.classList.add('font-bold');
                         if(style.serif) bubble.classList.add('font-serif');
@@ -1719,28 +1908,70 @@
                 let dragSrcLoc = null;
                 allLocations.forEach((loc, idx) => {
                     const h = document.createElement('div'); h.className = `column-header col-idx-${idx}`;
-                    h.innerHTML = `<span>${loc}</span><div class="delete-col-btn" title="この列を削除"><i data-lucide="trash-2" size="12"></i></div>`;
-                    const delColBtn = h.querySelector('.delete-col-btn');
-                    if(delColBtn) delColBtn.onclick = (e) => { e.stopPropagation(); deleteColumn(loc); };
+                    
+                    // タブ名表示 + 並び替えモード中はクリックで編集可能
+                    const nameSpan = document.createElement('span');
+                    nameSpan.textContent = loc;
+                    nameSpan.style.cursor = 'default';
+                    nameSpan.onclick = (e) => {
+                        if (!isMoveMode) return;
+                        e.stopPropagation();
+                        // インライン編集
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.value = loc;
+                        input.style.cssText = 'width:100%;border:none;outline:none;background:transparent;font:inherit;text-align:center;color:inherit;';
+                        nameSpan.replaceWith(input);
+                        input.focus();
+                        input.select();
+                        const commit = () => {
+                            const newName = input.value.trim();
+                            if (newName && newName !== loc && !allLocations.includes(newName)) {
+                                pushUndo();
+                                // allLocationsとlogData両方を更新
+                                const locIdx = allLocations.indexOf(loc);
+                                if (locIdx !== -1) allLocations[locIdx] = newName;
+                                logData.forEach(d => { if (d.loc === loc) d.loc = newName; });
+                                renderLayout();
+                                getEl('rows-container').innerHTML = '';
+                                logData.forEach(m => createRow(m.id, m.loc, m.char, m.color, m.rawMsg, m.style || {}));
+                                updateRowCounter();
+                            } else {
+                                input.replaceWith(nameSpan);
+                            }
+                        };
+                        input.onblur = commit;
+                        input.onkeydown = (e) => { if (e.key === 'Enter') input.blur(); if (e.key === 'Escape') { input.value = loc; input.blur(); } };
+                    };
+                    h.appendChild(nameSpan);
 
-                    // カラムD&Dソート（削除モード中のみ有効）
+                    const delColBtn = document.createElement('div');
+                    delColBtn.className = 'delete-col-btn';
+                    delColBtn.title = 'この列を削除';
+                    delColBtn.innerHTML = '<i data-lucide="trash-2" size="12"></i>';
+                    delColBtn.onclick = (e) => { e.stopPropagation(); deleteColumn(loc); };
+                    h.appendChild(delColBtn);
+
+                    // カラムD&Dソート（並び替えモード中のみ有効）
                     h.setAttribute('draggable', true);
                     h.addEventListener('dragstart', (e) => {
-                        if (!isEditMode) { e.preventDefault(); return; }
+                        if (!isMoveMode) { e.preventDefault(); return; }
                         dragSrcLoc = loc;
                         setTimeout(() => h.classList.add('dragging'), 0);
                         e.dataTransfer.effectAllowed = 'move';
                     });
                     h.addEventListener('dragend', () => h.classList.remove('dragging'));
                     h.addEventListener('dragover', (e) => {
-                        if (!isEditMode || dragSrcLoc === loc) return;
+                        if (!isMoveMode || dragSrcLoc === loc || draggingBubbleId) return;
                         e.preventDefault(); e.dataTransfer.dropEffect = 'move';
                         h.classList.add('drag-over');
                     });
                     h.addEventListener('dragleave', () => h.classList.remove('drag-over'));
                     h.addEventListener('drop', (e) => {
                         e.preventDefault(); h.classList.remove('drag-over');
-                        if (!isEditMode || dragSrcLoc === loc || !dragSrcLoc) return;
+                        if (draggingBubbleId) return; // バブルD&Dの場合はcell側で処理
+                        if (!isMoveMode || dragSrcLoc === loc || !dragSrcLoc) return;
+                        pushUndo();
                         const fromIdx = allLocations.indexOf(dragSrcLoc);
                         const toIdx = allLocations.indexOf(loc);
                         if (fromIdx === -1 || toIdx === -1) return;
@@ -1751,6 +1982,14 @@
                         getEl('rows-container').innerHTML = '';
                         logData.forEach(m => createRow(m.id, m.loc, m.char, m.color, m.rawMsg, m.style));
                         refreshIcons(); updateRowCounter();
+                    });
+
+                    // 並び替えモード: バブルのドロップ先としてもヘッダーを使う
+                    h.addEventListener('drop', (e) => {
+                        e.preventDefault(); h.classList.remove('drag-over');
+                        if (!isMoveMode || !draggingBubbleId) return;
+                        moveMessage(draggingBubbleId, loc);
+                        draggingBubbleId = null;
                     });
 
                     getEl('sticky-header').appendChild(h);
@@ -1764,6 +2003,15 @@
                     };
                     getEl('filter-container').appendChild(chip);
                 });
+
+                // カラム追加ボタン（並び替えモード中に表示）
+                const addBtn = document.createElement('div');
+                addBtn.className = 'add-col-btn';
+                addBtn.title = '新しいカラムを追加';
+                addBtn.innerHTML = '+';
+                addBtn.onclick = addColumn;
+                getEl('sticky-header').appendChild(addBtn);
+
                 renderCharList();
                 lucide.createIcons();
             }
