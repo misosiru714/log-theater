@@ -1006,14 +1006,14 @@
         <div id="row-counter">0 / 0</div>
 
         <div id="jump-controls">
-            <button id="text-edit-mode-btn" class="jump-btn" title="文字編集モード(クリックして修正)"><i data-lucide="pencil" size="20"></i></button>
-            <button id="edit-mode-toggle-btn" class="jump-btn" title="削除モード(発言・カラムの削除)"><i data-lucide="trash-2" size="20"></i></button>
-            <button id="move-mode-btn" class="jump-btn" title="構造編集モード(カラム追加・並び替え・コメント移動)"><i data-lucide="layout-grid" size="20"></i></button>
-            <button id="marker-toggle-btn" class="jump-btn" title="マーカーモード(スタイル変更)"><i data-lucide="highlighter" size="20"></i></button>
-            <button id="undo-btn" class="jump-btn" title="元に戻す（履歴なし）" disabled style="opacity:0.35"><i data-lucide="undo-2" size="20"></i></button>
-            
-            <div class="w-full h-[1px] bg-slate-200 my-1"></div>
-            
+            <div id="edit-btn-group">
+                <button id="text-edit-mode-btn" class="jump-btn" title="文字編集モード(クリックして修正)"><i data-lucide="pencil" size="20"></i></button>
+                <button id="edit-mode-toggle-btn" class="jump-btn" title="削除モード(発言・カラムの削除)"><i data-lucide="trash-2" size="20"></i></button>
+                <button id="move-mode-btn" class="jump-btn" title="構造編集モード(カラム追加・並び替え・コメント移動)"><i data-lucide="layout-grid" size="20"></i></button>
+                <button id="marker-toggle-btn" class="jump-btn" title="マーカーモード(スタイル変更)"><i data-lucide="highlighter" size="20"></i></button>
+                <button id="undo-btn" class="jump-btn" title="元に戻す（履歴なし）" disabled style="opacity:0.35"><i data-lucide="undo-2" size="20"></i></button>
+                <div class="w-full h-[1px] bg-slate-200 my-1"></div>
+            </div>
             <button id="jump-top" class="jump-btn" title="一番上へ"><i data-lucide="arrow-up" size="20"></i></button>
             <button id="jump-bottom" class="jump-btn" title="一番下へ"><i data-lucide="arrow-down" size="20"></i></button>
         </div>
@@ -1294,18 +1294,17 @@
 
             function applyEditButtonVisibility() {
                 const toggle = getEl('edit-btn-toggle');
-                const controls = getEl('jump-controls');
+                const group = getEl('edit-btn-group');
                 if (showEditButtons) {
-                    controls.style.display = '';
+                    group.style.display = '';
                     toggle.style.backgroundColor = '#3b82f6';
                     toggle.querySelector('div').style.transform = 'translateX(0)';
                 } else {
-                    // モードをすべてオフに
                     if (isEditMode) toggleEditMode();
                     if (isTextEditMode) toggleTextEditMode();
                     if (isMoveMode) toggleMoveMode();
                     if (isMarkerMode) toggleMarkerMode();
-                    controls.style.display = 'none';
+                    group.style.display = 'none';
                     toggle.style.backgroundColor = '#cbd5e1';
                     toggle.querySelector('div').style.transform = 'translateX(-20px)';
                 }
@@ -1598,6 +1597,7 @@
                 logData[idx].loc = newLoc;
                 getEl('rows-container').innerHTML = '';
                 logData.forEach(m => createRow(m.id, m.loc, m.char, m.color, m.rawMsg, m.style || {}));
+                refreshIcons();
                 updateRowCounter();
             }
 
@@ -2421,8 +2421,8 @@
                         // Clean states
                         clone.querySelector('body').classList.remove('marker-mode-active', 'edit-mode-active', 'text-edit-mode-active', 'move-mode-active');
                         // 保存HTMLでは編集ボタンをデフォルト非表示
-                        const cloneControls = clone.querySelector('#jump-controls');
-                        if (cloneControls) cloneControls.style.display = 'none';
+                        const cloneEditGroup = clone.querySelector('#edit-btn-group');
+                        if (cloneEditGroup) cloneEditGroup.style.display = 'none';
                         
                         // Remove loading overlay from the saved file
                         const cloneLoading = clone.querySelector('#loading-overlay');
