@@ -10,6 +10,8 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Noto+Sans+JP:wght@400;700&family=Noto+Serif+JP:wght@600&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&family=Shippori+Mincho:wght@600&family=Kaisei+Decol:wght@700&family=DotGothic16&family=Share+Tech+Mono&family=Reggae+One&family=Hina+Mincho&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&family=Shippori+Mincho:wght@400;700&family=Kaisei+Decol:wght@700&family=DotGothic16&family=Share+Tech+Mono&family=Reggae+One&family=Hina+Mincho&display=swap" rel="stylesheet">
     <!-- Googleサーチコンソールのやつ -->
     <meta name="google-site-verification" content="A-MsHaV-U_3kqIUQR-8TpkHUv1BRzIGn5moQYGhgxXo" />
     <meta name="google-site-verification" content="onYm72m2wJ7I9a5E1fzAzchwSgsL39zruGnTiFzWkvc" />
@@ -174,8 +176,18 @@
             z-index: 10;
         }
         body.marker-mode-active .bubble:active { transform: translateY(0); }
-        .bubble.font-serif { font-family: 'Noto Serif JP', serif; }
-        .bubble.font-bold { font-weight: 700; }
+        .bubble.font-serif   { font-family: 'Noto Serif JP', serif; }
+        .bubble.font-maru    { font-family: 'Zen Maru Gothic', sans-serif; }
+        .bubble.font-rounded { font-family: 'M PLUS Rounded 1c', sans-serif; }
+        .bubble.font-shippori{ font-family: 'Shippori Mincho', serif; }
+        .bubble.font-kaisei  { font-family: 'Kaisei Decol', serif; font-weight: 700; }
+        .bubble.font-dot     { font-family: 'DotGothic16', sans-serif; }
+        .bubble.font-mono    { font-family: 'Share Tech Mono', monospace; letter-spacing: 0.05em; }
+        .bubble.font-reggae  { font-family: 'Reggae One', cursive; }
+        .bubble.font-hina    { font-family: 'Hina Mincho', serif; }
+
+        .ctx-font-btn.active { background: #dbeafe; color: #2563eb; font-weight: 700; }
+        .ctx-color-custom { cursor: pointer; }
 
         /* Edit Mode Styles (Deletion) */
         body.edit-mode-active .timeline-viewport {
@@ -474,7 +486,7 @@
             border-radius: 12px;
             padding: 12px;
             box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15);
-            width: 220px;
+            width: 240px;
             display: none;
             flex-direction: column;
             gap: 10px;
@@ -484,8 +496,8 @@
 
         .ctx-color-grid {
             display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 6px;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
         }
         .ctx-color-btn {
             width: 24px;
@@ -494,9 +506,18 @@
             cursor: pointer;
             border: 1px solid rgba(0,0,0,0.1);
             transition: transform 0.1s;
+            position: relative;
         }
         .ctx-color-btn:hover { transform: scale(1.2); }
         .ctx-color-btn.selected { border: 2px solid #3b82f6; }
+        #ctx-font-list { max-height: 150px; overflow-y: auto; }
+        .ctx-font-btn {
+            display: block; width: 100%; text-align: left;
+            padding: 4px 8px; border-radius: 6px; font-size: 11px;
+            cursor: pointer; transition: background 0.1s; color: #334155;
+        }
+        .ctx-font-btn:hover { background: #f1f5f9; }
+        .ctx-font-btn.active { background: #dbeafe; color: #2563eb; font-weight: 700; }
         .ctx-btn-group { display: flex; gap: 4px; }
         .ctx-style-btn {
             flex: 1; padding: 4px 0; text-align: center; border: 1px solid #e2e8f0; border-radius: 6px;
@@ -504,7 +525,6 @@
         }
         .ctx-style-btn:hover { background: #f8fafc; }
         .ctx-style-btn.active { background: #eff6ff; color: #3b82f6; border-color: #3b82f6; }
-
         .portrait-preview-slot {
             width: 44px; height: 44px; border-radius: 6px; background-color: #f1f5f9; background-size: cover; background-position: center;
         }
@@ -1043,13 +1063,31 @@
                     <div class="ctx-color-btn" style="background:#dbeafe" data-val="#dbeafe"></div>
                     <div class="ctx-color-btn" style="background:#dcfce7" data-val="#dcfce7"></div>
                     <div class="ctx-color-btn" style="background:#f3e8ff" data-val="#f3e8ff"></div>
+                    <!-- カスタムカラーピッカー -->
+                    <div class="ctx-color-btn ctx-color-custom" title="カスタムカラー" style="background: conic-gradient(red,yellow,lime,cyan,blue,magenta,red); border:1px solid #cbd5e1; position:relative; overflow:hidden;">
+                        <input type="color" id="ctx-custom-color" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;" title="カスタムカラーを選択">
+                    </div>
                 </div>
             </div>
             <div class="mt-2">
-                <span class="text-[10px] font-bold text-slate-400 block mb-1">フォント・強調</span>
+                <span class="text-[10px] font-bold text-slate-400 block mb-1">フォント</span>
+                <div id="ctx-font-list" class="flex flex-col gap-1 max-h-40 overflow-y-auto pr-1">
+                    <button class="ctx-font-btn text-left px-2 py-1 rounded text-xs hover:bg-slate-100 transition-colors" data-font="" style="font-family:'Noto Sans JP',sans-serif">標準ゴシック</button>
+                    <button class="ctx-font-btn text-left px-2 py-1 rounded text-xs hover:bg-slate-100 transition-colors" data-font="serif" style="font-family:'Noto Serif JP',serif">明朝体</button>
+                    <button class="ctx-font-btn text-left px-2 py-1 rounded text-xs hover:bg-slate-100 transition-colors" data-font="maru" style="font-family:'Zen Maru Gothic',sans-serif">丸ゴシック</button>
+                    <button class="ctx-font-btn text-left px-2 py-1 rounded text-xs hover:bg-slate-100 transition-colors" data-font="rounded" style="font-family:'M PLUS Rounded 1c',sans-serif">やわらか丸ゴシック</button>
+                    <button class="ctx-font-btn text-left px-2 py-1 rounded text-xs hover:bg-slate-100 transition-colors" data-font="shippori" style="font-family:'Shippori Mincho',serif">しっぽり明朝（上品）</button>
+                    <button class="ctx-font-btn text-left px-2 py-1 rounded text-xs hover:bg-slate-100 transition-colors" data-font="kaisei" style="font-family:'Kaisei Decol',serif">重厚明朝（低い声）</button>
+                    <button class="ctx-font-btn text-left px-2 py-1 rounded text-xs hover:bg-slate-100 transition-colors" data-font="dot" style="font-family:'DotGothic16',sans-serif">ドットゴシック（無骨）</button>
+                    <button class="ctx-font-btn text-left px-2 py-1 rounded text-xs hover:bg-slate-100 transition-colors" data-font="mono" style="font-family:'Share Tech Mono',monospace">機械音声</button>
+                    <button class="ctx-font-btn text-left px-2 py-1 rounded text-xs hover:bg-slate-100 transition-colors" data-font="reggae" style="font-family:'Reggae One',cursive">ホラー（狂気）</button>
+                    <button class="ctx-font-btn text-left px-2 py-1 rounded text-xs hover:bg-slate-100 transition-colors" data-font="hina" style="font-family:'Hina Mincho',serif">ホラー（不穏）</button>
+                </div>
+            </div>
+            <div class="mt-2">
+                <span class="text-[10px] font-bold text-slate-400 block mb-1">強調</span>
                 <div class="ctx-btn-group">
                     <button class="ctx-style-btn" data-type="bold">B 太字</button>
-                    <button class="ctx-style-btn" data-type="serif">明朝体</button>
                 </div>
             </div>
             <div class="pt-1 border-t mt-2">
@@ -1067,6 +1105,7 @@
                 <div class="flex border-b bg-white">
                     <button id="tab-visibility" class="flex-1 px-4 py-3 text-sm font-bold border-b-2 border-blue-500 text-blue-600">表示切替</button>
                     <button id="tab-icons" class="flex-1 px-4 py-3 text-sm font-bold text-slate-400">立ち絵・画像管理</button>
+                    <button id="tab-char-style" class="flex-1 px-4 py-3 text-sm font-bold text-slate-400">スタイル設定</button>
                 </div>
                 <div id="char-list-view" class="overflow-y-auto p-6 flex-1 bg-slate-50">
                     <div class="flex gap-3 mb-6">
@@ -1077,6 +1116,10 @@
                 </div>
                 <div id="icon-list-view" class="overflow-y-auto p-6 flex-1 hidden bg-slate-50">
                     <div id="icon-upload-container" class="space-y-3"></div>
+                </div>
+                <div id="char-style-view" class="overflow-y-auto p-6 flex-1 hidden bg-slate-50">
+                    <p class="text-xs text-slate-500 mb-4">キャラクターごとにデフォルトのスタイルを設定します。設定後「反映する」を押すと全発言に一括適用されます。</p>
+                    <div id="char-style-container" class="space-y-3"></div>
                 </div>
                 <div class="p-5 border-t bg-white flex justify-end">
                     <button id="close-char-modal-btn" class="btn-primary w-full sm:w-auto px-10">設定を反映する</button>
@@ -1265,6 +1308,7 @@
             const UNDO_MAX = 10;
             let showEditButtons = true;
             let showPortraits = true;
+            let charStyles = {}; // { charName: { font, bold, bg } }
 
             const themes = {
                 blue:   { accent: '#3b82f6', bg: '#709cdb' },
@@ -1440,13 +1484,38 @@
 
                 // Color pickers in Context Menu
                 document.querySelectorAll('.ctx-color-btn').forEach(btn => {
-                    btn.onclick = (e) => applyBubbleStyle('bg', e.target.dataset.val);
+                    btn.onclick = (e) => {
+                        if (e.currentTarget.dataset.val === 'custom') return; // カラーピッカーで処理
+                        applyBubbleStyle('bg', e.currentTarget.dataset.val);
+                    };
+                });
+
+                // カスタムカラーピッカー
+                getEl('ctx-custom-color').oninput = (e) => {
+                    applyBubbleStyle('bg', e.target.value);
+                };
+
+                // Font buttons in Context Menu
+                document.querySelectorAll('.ctx-font-btn').forEach(btn => {
+                    btn.onclick = () => applyBubbleStyle('font', btn.dataset.font);
                 });
                 
                 // Style toggles in Context Menu
                 document.querySelectorAll('.ctx-style-btn').forEach(btn => {
                     btn.onclick = (e) => applyBubbleStyle(e.target.dataset.type, null);
                 });
+
+                // フォントボタン
+                document.querySelectorAll('.ctx-font-btn').forEach(btn => {
+                    btn.onclick = () => applyBubbleStyle('font', btn.dataset.font);
+                });
+
+                // カスタムカラーピッカー
+                getEl('ctx-custom-color').oninput = (e) => {
+                    applyBubbleStyle('bg', e.target.value);
+                };
+
+                getEl('tab-char-style').onclick = () => switchTab('char-style');
 
                 document.querySelectorAll('.color-option').forEach(el => {
                     el.onclick = () => setTheme(el.dataset.color);
@@ -1474,7 +1543,7 @@
                 getEl('mb-nav-char').addEventListener('click', openCharModal);
 
                 getEl('close-char-modal').onclick = () => getEl('char-modal').classList.add('hidden');
-                getEl('close-char-modal-btn').onclick = () => getEl('char-modal').classList.add('hidden');
+                getEl('close-char-modal-btn').onclick = () => { applyCharStyles(); getEl('char-modal').classList.add('hidden'); };
 
                 getEl('col-slider').oninput = (e) => updateStyle('--column-width', e.target.value + 'px', 'col-val');
                 getEl('font-slider').oninput = (e) => updateStyle('--base-font-size', e.target.value + 'px', 'font-val');
@@ -1729,7 +1798,6 @@
             function showContextMenu(targetElement) {
                 const menu = getEl('style-context-menu');
                 const rect = targetElement.getBoundingClientRect();
-                const viewport = getEl('timeline-viewport').getBoundingClientRect();
                 
                 const logItem = logData.find(d => d.id === currentEditingId);
                 const currentStyle = logItem && logItem.style ? logItem.style : {};
@@ -1738,7 +1806,11 @@
                     btn.classList.toggle('selected', btn.dataset.val === (currentStyle.bg || ''));
                 });
                 document.querySelector('.ctx-style-btn[data-type="bold"]').classList.toggle('active', !!currentStyle.bold);
-                document.querySelector('.ctx-style-btn[data-type="serif"]').classList.toggle('active', !!currentStyle.serif);
+
+                // フォントボタンの状態反映
+                document.querySelectorAll('.ctx-font-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.font === (currentStyle.font || ''));
+                });
 
                 menu.style.display = 'flex';
                 let top = rect.top + window.scrollY;
@@ -1748,8 +1820,8 @@
                     left = rect.left;
                     top = rect.bottom + 10;
                 }
-                if (top + 200 > window.innerHeight) {
-                    top = rect.top - 200;
+                if (top + 300 > window.innerHeight) {
+                    top = Math.max(10, window.innerHeight - 320);
                 }
                 menu.style.top = top + 'px';
                 menu.style.left = left + 'px';
@@ -1764,7 +1836,6 @@
                 if (currentEditingId === null) return;
                 const index = logData.findIndex(d => d.id === currentEditingId);
                 if (index === -1) return;
-
                 if (!logData[index].style) logData[index].style = {};
 
                 if (type === 'bg') {
@@ -1775,9 +1846,11 @@
                 } else if (type === 'bold') {
                     logData[index].style.bold = !logData[index].style.bold;
                     document.querySelector('.ctx-style-btn[data-type="bold"]').classList.toggle('active', logData[index].style.bold);
-                } else if (type === 'serif') {
-                    logData[index].style.serif = !logData[index].style.serif;
-                    document.querySelector('.ctx-style-btn[data-type="serif"]').classList.toggle('active', logData[index].style.serif);
+                } else if (type === 'font') {
+                    logData[index].style.font = value;
+                    document.querySelectorAll('.ctx-font-btn').forEach(btn => {
+                        btn.classList.toggle('active', btn.dataset.font === value);
+                    });
                 }
                 updateBubbleDOM(currentEditingId, logData[index].style);
             }
@@ -1792,9 +1865,17 @@
                 hideContextMenu();
             }
 
+            const FONT_CLASSES = ['font-serif','font-maru','font-rounded','font-shippori','font-kaisei','font-dot','font-mono','font-reggae','font-hina'];
+            const FONT_MAP = {
+                'serif': 'font-serif', 'maru': 'font-maru', 'rounded': 'font-rounded',
+                'shippori': 'font-shippori', 'kaisei': 'font-kaisei', 'dot': 'font-dot',
+                'mono': 'font-mono', 'reggae': 'font-reggae', 'hina': 'font-hina'
+            };
+
             function updateBubbleDOM(id, style) {
                 const bubble = document.querySelector(`.bubble[data-id="${id}"]`);
                 if (!bubble) return;
+                // 背景色
                 if (style.bg) {
                     bubble.style.backgroundColor = style.bg;
                     bubble.style.borderColor = '#fbbf24';
@@ -1802,8 +1883,13 @@
                     bubble.style.backgroundColor = '';
                     bubble.style.borderColor = '';
                 }
+                // 太字
                 bubble.classList.toggle('font-bold', !!style.bold);
-                bubble.classList.toggle('font-serif', !!style.serif);
+                // フォント（既存クラスをすべて外してから付け直す）
+                FONT_CLASSES.forEach(c => bubble.classList.remove(c));
+                if (style.font && FONT_MAP[style.font]) {
+                    bubble.classList.add(FONT_MAP[style.font]);
+                }
             }
 
             function loadDemo() {
@@ -1974,7 +2060,7 @@
 
                         if(style.bg) { bubble.style.backgroundColor = style.bg; bubble.style.borderColor = '#fbbf24'; }
                         if(style.bold) bubble.classList.add('font-bold');
-                        if(style.serif) bubble.classList.add('font-serif');
+                        if(style.font && FONT_MAP[style.font]) bubble.classList.add(FONT_MAP[style.font]);
                     }
                     row.appendChild(cell);
                 });
@@ -2110,6 +2196,84 @@
                 lucide.createIcons();
             }
 
+            function renderCharStyleList() {
+                const container = getEl('char-style-container');
+                container.innerHTML = '';
+                const fontOptions = [
+                    { val: '', label: '標準' },
+                    { val: 'serif', label: '明朝体' },
+                    { val: 'maru', label: '丸ゴシック' },
+                    { val: 'rounded', label: 'やわらか丸ゴシック' },
+                    { val: 'shippori', label: 'しっぽり明朝' },
+                    { val: 'kaisei', label: '重厚明朝' },
+                    { val: 'dot', label: 'ドットゴシック' },
+                    { val: 'mono', label: '機械音声' },
+                    { val: 'reggae', label: 'ホラー（狂気）' },
+                    { val: 'hina', label: 'ホラー（不穏）' },
+                ];
+                Array.from(characters).sort().forEach(name => {
+                    const cs = charStyles[name] || {};
+                    const row = document.createElement('div');
+                    row.className = 'bg-white border border-slate-200 rounded-xl p-4 space-y-3';
+                    row.innerHTML = `
+                        <div class="font-bold text-sm text-slate-700">${name}</div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs text-slate-500 w-16 shrink-0">フォント</span>
+                            <select class="char-font-select flex-1 text-xs border border-slate-200 rounded-lg px-2 py-1.5 bg-white" data-char="${name}">
+                                ${fontOptions.map(f => `<option value="${f.val}" ${cs.font === f.val ? 'selected' : ''}>${f.label}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs text-slate-500 w-16 shrink-0">背景色</span>
+                            <div class="flex gap-1 flex-wrap">
+                                ${['','#fef9c3','#fee2e2','#dbeafe','#dcfce7','#f3e8ff'].map(c =>
+                                    `<div class="char-bg-btn w-5 h-5 rounded cursor-pointer border ${cs.bg === c ? 'ring-2 ring-blue-500' : 'border-slate-300'}" style="background:${c || '#fff'}" data-char="${name}" data-val="${c}"></div>`
+                                ).join('')}
+                                <div class="w-5 h-5 rounded cursor-pointer border border-slate-300 overflow-hidden relative" style="background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red)" title="カスタム">
+                                    <input type="color" class="char-bg-custom absolute inset-0 opacity-0 cursor-pointer w-full h-full" data-char="${name}" value="${cs.bg && cs.bg.startsWith('#') && cs.bg.length === 7 ? cs.bg : '#ffffff'}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs text-slate-500 w-16 shrink-0">太字</span>
+                            <input type="checkbox" class="char-bold-cb w-4 h-4" data-char="${name}" ${cs.bold ? 'checked' : ''}>
+                        </div>`;
+                    container.appendChild(row);
+                });
+
+                // イベント設定
+                container.querySelectorAll('.char-font-select').forEach(sel => {
+                    sel.onchange = () => { if (!charStyles[sel.dataset.char]) charStyles[sel.dataset.char] = {}; charStyles[sel.dataset.char].font = sel.value; };
+                });
+                container.querySelectorAll('.char-bg-btn').forEach(btn => {
+                    btn.onclick = () => {
+                        if (!charStyles[btn.dataset.char]) charStyles[btn.dataset.char] = {};
+                        charStyles[btn.dataset.char].bg = btn.dataset.val;
+                        renderCharStyleList();
+                    };
+                });
+                container.querySelectorAll('.char-bg-custom').forEach(inp => {
+                    inp.oninput = () => { if (!charStyles[inp.dataset.char]) charStyles[inp.dataset.char] = {}; charStyles[inp.dataset.char].bg = inp.value; };
+                });
+                container.querySelectorAll('.char-bold-cb').forEach(cb => {
+                    cb.onchange = () => { if (!charStyles[cb.dataset.char]) charStyles[cb.dataset.char] = {}; charStyles[cb.dataset.char].bold = cb.checked; };
+                });
+            }
+
+            function applyCharStyles() {
+                logData.forEach((d, i) => {
+                    const cs = charStyles[d.char];
+                    if (!cs) return;
+                    if (!logData[i].style) logData[i].style = {};
+                    if (cs.font !== undefined) logData[i].style.font = cs.font;
+                    if (cs.bg !== undefined) logData[i].style.bg = cs.bg;
+                    if (cs.bold !== undefined) logData[i].style.bold = cs.bold;
+                });
+                getEl('rows-container').innerHTML = '';
+                logData.forEach(m => createRow(m.id, m.loc, m.char, m.color, m.rawMsg, m.style || {}));
+                refreshIcons(); updateRowCounter();
+            }
+
             function renderCharList() {
                 const container = getEl('char-checkbox-container'); container.innerHTML = '';
                 Array.from(characters).sort().forEach(name => {
@@ -2220,10 +2384,17 @@
             }
             function updateStyle(prop, val, labelId) { if(labelId) getEl(labelId).textContent = val; document.documentElement.style.setProperty(prop, val); }
             function switchTab(t) {
-                const isVis = t === 'visibility';
-                getEl('tab-visibility').className = isVis ? "flex-1 px-4 py-3 text-sm font-bold border-b-2 border-blue-500 text-blue-600" : "flex-1 px-4 py-3 text-sm font-bold text-slate-400";
-                getEl('tab-icons').className = !isVis ? "flex-1 px-4 py-3 text-sm font-bold border-b-2 border-blue-500 text-blue-600" : "flex-1 px-4 py-3 text-sm font-bold text-slate-400";
-                getEl('char-list-view').classList.toggle('hidden', !isVis); getEl('icon-list-view').classList.toggle('hidden', isVis);
+                const tabs = { 'visibility': 'tab-visibility', 'icons': 'tab-icons', 'char-style': 'tab-char-style' };
+                const views = { 'visibility': 'char-list-view', 'icons': 'icon-list-view', 'char-style': 'char-style-view' };
+                Object.keys(tabs).forEach(key => {
+                    const isActive = key === t;
+                    getEl(tabs[key]).className = isActive
+                        ? 'flex-1 px-4 py-3 text-sm font-bold border-b-2 border-blue-500 text-blue-600'
+                        : 'flex-1 px-4 py-3 text-sm font-bold text-slate-400';
+                    getEl(views[key]).classList.toggle('hidden', !isActive);
+                });
+                if (t === 'icons') renderIconUploads();
+                if (t === 'char-style') renderCharStyleList();
             }
             function restore() {
                 try {
