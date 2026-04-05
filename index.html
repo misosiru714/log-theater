@@ -1286,6 +1286,7 @@
     <script id="log-data-storage" type="application/json">[]</script>
     <script id="style-data-storage" type="application/json">{"col":"350px","font":"14px","port":"50px","theme":"blue"}</script>
     <script id="source-filename-storage" type="application/json">""</script>
+    <script id="char-styles-storage" type="application/json">{}</script>
 
     <script>
         (function() {
@@ -1937,26 +1938,25 @@
             }
 
             function parseFromStorage(doc) {
-                // 整形済みHTMLのstorage要素からデータを復元し、最新ツールで再レンダリング
-                const iconRaw  = doc.getElementById('icon-data-storage')?.textContent || '{}';
-                const locRaw   = doc.getElementById('loc-data-storage')?.textContent  || '[]';
-                const logRaw   = doc.getElementById('log-data-storage')?.textContent  || '[]';
-                const styleRaw = doc.getElementById('style-data-storage')?.textContent || '{}';
-                const nameRaw  = doc.getElementById('source-filename-storage')?.textContent || '"log"';
+                const iconRaw       = doc.getElementById('icon-data-storage')?.textContent || '{}';
+                const locRaw        = doc.getElementById('loc-data-storage')?.textContent  || '[]';
+                const logRaw        = doc.getElementById('log-data-storage')?.textContent  || '[]';
+                const styleRaw      = doc.getElementById('style-data-storage')?.textContent || '{}';
+                const nameRaw       = doc.getElementById('source-filename-storage')?.textContent || '"log"';
+                const charStylesRaw = doc.getElementById('char-styles-storage')?.textContent || '{}';
 
-                charIcons     = JSON.parse(iconRaw);
-                allLocations  = JSON.parse(locRaw);
-                logData       = JSON.parse(logRaw);
+                charIcons      = JSON.parse(iconRaw);
+                allLocations   = JSON.parse(locRaw);
+                logData        = JSON.parse(logRaw);
                 sourceFileName = JSON.parse(nameRaw);
+                charStyles     = JSON.parse(charStylesRaw);
 
-                // スタイル設定も引き継ぐ
                 const styles = JSON.parse(styleRaw);
-                if (styles.col)   { getEl('col-slider').value = parseInt(styles.col);     updateStyle('--column-width',   styles.col,  'col-val'); }
-                if (styles.font)  { getEl('font-slider').value = parseInt(styles.font);   updateStyle('--base-font-size', styles.font, 'font-val'); }
+                if (styles.col)   { getEl('col-slider').value = parseInt(styles.col);       updateStyle('--column-width',   styles.col,  'col-val'); }
+                if (styles.font)  { getEl('font-slider').value = parseInt(styles.font);     updateStyle('--base-font-size', styles.font, 'font-val'); }
                 if (styles.port)  { getEl('portrait-slider').value = parseInt(styles.port); updateStyle('--portrait-size', styles.port, 'portrait-val'); }
                 if (styles.theme) setTheme(styles.theme);
 
-                // 最新ツールのコードで再レンダリング
                 characters.clear();
                 logData.forEach(d => characters.add(d.char));
                 renderLayout();
@@ -2398,12 +2398,23 @@
             }
             function restore() {
                 try {
-                    const iconRaw = getEl('icon-data-storage').textContent; const locRaw = getEl('loc-data-storage').textContent; const logRaw = getEl('log-data-storage').textContent; const styleRaw = getEl('style-data-storage').textContent; const nameRaw = getEl('source-filename-storage').textContent;
-                    charIcons = JSON.parse(iconRaw || '{}'); allLocations = JSON.parse(locRaw || '[]'); logData = JSON.parse(logRaw || '[]'); sourceFileName = JSON.parse(nameRaw || '"log"');
+                    const iconRaw       = getEl('icon-data-storage').textContent;
+                    const locRaw        = getEl('loc-data-storage').textContent;
+                    const logRaw        = getEl('log-data-storage').textContent;
+                    const styleRaw      = getEl('style-data-storage').textContent;
+                    const nameRaw       = getEl('source-filename-storage').textContent;
+                    const charStylesRaw = getEl('char-styles-storage').textContent;
+
+                    charIcons      = JSON.parse(iconRaw || '{}');
+                    allLocations   = JSON.parse(locRaw  || '[]');
+                    logData        = JSON.parse(logRaw  || '[]');
+                    sourceFileName = JSON.parse(nameRaw || '"log"');
+                    charStyles     = JSON.parse(charStylesRaw || '{}');
+
                     const styles = JSON.parse(styleRaw || '{}');
-                    if(styles.col) { getEl('col-slider').value = parseInt(styles.col); updateStyle('--column-width', styles.col, 'col-val'); }
-                    if(styles.font) { getEl('font-slider').value = parseInt(styles.font); updateStyle('--base-font-size', styles.font, 'font-val'); }
-                    if(styles.port) { getEl('portrait-slider').value = parseInt(styles.port); updateStyle('--portrait-size', styles.port, 'portrait-val'); }
+                    if(styles.col)   { getEl('col-slider').value = parseInt(styles.col);       updateStyle('--column-width',   styles.col,  'col-val'); }
+                    if(styles.font)  { getEl('font-slider').value = parseInt(styles.font);     updateStyle('--base-font-size', styles.font, 'font-val'); }
+                    if(styles.port)  { getEl('portrait-slider').value = parseInt(styles.port); updateStyle('--portrait-size', styles.port, 'portrait-val'); }
                     if(styles.theme) setTheme(styles.theme);
                     if (logData.length > 0) {
                         getEl('setup-screen').classList.add('hidden'); getEl('app-title').textContent = sourceFileName; getEl('row-counter').style.display = 'block';
@@ -2614,6 +2625,7 @@
                     try {
                         getEl('icon-data-storage').textContent = JSON.stringify(charIcons); getEl('loc-data-storage').textContent = JSON.stringify(allLocations); getEl('log-data-storage').textContent = JSON.stringify(logData); getEl('source-filename-storage').textContent = JSON.stringify(sourceFileName);
                         getEl('style-data-storage').textContent = JSON.stringify({ col: getComputedStyle(document.documentElement).getPropertyValue('--column-width').trim(), font: getComputedStyle(document.documentElement).getPropertyValue('--base-font-size').trim(), port: getComputedStyle(document.documentElement).getPropertyValue('--portrait-size').trim(), theme: currentTheme });
+                        getEl('char-styles-storage').textContent = JSON.stringify(charStyles);
                         
                         const clone = document.documentElement.cloneNode(true);
                         clone.querySelector('#settings-panel').classList.remove('active'); clone.querySelector('#filter-container').classList.remove('active');
