@@ -998,7 +998,7 @@
             </a>
         </nav>
         <section class="flex-1 flex flex-col items-center justify-center text-center px-4 py-12 md:py-20">
-            <div class="inline-block mb-4 px-4 py-1.5 rounded-full bg-blue-100 text-blue-700 text-sm font-bold tracking-wide">v1.5.0</div>
+            <div class="inline-block mb-4 px-4 py-1.5 rounded-full bg-blue-100 text-blue-700 text-sm font-bold tracking-wide">v1.6.0</div>
             <h1 class="text-4xl md:text-6xl font-extrabold text-slate-900 mb-6 tracking-tight leading-tight">
                 あなたのセッションログを、<br><span style="color: var(--accent-color)">物語</span>として保存しよう。
             </h1>
@@ -1081,6 +1081,13 @@
                         </div>
                         <h3 class="text-xl font-bold text-slate-800 mb-3">表示カスタマイズ</h3>
                         <p class="text-slate-500 leading-relaxed">発言者・タブごとの表示切替、テーマカラー・文字サイズ・立ち絵サイズの調整。編集ボタンの表示/非表示も設定できます。</p>
+                    </div>
+                    <div class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100 shadow-sm">
+                        <div class="w-12 h-12 bg-yellow-100 text-yellow-600 rounded-xl flex items-center justify-center mb-6">
+                            <i data-lucide="bookmark" size="24"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-800 mb-3">栞機能</h3>
+                        <p class="text-slate-500 leading-relaxed">読んでいる途中に栞を複数挟める。クリックでその場所へジャンプ。ラベルも編集可能で、保存HTMLにも引き継がれます。</p>
                     </div>
                     <div class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100 shadow-sm">
                         <div class="w-12 h-12 bg-slate-100 text-slate-600 rounded-xl flex items-center justify-center mb-6">
@@ -1589,6 +1596,7 @@
                 bookmarks.push(bm);
                 renderBookmarks();
                 addBookmarkFlagToRow(rowId);
+                saveBookmarksToStorage();
             }
 
             function renderBookmarks() {
@@ -1626,6 +1634,7 @@
                         label.contentEditable = 'false';
                         bm.label = label.textContent.trim() || bm.label;
                         label.title = bm.label + '（ダブルクリックで編集）';
+                        saveBookmarksToStorage();
                     };
                     label.onkeydown = (e) => {
                         if (e.key === 'Enter') { e.preventDefault(); label.blur(); }
@@ -1666,6 +1675,7 @@
                 if (bm) removeBookmarkFlagFromRow(bm.rowId);
                 bookmarks = bookmarks.filter(b => b.id !== bmId);
                 renderBookmarks();
+                saveBookmarksToStorage();
             }
 
             function jumpToBookmark(bm) {
@@ -1718,10 +1728,34 @@
                 }
             }
 
+            function getBookmarkStorageKey() {
+                // ファイルごとに分離するキー（sourceFileNameベース）
+                return 'logtheater_bookmarks_' + sourceFileName;
+            }
+
             function restoreBookmarks(savedBookmarks) {
-                bookmarks = savedBookmarks || [];
+                // localStorageを優先、なければ引数（scriptタグからの初期値）を使う
+                try {
+                    const lsRaw = localStorage.getItem(getBookmarkStorageKey());
+                    if (lsRaw !== null) {
+                        bookmarks = JSON.parse(lsRaw) || [];
+                    } else {
+                        bookmarks = savedBookmarks || [];
+                    }
+                } catch(e) {
+                    bookmarks = savedBookmarks || [];
+                }
                 bookmarks.forEach(bm => addBookmarkFlagToRow(bm.rowId));
                 renderBookmarks();
+            }
+
+            function saveBookmarksToStorage() {
+                // localStorageに保存（リロード時も復元される）
+                try {
+                    localStorage.setItem(getBookmarkStorageKey(), JSON.stringify(bookmarks));
+                } catch(e) {
+                    console.warn('localStorage への栞保存に失敗:', e);
+                }
             }
 
             function getSafeClassName(name) {
