@@ -822,6 +822,137 @@
         .badge-fumble    { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
         .badge-special   { background: #ede9fe; color: #6d28d9; }
         .badge-neutral   { background: #e0f2fe; color: #0369a1; }
+
+        /* ===== 栞（ブックマーク）機能 ===== */
+        #bookmark-panel {
+            position: fixed;
+            bottom: 80px;
+            right: 80px;
+            width: 280px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            box-shadow: 0 20px 30px -10px rgba(0,0,0,0.15);
+            z-index: 90;
+            overflow: hidden;
+            display: none;
+            flex-direction: column;
+            animation: fadeIn 0.2s ease-out;
+        }
+        #bookmark-panel.open { display: flex; }
+        .bookmark-panel-header {
+            padding: 12px 14px;
+            background: #fefce8;
+            border-bottom: 1px solid #fef08a;
+            font-size: 12px;
+            font-weight: 700;
+            color: #713f12;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        #bookmark-list {
+            max-height: 280px;
+            overflow-y: auto;
+            padding: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .bookmark-empty {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 11px;
+            padding: 20px 0;
+        }
+        .bookmark-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 10px;
+            border-radius: 10px;
+            border: 1px solid #f1f5f9;
+            cursor: pointer;
+            transition: background 0.15s;
+            group: true;
+        }
+        .bookmark-item:hover { background: #fefce8; border-color: #fde047; }
+        .bookmark-item-icon {
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        .bookmark-item-label {
+            flex: 1;
+            font-size: 11px;
+            font-weight: 600;
+            color: #334155;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+        }
+        .bookmark-item-label[contenteditable="true"] {
+            outline: none;
+            background: #fef9c3;
+            border-radius: 4px;
+            padding: 1px 4px;
+            white-space: nowrap;
+            cursor: text;
+        }
+        .bookmark-item-pos {
+            font-size: 9px;
+            color: #94a3b8;
+            flex-shrink: 0;
+        }
+        .bookmark-item-del {
+            flex-shrink: 0;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #fee2e2;
+            color: #dc2626;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+        .bookmark-item:hover .bookmark-item-del { opacity: 1; }
+        #bookmark-add-btn {
+            margin: 6px;
+            padding: 8px;
+            border-radius: 10px;
+            border: 1px dashed #fde047;
+            background: #fefce8;
+            color: #a16207;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.15s;
+        }
+        #bookmark-add-btn:hover { background: #fef08a; border-style: solid; }
+        /* 栞フラグ（行に付く帯） */
+        .bookmark-flag {
+            position: absolute;
+            left: -4px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 32px;
+            background: #facc15;
+            border-radius: 0 4px 4px 0;
+            box-shadow: 2px 0 6px rgba(250,204,21,0.5);
+            z-index: 5;
+            pointer-events: none;
+        }
+        .timeline-row { position: relative; }
+
+        @media (max-width: 640px) {
+            #bookmark-panel { right: 16px; left: 16px; width: auto; bottom: 90px; }
+        }
     </style>
 
     <script type="application/ld+json">
@@ -1030,6 +1161,17 @@
 
         <div id="row-counter">0 / 0</div>
 
+        <!-- 栞パネル -->
+        <div id="bookmark-panel">
+            <div class="bookmark-panel-header">
+                🔖 栞リスト
+            </div>
+            <div id="bookmark-list">
+                <div class="bookmark-empty">栞がありません</div>
+            </div>
+            <div id="bookmark-add-btn">＋ 現在地に栞を追加</div>
+        </div>
+
         <div id="jump-controls">
             <div id="edit-btn-group">
                 <button id="text-edit-mode-btn" class="jump-btn" title="文字編集モード(クリックして修正)"><i data-lucide="pencil" size="20"></i></button>
@@ -1039,6 +1181,7 @@
                 <button id="undo-btn" class="jump-btn" title="元に戻す（履歴なし）" disabled style="opacity:0.35"><i data-lucide="undo-2" size="20"></i></button>
                 <div class="w-full h-[1px] bg-slate-200 my-1"></div>
             </div>
+            <button id="bookmark-toggle-btn" class="jump-btn" title="栞リスト"><i data-lucide="bookmark" size="20"></i></button>
             <button id="jump-top" class="jump-btn" title="一番上へ"><i data-lucide="arrow-up" size="20"></i></button>
             <button id="jump-bottom" class="jump-btn" title="一番下へ"><i data-lucide="arrow-down" size="20"></i></button>
         </div>
@@ -1287,6 +1430,7 @@
     <script id="style-data-storage" type="application/json">{"col":"350px","font":"14px","port":"50px","theme":"blue"}</script>
     <script id="source-filename-storage" type="application/json">""</script>
     <script id="char-styles-storage" type="application/json">{}</script>
+    <script id="bookmarks-storage" type="application/json">[]</script>
 
     <script>
         (function() {
@@ -1310,6 +1454,7 @@
             let showEditButtons = true;
             let showPortraits = true;
             let charStyles = {}; // { charName: { font, bold, bg } }
+            let bookmarks = []; // { id, label, rowId, rowIndex }
 
             const themes = {
                 blue:   { accent: '#3b82f6', bg: '#709cdb' },
@@ -1411,6 +1556,172 @@
                 btn.disabled = !has;
                 btn.style.opacity = has ? '1' : '0.35';
                 btn.title = has ? `元に戻す（${undoStack.length}件）` : '元に戻す（履歴なし）';
+            }
+
+            // ===== 栞機能 =====
+            function addBookmarkAtCurrentPosition() {
+                const viewport = getEl('timeline-viewport');
+                const allRows = Array.from(document.querySelectorAll('.timeline-row:not(.hidden):not(.column-hidden)'));
+                if (allRows.length === 0) return;
+
+                // 画面中央に最も近い行を探す
+                const viewportRect = viewport.getBoundingClientRect();
+                const viewportCenter = viewportRect.top + viewportRect.height / 2;
+                let closestRow = allRows[0]; let minDist = Infinity;
+                allRows.forEach(row => {
+                    const rect = row.getBoundingClientRect();
+                    const dist = Math.abs(viewportCenter - (rect.top + rect.height / 2));
+                    if (dist < minDist) { minDist = dist; closestRow = row; }
+                });
+
+                const rowId = closestRow.id; // "row-{idx}"
+                const rowIndex = allRows.indexOf(closestRow) + 1;
+                const rowIdx = parseInt(rowId.replace('row-', ''));
+                const logItem = logData.find(d => d.id === rowIdx);
+                const defaultLabel = logItem ? `${logItem.char}「${logItem.msg.slice(0, 15).replace(/<[^>]+>/g,'')}...」` : `${rowIndex}行目`;
+
+                const bm = {
+                    id: Date.now(),
+                    label: defaultLabel,
+                    rowId: rowId,
+                    rowIndex: rowIndex
+                };
+                bookmarks.push(bm);
+                renderBookmarks();
+                addBookmarkFlagToRow(rowId);
+            }
+
+            function renderBookmarks() {
+                const list = getEl('bookmark-list');
+                if (bookmarks.length === 0) {
+                    list.innerHTML = '<div class="bookmark-empty">栞がありません<br><span style="font-size:10px;color:#cbd5e1">「＋ 現在地に栞を追加」で追加できます</span></div>';
+                    return;
+                }
+                list.innerHTML = '';
+                bookmarks.forEach(bm => {
+                    const item = document.createElement('div');
+                    item.className = 'bookmark-item';
+                    item.dataset.bmId = bm.id;
+
+                    const icon = document.createElement('span');
+                    icon.className = 'bookmark-item-icon';
+                    icon.textContent = '🔖';
+
+                    const label = document.createElement('span');
+                    label.className = 'bookmark-item-label';
+                    label.textContent = bm.label;
+                    label.title = bm.label + '（ダブルクリックで編集）';
+                    label.ondblclick = (e) => {
+                        e.stopPropagation();
+                        label.contentEditable = 'true';
+                        label.focus();
+                        // 全選択
+                        const sel = window.getSelection();
+                        const range = document.createRange();
+                        range.selectNodeContents(label);
+                        sel.removeAllRanges();
+                        sel.addRange(range);
+                    };
+                    label.onblur = () => {
+                        label.contentEditable = 'false';
+                        bm.label = label.textContent.trim() || bm.label;
+                        label.title = bm.label + '（ダブルクリックで編集）';
+                    };
+                    label.onkeydown = (e) => {
+                        if (e.key === 'Enter') { e.preventDefault(); label.blur(); }
+                        e.stopPropagation();
+                    };
+
+                    const pos = document.createElement('span');
+                    pos.className = 'bookmark-item-pos';
+                    pos.textContent = `#${bm.rowIndex}`;
+
+                    const del = document.createElement('span');
+                    del.className = 'bookmark-item-del';
+                    del.innerHTML = '×';
+                    del.title = '栞を削除';
+                    del.onclick = (e) => {
+                        e.stopPropagation();
+                        removeBookmark(bm.id);
+                    };
+
+                    item.appendChild(icon);
+                    item.appendChild(label);
+                    item.appendChild(pos);
+                    item.appendChild(del);
+                    // 行へジャンプ（ラベル・icon・pos クリック）
+                    item.onclick = (e) => {
+                        if (e.target === del || label.contentEditable === 'true') return;
+                        jumpToBookmark(bm);
+                    };
+                    list.appendChild(item);
+                });
+
+                // 栞ボタンにバッジ表示
+                updateBookmarkBadge();
+            }
+
+            function removeBookmark(bmId) {
+                const bm = bookmarks.find(b => b.id === bmId);
+                if (bm) removeBookmarkFlagFromRow(bm.rowId);
+                bookmarks = bookmarks.filter(b => b.id !== bmId);
+                renderBookmarks();
+            }
+
+            function jumpToBookmark(bm) {
+                const row = document.getElementById(bm.rowId);
+                if (!row) {
+                    // 行が見つからない（削除された等）→ 栞を消す
+                    removeBookmark(bm.id);
+                    return;
+                }
+                const viewport = getEl('timeline-viewport');
+                const viewportRect = viewport.getBoundingClientRect();
+                const rowRect = row.getBoundingClientRect();
+                const scrollTop = viewport.scrollTop + (rowRect.top - viewportRect.top) - viewportRect.height / 2 + rowRect.height / 2;
+                viewport.scrollTo({ top: scrollTop, behavior: 'smooth' });
+                // ハイライト
+                row.classList.add('highlight-jump');
+                setTimeout(() => row.classList.remove('highlight-jump'), 3500);
+            }
+
+            function addBookmarkFlagToRow(rowId) {
+                const row = document.getElementById(rowId);
+                if (!row || row.querySelector('.bookmark-flag')) return;
+                const flag = document.createElement('div');
+                flag.className = 'bookmark-flag';
+                row.appendChild(flag);
+            }
+
+            function removeBookmarkFlagFromRow(rowId) {
+                const row = document.getElementById(rowId);
+                if (!row) return;
+                const flag = row.querySelector('.bookmark-flag');
+                if (flag) flag.remove();
+            }
+
+            function updateBookmarkBadge() {
+                const btn = getEl('bookmark-toggle-btn');
+                // バッジ（件数）を更新
+                let badge = btn.querySelector('.bm-badge');
+                if (bookmarks.length > 0) {
+                    if (!badge) {
+                        badge = document.createElement('span');
+                        badge.className = 'bm-badge';
+                        badge.style.cssText = 'position:absolute;top:-4px;right:-4px;background:#f59e0b;color:white;border-radius:99px;font-size:9px;font-weight:700;min-width:16px;height:16px;display:flex;align-items:center;justify-content:center;line-height:1;padding:0 3px;';
+                        btn.style.position = 'relative';
+                        btn.appendChild(badge);
+                    }
+                    badge.textContent = bookmarks.length;
+                } else if (badge) {
+                    badge.remove();
+                }
+            }
+
+            function restoreBookmarks(savedBookmarks) {
+                bookmarks = savedBookmarks || [];
+                bookmarks.forEach(bm => addBookmarkFlagToRow(bm.rowId));
+                renderBookmarks();
             }
 
             function getSafeClassName(name) {
@@ -1584,12 +1895,28 @@
                 
                 getEl('timeline-viewport').addEventListener('scroll', updateRowCounter);
 
+                // 栞ボタン
+                getEl('bookmark-toggle-btn').onclick = (e) => {
+                    e.stopPropagation();
+                    const panel = getEl('bookmark-panel');
+                    panel.classList.toggle('open');
+                    const isOpen = panel.classList.contains('open');
+                    getEl('bookmark-toggle-btn').classList.toggle('active', isOpen);
+                };
+                getEl('bookmark-add-btn').onclick = addBookmarkAtCurrentPosition;
+
                 document.addEventListener('click', (e) => {
                     const panel = getEl('settings-panel');
                     const ctxMenu = getEl('style-context-menu');
                     const moveMenu = getEl('move-menu');
                     
                     if (panel && !panel.contains(e.target) && !e.target.closest('button')) { panel.classList.remove('active'); }
+                    // 栞パネルを閉じる
+                    const bkPanel = getEl('bookmark-panel');
+                    if (bkPanel && bkPanel.classList.contains('open') && !bkPanel.contains(e.target) && !e.target.closest('#bookmark-toggle-btn')) {
+                        bkPanel.classList.remove('open');
+                        getEl('bookmark-toggle-btn').classList.remove('active');
+                    }
                     if (getEl('search-wrapper') && !e.target.closest('#search-wrapper') && !e.target.closest('#search-input-mobile')) {
                         getEl('search-results').classList.add('hidden');
                         getEl('search-results-mobile').classList.add('hidden');
@@ -1944,6 +2271,7 @@
                 const styleRaw      = doc.getElementById('style-data-storage')?.textContent || '{}';
                 const nameRaw       = doc.getElementById('source-filename-storage')?.textContent || '"log"';
                 const charStylesRaw = doc.getElementById('char-styles-storage')?.textContent || '{}';
+                const bookmarksRaw  = doc.getElementById('bookmarks-storage')?.textContent || '[]';
 
                 charIcons      = JSON.parse(iconRaw);
                 allLocations   = JSON.parse(locRaw);
@@ -1963,6 +2291,8 @@
                 getEl('rows-container').innerHTML = '';
                 logData.forEach(m => createRow(m.id, m.loc, m.char, m.color || '#000', m.rawMsg || m.msg, m.style || {}));
                 refreshIcons();
+                // 栞を復元（行が描画された後に実行）
+                setTimeout(() => restoreBookmarks(JSON.parse(bookmarksRaw || '[]')), 50);
                 showAppView();
             }
 
@@ -2404,6 +2734,7 @@
                     const styleRaw      = getEl('style-data-storage').textContent;
                     const nameRaw       = getEl('source-filename-storage').textContent;
                     const charStylesRaw = getEl('char-styles-storage').textContent;
+                    const bookmarksRaw  = getEl('bookmarks-storage').textContent;
 
                     charIcons      = JSON.parse(iconRaw || '{}');
                     allLocations   = JSON.parse(locRaw  || '[]');
@@ -2421,7 +2752,11 @@
                         characters.clear(); logData.forEach(d => characters.add(d.char));
                         renderLayout(); getEl('rows-container').innerHTML = '';
                         logData.forEach(m => { createRow(m.id, m.loc, m.char, m.color || '#000', m.rawMsg || m.msg, m.style); });
-                        refreshIcons(); setTimeout(updateRowCounter, 300);
+                        refreshIcons();
+                        setTimeout(() => {
+                            updateRowCounter();
+                            restoreBookmarks(JSON.parse(bookmarksRaw || '[]'));
+                        }, 300);
                     }
                 } catch(e) { console.error("Restore failed", e); }
             }
@@ -2626,6 +2961,7 @@
                         getEl('icon-data-storage').textContent = JSON.stringify(charIcons); getEl('loc-data-storage').textContent = JSON.stringify(allLocations); getEl('log-data-storage').textContent = JSON.stringify(logData); getEl('source-filename-storage').textContent = JSON.stringify(sourceFileName);
                         getEl('style-data-storage').textContent = JSON.stringify({ col: getComputedStyle(document.documentElement).getPropertyValue('--column-width').trim(), font: getComputedStyle(document.documentElement).getPropertyValue('--base-font-size').trim(), port: getComputedStyle(document.documentElement).getPropertyValue('--portrait-size').trim(), theme: currentTheme });
                         getEl('char-styles-storage').textContent = JSON.stringify(charStyles);
+                        getEl('bookmarks-storage').textContent = JSON.stringify(bookmarks);
                         
                         const clone = document.documentElement.cloneNode(true);
                         clone.querySelector('#settings-panel').classList.remove('active'); clone.querySelector('#filter-container').classList.remove('active');
@@ -2640,6 +2976,9 @@
                         // 保存HTMLでは編集ボタンをデフォルト非表示
                         const cloneEditGroup = clone.querySelector('#edit-btn-group');
                         if (cloneEditGroup) cloneEditGroup.style.display = 'none';
+                        // 栞パネルは閉じた状態で保存
+                        const cloneBmPanel = clone.querySelector('#bookmark-panel');
+                        if (cloneBmPanel) cloneBmPanel.classList.remove('open');
                         
                         // Remove loading overlay from the saved file
                         const cloneLoading = clone.querySelector('#loading-overlay');
