@@ -793,6 +793,63 @@
 
         #print-layout { display: none; }
 
+        /* ===== カラムインジケーター ===== */
+        #col-indicator-left,
+        #col-indicator-right {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            z-index: 80;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        #col-indicator-left  { left: 6px; align-items: flex-start; }
+        #col-indicator-right { right: 6px; align-items: flex-end; }
+
+        .col-indicator-badge {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 10px 5px 7px;
+            border-radius: 20px;
+            background: rgba(15, 23, 42, 0.78);
+            backdrop-filter: blur(6px);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            max-width: 130px;
+            cursor: pointer;
+            pointer-events: auto;
+            transition: background 0.15s, transform 0.15s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .col-indicator-badge:hover {
+            background: rgba(30, 41, 59, 0.95);
+            transform: scale(1.05);
+        }
+        .col-indicator-badge .badge-arrow {
+            flex-shrink: 0;
+            font-size: 10px;
+            opacity: 0.7;
+        }
+        .col-indicator-badge .badge-loc {
+            font-size: 9px;
+            opacity: 0.65;
+            font-weight: 400;
+            margin-left: 2px;
+            flex-shrink: 0;
+        }
+        .col-indicator-badge .badge-char {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
         /* ダイスロール強調表示 */
         .dice-line {
             display: block;
@@ -998,7 +1055,7 @@
             </a>
         </nav>
         <section class="flex-1 flex flex-col items-center justify-center text-center px-4 py-12 md:py-20">
-            <div class="inline-block mb-4 px-4 py-1.5 rounded-full bg-blue-100 text-blue-700 text-sm font-bold tracking-wide">v1.6.0</div>
+            <div class="inline-block mb-4 px-4 py-1.5 rounded-full bg-blue-100 text-blue-700 text-sm font-bold tracking-wide">v1.7.0</div>
             <h1 class="text-4xl md:text-6xl font-extrabold text-slate-900 mb-6 tracking-tight leading-tight">
                 あなたのセッションログを、<br><span style="color: var(--accent-color)">物語</span>として保存しよう。
             </h1>
@@ -1167,6 +1224,10 @@
         </div>
 
         <div id="row-counter">0 / 0</div>
+
+        <!-- カラムインジケーター -->
+        <div id="col-indicator-left"></div>
+        <div id="col-indicator-right"></div>
 
         <!-- 栞パネル -->
         <div id="bookmark-panel">
@@ -1409,6 +1470,14 @@
                         </div>
                     </label>
                 </div>
+                <div>
+                    <label class="flex items-center justify-between py-1 cursor-pointer">
+                        <span class="text-xs font-bold text-slate-700">画面外カラムをナビ表示</span>
+                        <div id="col-indicator-toggle" class="relative w-10 h-5 rounded-full bg-blue-500 transition-colors cursor-pointer">
+                            <div class="absolute top-0.5 right-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform"></div>
+                        </div>
+                    </label>
+                </div>
             </div>
             <div class="mt-6 pt-4 border-t flex flex-col gap-2">
                 <label class="flex items-center justify-between py-2 cursor-pointer">
@@ -1460,6 +1529,7 @@
             const UNDO_MAX = 10;
             let showEditButtons = true;
             let showPortraits = true;
+            let showColIndicator = true;
             let charStyles = {}; // { charName: { font, bold, bg } }
             let bookmarks = []; // { id, label, rowId, rowIndex }
 
@@ -1923,6 +1993,11 @@
                     showPortraits = !showPortraits;
                     applyPortraitVisibility();
                 };
+                // カラムインジケータートグル
+                getEl('col-indicator-toggle').onclick = () => {
+                    showColIndicator = !showColIndicator;
+                    applyColIndicatorVisibility();
+                };
                 getEl('reset-btn').onclick = () => { if(confirm("初期化してもよろしいですか？")) { clearStorage(); location.reload(); } };
                 getEl('tab-visibility').onclick = () => switchTab('visibility');
                 getEl('tab-icons').onclick = () => switchTab('icons');
@@ -2318,6 +2393,7 @@
                 if (styles.font)  { getEl('font-slider').value = parseInt(styles.font);     updateStyle('--base-font-size', styles.font, 'font-val'); }
                 if (styles.port)  { getEl('portrait-slider').value = parseInt(styles.port); updateStyle('--portrait-size', styles.port, 'portrait-val'); }
                 if (styles.theme) setTheme(styles.theme);
+                if (typeof styles.colInd !== 'undefined') { showColIndicator = styles.colInd; applyColIndicatorVisibility(); }
 
                 characters.clear();
                 logData.forEach(d => characters.add(d.char));
@@ -2445,6 +2521,130 @@
                     if (dist < minDistance) { minDistance = dist; closestRowIndex = index + 1; }
                 });
                 counter.textContent = `${closestRowIndex} / ${allRows.length}`;
+                updateColIndicator();
+            }
+
+            function updateColIndicator() {
+                const leftEl  = getEl('col-indicator-left');
+                const rightEl = getEl('col-indicator-right');
+                if (!leftEl || !rightEl) return;
+
+                if (!showColIndicator || allLocations.length <= 1) {
+                    leftEl.innerHTML = '';
+                    rightEl.innerHTML = '';
+                    return;
+                }
+
+                const viewport = getEl('timeline-viewport');
+                const vpRect   = viewport.getBoundingClientRect();
+                const vpLeft   = vpRect.left;
+                const vpRight  = vpRect.right;
+                const vpCenter = vpRect.top + vpRect.height / 2;
+
+                // 現在の縦スクロール位置で中央付近の行を最大5行取得
+                const allRows = Array.from(document.querySelectorAll('.timeline-row:not(.hidden):not(.column-hidden)'));
+                if (allRows.length === 0) { leftEl.innerHTML = ''; rightEl.innerHTML = ''; return; }
+
+                // 画面に映っている行を取得（上下に少しマージンを持たせる）
+                const visibleRows = allRows.filter(row => {
+                    const r = row.getBoundingClientRect();
+                    return r.bottom >= vpRect.top - 40 && r.top <= vpRect.bottom + 40;
+                });
+                if (visibleRows.length === 0) { leftEl.innerHTML = ''; rightEl.innerHTML = ''; return; }
+
+                // ビューポートに映っていないカラムのインデックスを特定
+                const hiddenLeft  = []; // 左にはみ出ているカラム（インデックス昇順）
+                const hiddenRight = []; // 右にはみ出ているカラム
+
+                const headerCells = document.querySelectorAll('#sticky-header .column-header');
+                headerCells.forEach((hCell, idx) => {
+                    if (hCell.classList.contains('column-hidden')) return;
+                    const r = hCell.getBoundingClientRect();
+                    const cellCenter = (r.left + r.right) / 2;
+                    if (r.right <= vpLeft + 10) {
+                        hiddenLeft.push(idx);
+                    } else if (r.left >= vpRight - 10) {
+                        hiddenRight.push(idx);
+                    }
+                });
+
+                // 左インジケーター（右端のカラムインデックスが一番近い）
+                // hiddenLeft は昇順なので末尾が最も近い
+                leftEl.innerHTML = '';
+                const showLeft = hiddenLeft.slice(-3).reverse(); // 最大3個、近い順
+                showLeft.forEach(colIdx => {
+                    const loc = allLocations[colIdx];
+                    if (!loc) return;
+                    // その行で発言しているキャラを探す（visibleRowsの中から）
+                    let charName = null, charColor = '#fff';
+                    for (const row of visibleRows) {
+                        if (row.getAttribute('data-loc') === loc) {
+                            charName  = row.getAttribute('data-char');
+                            const logItem = logData.find(d => d.id === parseInt(row.id.replace('row-','')));
+                            if (logItem) charColor = logItem.color || '#fff';
+                            break;
+                        }
+                    }
+                    const badge = document.createElement('div');
+                    badge.className = 'col-indicator-badge';
+                    badge.title = `${loc}へジャンプ`;
+                    badge.innerHTML = `<span class="badge-arrow">◀</span><span class="badge-char" style="color:${charColor}">${charName ? charName : '—'}</span><span class="badge-loc">${loc}</span>`;
+                    badge.onclick = () => {
+                        const targetCell = document.querySelector(`#sticky-header .col-idx-${colIdx}`);
+                        if (targetCell) {
+                            const cellRect = targetCell.getBoundingClientRect();
+                            const vpRect2 = viewport.getBoundingClientRect();
+                            const scrollLeft = viewport.scrollLeft + (cellRect.left - vpRect2.left) - 16;
+                            viewport.scrollTo({ left: scrollLeft, behavior: 'smooth' });
+                        }
+                    };
+                    leftEl.appendChild(badge);
+                });
+
+                // 右インジケーター（先頭が最も近い）
+                rightEl.innerHTML = '';
+                const showRight = hiddenRight.slice(0, 3);
+                showRight.forEach(colIdx => {
+                    const loc = allLocations[colIdx];
+                    if (!loc) return;
+                    let charName = null, charColor = '#fff';
+                    for (const row of visibleRows) {
+                        if (row.getAttribute('data-loc') === loc) {
+                            charName  = row.getAttribute('data-char');
+                            const logItem = logData.find(d => d.id === parseInt(row.id.replace('row-','')));
+                            if (logItem) charColor = logItem.color || '#fff';
+                            break;
+                        }
+                    }
+                    const badge = document.createElement('div');
+                    badge.className = 'col-indicator-badge';
+                    badge.title = `${loc}へジャンプ`;
+                    badge.innerHTML = `<span class="badge-loc">${loc}</span><span class="badge-char" style="color:${charColor}">${charName ? charName : '—'}</span><span class="badge-arrow">▶</span>`;
+                    badge.onclick = () => {
+                        const targetCell = document.querySelector(`#sticky-header .col-idx-${colIdx}`);
+                        if (targetCell) {
+                            const cellRect = targetCell.getBoundingClientRect();
+                            const vpRect2 = viewport.getBoundingClientRect();
+                            const scrollLeft = viewport.scrollLeft + (cellRect.left - vpRect2.left) - 16;
+                            viewport.scrollTo({ left: scrollLeft, behavior: 'smooth' });
+                        }
+                    };
+                    rightEl.appendChild(badge);
+                });
+            }
+
+            function applyColIndicatorVisibility() {
+                const toggle = getEl('col-indicator-toggle');
+                toggle.style.backgroundColor = showColIndicator ? 'var(--accent-color, #3b82f6)' : '#cbd5e1';
+                toggle.querySelector('div').style.transform = showColIndicator ? 'translateX(0)' : 'translateX(-20px)';
+                if (!showColIndicator) {
+                    const l = getEl('col-indicator-left');
+                    const r = getEl('col-indicator-right');
+                    if (l) l.innerHTML = '';
+                    if (r) r.innerHTML = '';
+                } else {
+                    updateColIndicator();
+                }
             }
 
             function renderLayout() {
@@ -2993,7 +3193,7 @@
                 setTimeout(() => {
                     try {
                         getEl('icon-data-storage').textContent = JSON.stringify(charIcons); getEl('loc-data-storage').textContent = JSON.stringify(allLocations); getEl('log-data-storage').textContent = JSON.stringify(logData); getEl('source-filename-storage').textContent = JSON.stringify(sourceFileName);
-                        getEl('style-data-storage').textContent = JSON.stringify({ col: getComputedStyle(document.documentElement).getPropertyValue('--column-width').trim(), font: getComputedStyle(document.documentElement).getPropertyValue('--base-font-size').trim(), port: getComputedStyle(document.documentElement).getPropertyValue('--portrait-size').trim(), theme: currentTheme });
+                        getEl('style-data-storage').textContent = JSON.stringify({ col: getComputedStyle(document.documentElement).getPropertyValue('--column-width').trim(), font: getComputedStyle(document.documentElement).getPropertyValue('--base-font-size').trim(), port: getComputedStyle(document.documentElement).getPropertyValue('--portrait-size').trim(), theme: currentTheme, colInd: showColIndicator });
                         getEl('char-styles-storage').textContent = JSON.stringify(charStyles);
                         getEl('bookmarks-storage').textContent = JSON.stringify(bookmarks);
                         
@@ -3010,6 +3210,11 @@
                         // 保存HTMLでは編集ボタンをデフォルト非表示
                         const cloneEditGroup = clone.querySelector('#edit-btn-group');
                         if (cloneEditGroup) cloneEditGroup.style.display = 'none';
+                        // インジケーターはクリア
+                        const cloneIndL = clone.querySelector('#col-indicator-left');
+                        const cloneIndR = clone.querySelector('#col-indicator-right');
+                        if (cloneIndL) cloneIndL.innerHTML = '';
+                        if (cloneIndR) cloneIndR.innerHTML = '';
                         // 栞パネルは閉じた状態で保存
                         const cloneBmPanel = clone.querySelector('#bookmark-panel');
                         if (cloneBmPanel) cloneBmPanel.classList.remove('open');
