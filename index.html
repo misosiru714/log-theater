@@ -357,6 +357,8 @@
             padding: 20px;
             border-radius: 16px;
             width: 280px;
+            max-height: calc(100vh - 90px);
+            overflow-y: auto;
             z-index: 100;
         }
         #settings-panel.active { display: block; }
@@ -538,7 +540,7 @@
         @media (max-width: 640px) {
             #row-counter { bottom: 84px; }
             #jump-controls { bottom: 84px; right: 16px; }
-            #settings-panel { position: fixed; top: auto; bottom: 80px; right: 20px; left: 20px; width: auto; box-shadow: 0 -10px 25px -5px rgba(0, 0, 0, 0.1); }
+            #settings-panel { position: fixed; top: auto; bottom: 80px; right: 20px; left: 20px; width: auto; box-shadow: 0 -10px 25px -5px rgba(0, 0, 0, 0.1); max-height: calc(100vh - 100px); overflow-y: auto; }
             .filter-section {
                 position: fixed; bottom: 80px; left: 20px; right: 20px; max-height: 40vh; overflow-y: auto;
                 border: 1px solid #e2e8f0; border-radius: 16px; box-shadow: 0 -10px 25px -5px rgba(0, 0, 0, 0.1);
@@ -1325,8 +1327,9 @@
 
 <script>
     // ↓リリースノートはここだよ。更新しようね。
-    const APP_VERSION = '1.7.0';
+    const APP_VERSION = '1.7.1';
     const RELEASE_NOTES = [
+        { version: '1.7.1', description: 'HTML/Markdown/テキストの書き出し形式を追加しました。' },
         { version: '1.7.0', description: 'キャラクターをグループ化する機能を追加し、立ち絵やスタイル設定をまとめて管理できるようにしました。' },
         { version: '1.6.0', description: '画面外のコメントの存在を知らせるナビを追加。必要に応じて設定から非表示にできます。' },
         { version: '1.5.0', description: '栞機能を追加し、好きな場所に目印をつけて瞬時にジャンプできるようにしました。' },
@@ -1366,6 +1369,7 @@
         { title: '編集機能', description: '発言の直接編集、削除、マーカー装飾、カラム間移動、コンテキストメニューでのスタイル適用が可能です。' },
         { title: 'Undo / 巻き戻し', description: '最大10件のUndo履歴を保存し、削除・移動・編集を元に戻せるようにしました。' },
         { title: 'PDF出力', description: 'カラム別の出力設定、立ち絵・アイコン付きPDF、テーマカラー反映に対応しています。' },
+        { title: '書き出し形式の選択', description: 'HTML・Markdown・テキスト形式の出力に対応し、用途に合わせて形式を切り替えられます。' },
         { title: 'キャラクタースタイル', description: 'キャラクターごとにフォント、背景色、太字を設定し、スタイルのグループ共有や統合も可能です。' },
         { title: '栞機能', description: '栞を追加して好きな場所に目印をつけ、クリックでその位置へ瞬時にジャンプできます。' },
         { title: 'ダイス強調', description: 'BCDiceのロール結果を自動検出し、成功・失敗・クリティカル・ファンブルを色付きで強調します。' },
@@ -1714,13 +1718,21 @@
                     </label>
                 </div>
             </div>
-            <div class="mt-6 pt-4 border-t flex flex-col gap-2">
+            <div class="mt-6 pt-4 border-t flex flex-col gap-3">
                 <label class="flex items-center justify-between py-2 cursor-pointer">
                     <span class="text-xs font-bold text-slate-700">編集ボタンを表示</span>
                     <div id="edit-btn-toggle" class="relative w-10 h-5 rounded-full bg-blue-500 transition-colors cursor-pointer">
                         <div class="absolute top-0.5 right-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform"></div>
                     </div>
                 </label>
+                <div class="flex flex-col gap-2">
+                    <label for="export-format-select" class="text-xs font-bold text-slate-700">書き出し形式</label>
+                    <select id="export-format-select" class="w-full rounded-xl border border-slate-200 bg-white py-2 px-3 text-sm text-slate-700 shadow-sm focus:border-blue-400 focus:outline-none">
+                        <option value="html">HTML</option>
+                        <option value="markdown">Markdown</option>
+                        <option value="text">テキスト</option>
+                    </select>
+                </div>
                 <button id="download-btn" class="btn-primary w-full flex items-center justify-center gap-2"><i data-lucide="download" size="14"></i> HTMLとして保存</button>
                 <button id="pdf-btn" class="w-full flex items-center justify-center gap-2 py-2 px-4 rounded-xl border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50 transition-colors"><i data-lucide="printer" size="14"></i> PDF出力</button>
                 <button id="reset-btn" class="text-[10px] text-slate-400 hover:text-red-500 transition-colors py-2">ログをリセットする</button>
@@ -2218,6 +2230,22 @@
                 getEl('exec-pdf-btn').onclick = executePrint;
                 getEl('download-btn').onclick = downloadHTML;
                 getEl('pdf-btn').onclick = openPdfModal;
+
+                const exportFormatSelect = getEl('export-format-select');
+                const exportFormatLabels = {
+                    html: 'HTMLとして保存',
+                    markdown: 'Markdownとして保存',
+                    text: 'テキストとして保存'
+                };
+                const updateExportButtonLabel = () => {
+                    if (!exportFormatSelect) return;
+                    getEl('download-btn').innerHTML = `<i data-lucide="download" size="14"></i> ${exportFormatLabels[exportFormatSelect.value] || exportFormatLabels.html}`;
+                    lucide.createIcons();
+                };
+                if (exportFormatSelect) {
+                    exportFormatSelect.onchange = updateExportButtonLabel;
+                    updateExportButtonLabel();
+                }
 
                 // 編集ボタン表示トグル
                 getEl('edit-btn-toggle').onclick = () => {
@@ -3769,50 +3797,99 @@
                 getEl('timeline-viewport').appendChild(container);
             }
 
+            function getExportFormat() {
+                const select = getEl('export-format-select');
+                return select?.value || 'html';
+            }
+
+            function cleanText(text) {
+                return text.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim();
+            }
+
+            function formatMultilineText(text, prefix = '') {
+                const lines = text.split('\n');
+                return lines.map((line, index) => index === 0 ? `${prefix}${line}` : `${prefix}  ${line}`).join('\n');
+            }
+
+            function buildTextExport() {
+                const locs = Array.from(new Set(logData.map(d => d.loc)));
+                return locs.map(loc => {
+                    const rows = logData.filter(d => d.loc === loc).map(d => {
+                        const content = cleanText(d.msg || d.rawMsg);
+                        return formatMultilineText(content, `${d.char}: `);
+                    });
+                    return `== ${loc} ==\n\n${rows.join('\n\n')}`;
+                }).join('\n\n');
+            }
+
+            function buildMarkdownExport() {
+                const locs = Array.from(new Set(logData.map(d => d.loc)));
+                return locs.map(loc => {
+                    const rows = logData.filter(d => d.loc === loc).map(d => {
+                        const content = cleanText(d.msg || d.rawMsg);
+                        const formatted = content.split('\n').map((line, index) => index === 0 ? line : `    ${line}`).join('  \n');
+                        return `- **${d.char}**: ${formatted}`;
+                    });
+                    return `## ${loc}\n\n${rows.join('\n')}`;
+                }).join('\n\n');
+            }
+
             function downloadHTML() {
                 const loading = getEl('loading-overlay');
                 loading.classList.remove('hidden'); loading.classList.add('flex');
 
                 setTimeout(() => {
                     try {
-                        getEl('icon-data-storage').textContent = JSON.stringify(charIcons); getEl('loc-data-storage').textContent = JSON.stringify(allLocations); getEl('log-data-storage').textContent = JSON.stringify(logData); getEl('source-filename-storage').textContent = JSON.stringify(sourceFileName);
-                        getEl('style-data-storage').textContent = JSON.stringify({ col: getComputedStyle(document.documentElement).getPropertyValue('--column-width').trim(), font: getComputedStyle(document.documentElement).getPropertyValue('--base-font-size').trim(), port: getComputedStyle(document.documentElement).getPropertyValue('--portrait-size').trim(), theme: currentTheme, colInd: showColIndicator });
-                        getEl('char-styles-storage').textContent = JSON.stringify(charStyles);
-                        getEl('bookmarks-storage').textContent = JSON.stringify(bookmarks);
-                        getEl('char-groups-storage').textContent = JSON.stringify(charGroups);
-                        
-                        const clone = document.documentElement.cloneNode(true);
-                        clone.querySelector('#settings-panel').classList.remove('active'); clone.querySelector('#filter-container').classList.remove('active');
-                        clone.querySelector('#search-results').innerHTML = ''; clone.querySelector('#search-results').classList.add('hidden');
-                        clone.querySelector('#search-results-mobile').innerHTML = ''; clone.querySelector('#search-results-mobile').classList.add('hidden');
-                        clone.querySelector('#search-input').value = ''; clone.querySelector('#search-input-mobile').value = '';
-                        clone.querySelector('#setup-screen').classList.add('hidden'); clone.querySelector('#exit-demo-btn').style.display = 'none';
-                        clone.querySelector('#home-view').classList.add('hidden'); clone.querySelector('#app-view').classList.remove('hidden');
-                        
-                        // Clean states
-                        clone.querySelector('body').classList.remove('marker-mode-active', 'edit-mode-active', 'text-edit-mode-active', 'move-mode-active');
-                        // 保存HTMLでは編集ボタンをデフォルト非表示
-                        const cloneEditGroup = clone.querySelector('#edit-btn-group');
-                        if (cloneEditGroup) cloneEditGroup.style.display = 'none';
-                        // インジケーターはクリア
-                        const cloneIndL = clone.querySelector('#col-indicator-left');
-                        const cloneIndR = clone.querySelector('#col-indicator-right');
-                        if (cloneIndL) cloneIndL.innerHTML = '';
-                        if (cloneIndR) cloneIndR.innerHTML = '';
-                        // 栞パネルは閉じた状態で保存
-                        const cloneBmPanel = clone.querySelector('#bookmark-panel');
-                        if (cloneBmPanel) cloneBmPanel.classList.remove('open');
-                        
-                        // Remove loading overlay from the saved file
-                        const cloneLoading = clone.querySelector('#loading-overlay');
-                        if(cloneLoading) cloneLoading.remove();
-                        
-                        const now = new Date(); const safeDateStr = `${now.getFullYear()}_${String(now.getMonth() + 1).padStart(2, '0')}_${String(now.getDate()).padStart(2, '0')}`;
-                        const fileName = `${sourceFileName}_formatted_${safeDateStr}.html`;
-                        const blob = new Blob(['<!DOCTYPE html>' + clone.outerHTML], { type: 'text/html' });
+                        const format = getExportFormat();
+                        const now = new Date();
+                        const safeDateStr = `${now.getFullYear()}_${String(now.getMonth() + 1).padStart(2, '0')}_${String(now.getDate()).padStart(2, '0')}`;
+                        let fileName = `${sourceFileName}_formatted_${safeDateStr}`;
+                        let blob;
+
+                        if (format === 'html') {
+                            getEl('icon-data-storage').textContent = JSON.stringify(charIcons); getEl('loc-data-storage').textContent = JSON.stringify(allLocations); getEl('log-data-storage').textContent = JSON.stringify(logData); getEl('source-filename-storage').textContent = JSON.stringify(sourceFileName);
+                            getEl('style-data-storage').textContent = JSON.stringify({ col: getComputedStyle(document.documentElement).getPropertyValue('--column-width').trim(), font: getComputedStyle(document.documentElement).getPropertyValue('--base-font-size').trim(), port: getComputedStyle(document.documentElement).getPropertyValue('--portrait-size').trim(), theme: currentTheme, colInd: showColIndicator });
+                            getEl('char-styles-storage').textContent = JSON.stringify(charStyles);
+                            getEl('bookmarks-storage').textContent = JSON.stringify(bookmarks);
+                            getEl('char-groups-storage').textContent = JSON.stringify(charGroups);
+                            
+                            const clone = document.documentElement.cloneNode(true);
+                            clone.querySelector('#settings-panel').classList.remove('active'); clone.querySelector('#filter-container').classList.remove('active');
+                            clone.querySelector('#search-results').innerHTML = ''; clone.querySelector('#search-results').classList.add('hidden');
+                            clone.querySelector('#search-results-mobile').innerHTML = ''; clone.querySelector('#search-results-mobile').classList.add('hidden');
+                            clone.querySelector('#search-input').value = ''; clone.querySelector('#search-input-mobile').value = '';
+                            clone.querySelector('#setup-screen').classList.add('hidden'); clone.querySelector('#exit-demo-btn').style.display = 'none';
+                            clone.querySelector('#home-view').classList.add('hidden'); clone.querySelector('#app-view').classList.remove('hidden');
+                            
+                            // Clean states
+                            clone.querySelector('body').classList.remove('marker-mode-active', 'edit-mode-active', 'text-edit-mode-active', 'move-mode-active');
+                            // 保存HTMLでは編集ボタンをデフォルト非表示
+                            const cloneEditGroup = clone.querySelector('#edit-btn-group');
+                            if (cloneEditGroup) cloneEditGroup.style.display = 'none';
+                            // インジケーターはクリア
+                            const cloneIndL = clone.querySelector('#col-indicator-left');
+                            const cloneIndR = clone.querySelector('#col-indicator-right');
+                            if (cloneIndL) cloneIndL.innerHTML = '';
+                            if (cloneIndR) cloneIndR.innerHTML = '';
+                            // 栞パネルは閉じた状態で保存
+                            const cloneBmPanel = clone.querySelector('#bookmark-panel');
+                            if (cloneBmPanel) cloneBmPanel.classList.remove('open');
+                            
+                            // Remove loading overlay from the saved file
+                            const cloneLoading = clone.querySelector('#loading-overlay');
+                            if(cloneLoading) cloneLoading.remove();
+                            
+                            fileName += '.html';
+                            blob = new Blob(['<!DOCTYPE html>' + clone.outerHTML], { type: 'text/html' });
+                        } else if (format === 'markdown') {
+                            fileName += '.md';
+                            blob = new Blob([buildMarkdownExport()], { type: 'text/markdown' });
+                        } else {
+                            fileName += '.txt';
+                            blob = new Blob([buildTextExport()], { type: 'text/plain' });
+                        }
+
                         const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = fileName; a.click();
-                        
-                        // Clean up URL object
                         setTimeout(() => URL.revokeObjectURL(a.href), 100);
                     } catch(e) {
                         console.error("Save error:", e);
