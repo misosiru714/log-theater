@@ -1098,7 +1098,7 @@
             </a>
         </nav>
         <section class="flex-1 flex flex-col items-center justify-center text-center px-4 py-12 md:py-20">
-            <div class="inline-block mb-4 px-4 py-1.5 rounded-full bg-blue-100 text-blue-700 text-sm font-bold tracking-wide">v1.7.0</div>
+            <div id="app-version-badge" class="inline-block mb-4 px-4 py-1.5 rounded-full bg-blue-100 text-blue-700 text-sm font-bold tracking-wide"></div>
             <h1 class="text-4xl md:text-6xl font-extrabold text-slate-900 mb-6 tracking-tight leading-tight">
                 あなたのセッションログを、<br><span style="color: var(--accent-color)">物語</span>として保存しよう。
             </h1>
@@ -1232,10 +1232,16 @@
                 </svg>
                 <span class="font-medium">ご意見・バグ報告はこちら（マシュマロ）</span>
             </a>
-            <button id="release-notes-btn" class="inline-flex items-center px-5 py-2.5 bg-slate-800 text-white rounded-full text-sm hover:bg-slate-700 transition-all duration-200 shadow-sm">
-                <i data-lucide="list-check" size="16"></i>
-                <span class="ml-2">更新履歴を見る</span>
-            </button>
+            <div class="flex flex-wrap justify-center items-center gap-3">
+                <button id="feature-list-btn" class="inline-flex items-center px-5 py-2.5 bg-slate-800 text-white rounded-full text-sm hover:bg-slate-700 transition-all duration-200 shadow-sm">
+                    <i data-lucide="layers" size="16"></i>
+                    <span class="ml-2">機能一覧を見る</span>
+                </button>
+                <button id="release-notes-btn" class="inline-flex items-center px-5 py-2.5 bg-slate-800 text-white rounded-full text-sm hover:bg-slate-700 transition-all duration-200 shadow-sm">
+                    <i data-lucide="list-check" size="16"></i>
+                    <span class="ml-2">更新履歴を見る</span>
+                </button>
+            </div>
         </div>
 
         <!-- 著作権・コピーライトなど -->
@@ -1249,67 +1255,36 @@
     </div>
 </footer>
 
-<div id="release-notes-panel" class="fixed inset-0 bg-slate-900/70 z-[250] hidden items-center justify-center p-4">
+<div id="feature-list-panel" class="fixed inset-0 bg-slate-900/70 z-[250] hidden items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="feature-list-title">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-3xl overflow-hidden">
+        <div class="flex items-start justify-between gap-4 px-6 py-5 border-b border-slate-200">
+            <div>
+                <p class="text-xs font-bold uppercase tracking-[0.24em] text-slate-400">機能一覧</p>
+                <h2 id="feature-list-title" class="mt-2 text-2xl font-bold text-slate-900">現在の主な機能</h2>
+            </div>
+            <button id="close-feature-list" class="text-slate-400 hover:text-slate-700 p-2 rounded-full" aria-label="機能一覧を閉じる">
+                <i data-lucide="x" size="20"></i>
+            </button>
+        </div>
+        <div id="feature-list-content" class="p-6 space-y-5 max-h-[70vh] overflow-y-auto text-sm text-slate-600"></div>
+        <div class="px-6 py-4 border-t border-slate-200 text-right">
+            <button id="close-feature-list-bottom" class="btn-secondary">閉じる</button>
+        </div>
+    </div>
+</div>
+
+<div id="release-notes-panel" class="fixed inset-0 bg-slate-900/70 z-[250] hidden items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="release-notes-title">
     <div class="bg-white rounded-3xl shadow-2xl w-full max-w-3xl overflow-hidden">
         <div class="flex items-start justify-between gap-4 px-6 py-5 border-b border-slate-200">
             <div>
                 <p class="text-xs font-bold uppercase tracking-[0.24em] text-slate-400">更新履歴</p>
-                <h2 class="mt-2 text-2xl font-bold text-slate-900">リリースノート</h2>
+                <h2 id="release-notes-title" class="mt-2 text-2xl font-bold text-slate-900">リリースノート</h2>
             </div>
-            <button id="close-release-notes" class="text-slate-400 hover:text-slate-700 p-2 rounded-full">
+            <button id="close-release-notes" class="text-slate-400 hover:text-slate-700 p-2 rounded-full" aria-label="更新履歴を閉じる">
                 <i data-lucide="x" size="20"></i>
             </button>
         </div>
-        <div class="p-6 space-y-5 max-h-[70vh] overflow-y-auto text-sm text-slate-600">
-            <div>
-                <div class="font-bold text-slate-900">v1.7.0</div>
-                <p class="mt-2">キャラクターをグループ化する機能を追加し、立ち絵やスタイル設定をまとめて管理できるようにしました。</p>
-            </div>
-            <div>
-                <div class="font-bold text-slate-900">v1.6.0</div>
-                <p class="mt-2">画面外のコメント表示を知らせるナビを追加。必要に応じて設定から非表示にできます。</p>
-            </div>
-            <div>
-                <div class="font-bold text-slate-900">v1.5.0</div>
-                <p class="mt-2">栞機能を追加し、好きな場所に目印をつけて瞬時にジャンプできるようにしました。</p>
-            </div>
-            <div>
-                <div class="font-bold text-slate-900">v1.4.0</div>
-                <p class="mt-2">キャラクター別に発言の見た目を設定できる機能を追加し、フォントや背景色を個別にカスタマイズ可能にしました。</p>
-            </div>
-            <div>
-                <div class="font-bold text-slate-900">v1.3.2</div>
-                <p class="mt-2">立ち絵を非表示にする設定を追加し、表示をすっきりさせることができます。</p>
-            </div>
-            <div>
-                <div class="font-bold text-slate-900">v1.3.1</div>
-                <p class="mt-2">上記機能で発生していた D&amp;D 操作不能の問題を修正し、編集ボタンを非表示にする設定も追加しました。</p>
-            </div>
-            <div>
-                <div class="font-bold text-slate-900">v1.3.0</div>
-                <p class="mt-2">カラムの順番を自由に入れ替えられるようにしました。</p>
-            </div>
-            <div>
-                <div class="font-bold text-slate-900">v1.2.1</div>
-                <p class="mt-2">PDF出力機能の表示とレイアウトを調整しました。</p>
-            </div>
-            <div>
-                <div class="font-bold text-slate-900">v1.2.0</div>
-                <p class="mt-2">巻き戻し機能を実装し、カラムやコメントの削除などの操作を取り消せるようにしました。整形済みログの読み込みにも対応しています。</p>
-            </div>
-            <div>
-                <div class="font-bold text-slate-900">v1.1.0</div>
-                <p class="mt-2">PDF出力機能とダイス強調機能を追加しました。</p>
-            </div>
-            <div>
-                <div class="font-bold text-slate-900">v1.0.1</div>
-                <p class="mt-2">細かな修正と整理を行いました。</p>
-            </div>
-            <div>
-                <div class="font-bold text-slate-900">v1.0.0</div>
-                <p class="mt-2">公開開始。ランディングページ風の紹介画面を実装し、マルチカラム、立ち絵、検索、コメント編集・装飾、表示/非表示、保存機能を搭載しました。</p>
-            </div>
-        </div>
+        <div id="release-notes-list" class="p-6 space-y-5 max-h-[70vh] overflow-y-auto text-sm text-slate-600"></div>
         <div class="px-6 py-4 border-t border-slate-200 text-right">
             <button id="close-release-notes-bottom" class="btn-secondary">閉じる</button>
         </div>
@@ -1317,34 +1292,120 @@
 </div>
 
 <script>
-    // 現在の年を取得して、id="current-year" の場所に入れる
+    // ↓リリースノートはここだよ。更新しようね。
+    const APP_VERSION = '1.7.0';
+    const RELEASE_NOTES = [
+        { version: '1.7.0', description: 'キャラクターをグループ化する機能を追加し、立ち絵やスタイル設定をまとめて管理できるようにしました。' },
+        { version: '1.6.0', description: '画面外のコメントの存在を知らせるナビを追加。必要に応じて設定から非表示にできます。' },
+        { version: '1.5.0', description: '栞機能を追加し、好きな場所に目印をつけて瞬時にジャンプできるようにしました。' },
+        { version: '1.4.0', description: 'キャラクター別に発言の見た目を設定できる機能を追加し、フォントや背景色を個別にカスタマイズ可能にしました。' },
+        { version: '1.3.2', description: '立ち絵を非表示にする設定を追加し、表示をすっきりさせることができます。' },
+        { version: '1.3.1', description: '上記機能で発生していた D&D 操作不能の問題を修正し、編集ボタンを非表示にする設定も追加しました。' },
+        { version: '1.3.0', description: 'カラムの順番を自由に入れ替えられるようにしました。' },
+        { version: '1.2.1', description: 'PDF出力機能の表示とレイアウトを調整しました。' },
+        { version: '1.2.0', description: '巻き戻し機能を実装し、カラムやコメントの削除などの操作を取り消せるようにしました。整形済みログの読み込みにも対応しています。' },
+        { version: '1.1.0', description: 'PDF出力機能とダイス強調機能を追加しました。' },
+        { version: '1.0.1', description: '細かな修正と整理を行いました。' },
+        { version: '1.0.0', description: '公開開始。ランディングページ風の紹介画面を実装し、マルチカラム、立ち絵、検索、コメント編集・装飾、表示/非表示、保存機能を搭載しました。' }
+    ];
+
+    const appVersionBadge = document.getElementById('app-version-badge');
+    if (appVersionBadge) {
+        appVersionBadge.textContent = `v${APP_VERSION}`;
+    }
+
+    const releaseNotesList = document.getElementById('release-notes-list');
+    if (releaseNotesList) {
+        RELEASE_NOTES.forEach((note) => {
+            const entry = document.createElement('div');
+            entry.innerHTML = `
+                <div class="font-bold text-slate-900">v${note.version}</div>
+                <p class="mt-2">${note.description}</p>
+            `;
+            releaseNotesList.appendChild(entry);
+        });
+    }
+
+    const FEATURE_LIST = [
+        { title: 'インポート・読み込み', description: 'ココフォリアのログHTMLをドラッグ＆ドロップで読み込み、整形済みHTMLファイルの再読み込みも可能です。' },
+        { title: 'マルチカラム表示', description: '発言を main / 雑談 / 情報 等で分割表示し、カラムの追加・削除・並び替え・表示切替ができます。' },
+        { title: '立ち絵・アイコン', description: 'キャラクターごとに立ち絵を設定でき、アップロードとトリミングの表示切替にも対応します。' },
+        { title: '検索', description: 'キーワード検索で該当発言へジャンプでき、PC・モバイル両方の画面で使えます。' },
+        { title: '編集機能', description: '発言の直接編集、削除、マーカー装飾、カラム間移動、コンテキストメニューでのスタイル適用が可能です。' },
+        { title: 'Undo / 巻き戻し', description: '最大10件のUndo履歴を保存し、削除・移動・編集を元に戻せるようにしました。' },
+        { title: 'PDF出力', description: 'カラム別の出力設定、立ち絵・アイコン付きPDF、テーマカラー反映に対応しています。' },
+        { title: 'キャラクタースタイル', description: 'キャラクターごとにフォント、背景色、太字を設定し、スタイルのグループ共有や統合も可能です。' },
+        { title: '栞機能', description: '栞を追加して好きな場所に目印をつけ、クリックでその位置へ瞬時にジャンプできます。' },
+        { title: 'ダイス強調', description: 'BCDiceのロール結果を自動検出し、成功・失敗・クリティカル・ファンブルを色付きで強調します。' },
+        { title: 'UI/ナビゲーション', description: 'スクロールカウンター、カラムナビ、スティッキーなヘッダー、モバイル対応ボタンなどを実装しています。' },
+        { title: '安全性・保存', description: 'ブラウザ内ローカルのみで処理を完結し、外部サーバーに送信しません。' }
+    ];
+
+    const featureListContent = document.getElementById('feature-list-content');
+    if (featureListContent) {
+        FEATURE_LIST.forEach((feature) => {
+            const entry = document.createElement('div');
+            entry.innerHTML = `
+                <div class="font-bold text-slate-900">${feature.title}</div>
+                <p class="mt-2">${feature.description}</p>
+            `;
+            featureListContent.appendChild(entry);
+        });
+    }
+
     document.getElementById('current-year').textContent = new Date().getFullYear();
 
     const releaseNotesBtn = document.getElementById('release-notes-btn');
     const releaseNotesPanel = document.getElementById('release-notes-panel');
     const closeReleaseNotes = document.getElementById('close-release-notes');
     const closeReleaseNotesBottom = document.getElementById('close-release-notes-bottom');
+    const featureListBtn = document.getElementById('feature-list-btn');
+    const featureListPanel = document.getElementById('feature-list-panel');
+    const closeFeatureList = document.getElementById('close-feature-list');
+    const closeFeatureListBottom = document.getElementById('close-feature-list-bottom');
+
+    const openPanel = (panel) => {
+        panel.classList.remove('hidden');
+        panel.classList.add('flex');
+    };
+
+    const closePanel = (panel) => {
+        panel.classList.add('hidden');
+        panel.classList.remove('flex');
+    };
 
     if (releaseNotesBtn && releaseNotesPanel) {
-        releaseNotesBtn.addEventListener('click', () => {
-            releaseNotesPanel.classList.remove('hidden');
-            releaseNotesPanel.classList.add('flex');
-        });
-        closeReleaseNotes?.addEventListener('click', () => {
-            releaseNotesPanel.classList.add('hidden');
-            releaseNotesPanel.classList.remove('flex');
-        });
-        closeReleaseNotesBottom?.addEventListener('click', () => {
-            releaseNotesPanel.classList.add('hidden');
-            releaseNotesPanel.classList.remove('flex');
-        });
+        releaseNotesBtn.addEventListener('click', () => openPanel(releaseNotesPanel));
+        closeReleaseNotes?.addEventListener('click', () => closePanel(releaseNotesPanel));
+        closeReleaseNotesBottom?.addEventListener('click', () => closePanel(releaseNotesPanel));
         releaseNotesPanel.addEventListener('click', (event) => {
             if (event.target === releaseNotesPanel) {
-                releaseNotesPanel.classList.add('hidden');
-                releaseNotesPanel.classList.remove('flex');
+                closePanel(releaseNotesPanel);
             }
         });
     }
+
+    if (featureListBtn && featureListPanel) {
+        featureListBtn.addEventListener('click', () => openPanel(featureListPanel));
+        closeFeatureList?.addEventListener('click', () => closePanel(featureListPanel));
+        closeFeatureListBottom?.addEventListener('click', () => closePanel(featureListPanel));
+        featureListPanel.addEventListener('click', (event) => {
+            if (event.target === featureListPanel) {
+                closePanel(featureListPanel);
+            }
+        });
+    }
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            if (releaseNotesPanel && !releaseNotesPanel.classList.contains('hidden')) {
+                closePanel(releaseNotesPanel);
+            }
+            if (featureListPanel && !featureListPanel.classList.contains('hidden')) {
+                closePanel(featureListPanel);
+            }
+        }
+    });
 
     lucide.createIcons();
 </script>
