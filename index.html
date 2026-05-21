@@ -850,6 +850,49 @@
             text-overflow: ellipsis;
         }
 
+        /* ===== キャラクター統合UI ===== */
+        .char-group-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            font-size: 10px;
+            padding: 1px 7px;
+            border-radius: 99px;
+            background: #ede9fe;
+            color: #6d28d9;
+            font-weight: 700;
+            vertical-align: middle;
+            margin-left: 4px;
+        }
+        .merge-select-dropdown {
+            position: absolute;
+            top: calc(100% + 4px);
+            right: 0;
+            min-width: 200px;
+            width: max-content;
+            max-width: 280px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            z-index: 300;
+            overflow: hidden;
+            animation: fadeIn 0.15s ease-out;
+        }
+        .merge-select-item {
+            padding: 8px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #334155;
+            cursor: pointer;
+            transition: background 0.1s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .merge-select-item:hover { background: #f1f5f9; }
+        .merge-select-item.is-leader { color: #7c3aed; }
+
         /* ダイスロール強調表示 */
         .dice-line {
             display: block;
@@ -1507,6 +1550,7 @@
     <script id="source-filename-storage" type="application/json">""</script>
     <script id="char-styles-storage" type="application/json">{}</script>
     <script id="bookmarks-storage" type="application/json">[]</script>
+    <script id="char-groups-storage" type="application/json">{}</script>
 
     <script>
         (function() {
@@ -1514,7 +1558,7 @@
             let logData = [];
             let allLocations = [];
             let characters = new Set();
-            let currentCropImg = null, currentCropChar = "";
+            let currentCropImg = null, currentCropChar = "", currentCropDone = null;
             let cropState = { x: 0, y: 0, size: 200, scale: 1 };
             let isDragging = false, dragStart = { x: 0, y: 0 };
             let sourceFileName = "log";
@@ -1532,6 +1576,7 @@
             let showColIndicator = true;
             let charStyles = {}; // { charName: { font, bold, bg } }
             let bookmarks = []; // { id, label, rowId, rowIndex }
+            let charGroups = {}; // { leaderName: [name1, name2, ...] } — エイリアスグループ
 
             const themes = {
                 blue:   { accent: '#3b82f6', bg: '#709cdb' },
@@ -2381,12 +2426,14 @@
                 const nameRaw       = doc.getElementById('source-filename-storage')?.textContent || '"log"';
                 const charStylesRaw = doc.getElementById('char-styles-storage')?.textContent || '{}';
                 const bookmarksRaw  = doc.getElementById('bookmarks-storage')?.textContent || '[]';
+                const charGroupsRaw = doc.getElementById('char-groups-storage')?.textContent || '{}';
 
                 charIcons      = JSON.parse(iconRaw);
                 allLocations   = JSON.parse(locRaw);
                 logData        = JSON.parse(logRaw);
                 sourceFileName = JSON.parse(nameRaw);
                 charStyles     = JSON.parse(charStylesRaw);
+                charGroups     = JSON.parse(charGroupsRaw);
 
                 const styles = JSON.parse(styleRaw);
                 if (styles.col)   { getEl('col-slider').value = parseInt(styles.col);       updateStyle('--column-width',   styles.col,  'col-val'); }
@@ -2647,6 +2694,86 @@
                 }
             }
 
+            // ===== キャラクターグループ管理 =====
+
+            // nameがどのグループのリーダーかを返す（メンバーの場合もリーダーを返す）
+            function getGroupLeader(name) {
+                // 自分がリーダーか？
+                if (charGroups[name]) return name;
+                // 誰かのメンバーか？
+                for (const [leader, members] of Object.entries(charGroups)) {
+                    if (members.includes(name)) return leader;
+                }
+                return name; // グループなし → 自分自身
+            }
+
+            // グループに属しているか（リーダー or メンバー）
+            function isGrouped(name) {
+                if (charGroups[name]) return true;
+                for (const members of Object.values(charGroups)) {
+                    if (members.includes(name)) return true;
+                }
+                return false;
+            }
+
+            // nameのグループ全メンバー（リーダー含む）を返す
+            function getGroupMembers(name) {
+                const leader = getGroupLeader(name);
+                if (!charGroups[leader]) return [name];
+                return [leader, ...charGroups[leader]];
+            }
+
+            // キャラAをキャラBのグループに統合（AのスタイルをBにも適用）
+            function mergeChar(srcName, dstName) {
+                if (srcName === dstName) return;
+
+                // srcのリーダーとdstのリーダーを取得
+                const srcLeader = getGroupLeader(srcName);
+                const dstLeader = getGroupLeader(dstName);
+                if (srcLeader === dstLeader) return; // 既に同じグループ
+
+                // srcグループの全メンバー
+                const srcMembers = getGroupMembers(srcName); // [srcLeader, ...srcMembers]
+
+                // 新リーダーはsrcLeader（統合元のスタイルを基準にするため）
+                const newLeader = srcLeader;
+
+                // dstグループ全員をsrcグループに吸収
+                const dstMembers = getGroupMembers(dstName);
+
+                // newLeader以外全員がメンバーに
+                const allMembers = [...new Set([...srcMembers, ...dstMembers])];
+                const newMembers = allMembers.filter(n => n !== newLeader);
+
+                // 古いグループエントリを削除
+                delete charGroups[srcLeader];
+                delete charGroups[dstLeader];
+
+                // 新グループ登録
+                charGroups[newLeader] = newMembers;
+
+                // srcのスタイル・アイコンをグループ全員に伝播
+                const srcStyle = charStyles[newLeader] || {};
+                const srcIcon  = charIcons[newLeader];
+                newMembers.forEach(m => {
+                    charStyles[m] = { ...srcStyle };
+                    if (srcIcon) charIcons[m] = srcIcon;
+                });
+            }
+
+            // グループ解除（nameをそのグループから抜く）
+            function unmergeChar(name) {
+                const leader = getGroupLeader(name);
+                if (leader === name) {
+                    // リーダー自身を解除 → グループ全体解散
+                    delete charGroups[name];
+                } else {
+                    // メンバーを外す
+                    charGroups[leader] = charGroups[leader].filter(m => m !== name);
+                    if (charGroups[leader].length === 0) delete charGroups[leader];
+                }
+            }
+
             function renderLayout() {
                 getEl('sticky-header').innerHTML = ''; getEl('filter-container').innerHTML = '';
                 let dragSrcLoc = null;
@@ -2775,58 +2902,294 @@
                     { val: 'reggae', label: 'ホラー（狂気）' },
                     { val: 'hina', label: 'ホラー（不穏）' },
                 ];
-                Array.from(characters).sort().forEach(name => {
-                    const cs = charStyles[name] || {};
-                    const row = document.createElement('div');
-                    row.className = 'bg-white border border-slate-200 rounded-xl p-4 space-y-3';
-                    row.innerHTML = `
-                        <div class="font-bold text-sm text-slate-700">${name}</div>
-                        <div class="flex items-center gap-3">
-                            <span class="text-xs text-slate-500 w-16 shrink-0">フォント</span>
-                            <select class="char-font-select flex-1 text-xs border border-slate-200 rounded-lg px-2 py-1.5 bg-white" data-char="${name}">
+
+                // グループ表示用：既に誰かのメンバーになってるキャラはリーダー枠にまとめて表示
+                // 表示順: リーダー → そのメンバー → 非グループキャラ
+                const sorted = Array.from(characters).sort();
+                const rendered = new Set();
+
+                const renderOne = (name) => {
+                    if (rendered.has(name)) return;
+                    rendered.add(name);
+
+                    const leader = getGroupLeader(name);
+                    const isLeader = leader === name;
+                    const inGroup = isGrouped(name);
+                    const members = isLeader && charGroups[name] ? charGroups[name] : [];
+
+                    // リーダーのスタイルを基準に表示
+                    const cs = charStyles[leader] || charStyles[name] || {};
+
+                    const card = document.createElement('div');
+                    // グループリーダーは紫枠、メンバーはインデント＋薄い枠
+                    if (inGroup && isLeader) {
+                        card.className = 'bg-white border-2 border-violet-300 rounded-xl p-4 space-y-3 relative';
+                    } else if (inGroup && !isLeader) {
+                        card.className = 'bg-violet-50 border border-violet-200 rounded-xl p-4 space-y-2 relative ml-4';
+                    } else {
+                        card.className = 'bg-white border border-slate-200 rounded-xl p-4 space-y-3 relative';
+                    }
+
+                    // ヘッダー行（名前 + バッジ + ボタン）
+                    const nameRow = document.createElement('div');
+                    nameRow.className = 'flex items-center gap-2 flex-wrap';
+
+                    const nameSpan = document.createElement('span');
+                    nameSpan.className = 'font-bold text-sm ' + (isLeader && inGroup ? 'text-violet-700' : 'text-slate-700');
+                    nameSpan.textContent = name;
+                    nameRow.appendChild(nameSpan);
+
+                    if (inGroup && isLeader) {
+                        const badge = document.createElement('span');
+                        badge.className = 'char-group-badge';
+                        badge.textContent = `グループ (${members.length + 1}人)`;
+                        nameRow.appendChild(badge);
+                    } else if (inGroup && !isLeader) {
+                        const badge = document.createElement('span');
+                        badge.className = 'char-group-badge';
+                        badge.textContent = `→ ${leader}`;
+                        nameRow.appendChild(badge);
+                    }
+
+                    // 統合ボタン or 解除ボタン
+                    const btnWrap = document.createElement('div');
+                    btnWrap.className = 'ml-auto relative';
+
+                    if (inGroup) {
+                        // リーダーなら「メンバー追加」＋「グループ解散」、メンバーなら「統合を解除」
+                        if (isLeader) {
+                            const addMemberBtn = document.createElement('button');
+                            addMemberBtn.className = 'text-[10px] px-2 py-1 rounded-lg border border-violet-300 text-violet-600 hover:bg-violet-50 font-bold flex items-center gap-1 mr-1';
+                            addMemberBtn.innerHTML = '＋ 追加';
+                            addMemberBtn.onclick = (e) => {
+                                e.stopPropagation();
+                                document.querySelectorAll('.merge-select-dropdown').forEach(d => d.remove());
+
+                                const dropdown = document.createElement('div');
+                                dropdown.className = 'merge-select-dropdown';
+
+                                const label = document.createElement('div');
+                                label.className = 'px-3 py-2 text-[10px] font-bold text-slate-400 border-b border-slate-100';
+                                label.textContent = `「${name}」グループに追加するキャラを選択`;
+                                dropdown.appendChild(label);
+
+                                // グループに未所属のキャラのみ表示
+                                const candidates = sorted.filter(n => n !== name && !isGrouped(n));
+                                candidates.forEach(n => {
+                                    const item = document.createElement('div');
+                                    item.className = 'merge-select-item';
+                                    item.innerHTML = `<span>${n}</span>`;
+                                    item.onclick = () => {
+                                        if (!confirm(`「${n}」を「${name}」グループに追加しますか？\n「${name}」のスタイル・立ち絵が適用されます。`)) { dropdown.remove(); return; }
+                                        mergeChar(name, n);
+                                        dropdown.remove();
+                                        renderCharStyleList();
+                                    };
+                                    dropdown.appendChild(item);
+                                });
+
+                                if (candidates.length === 0) {
+                                    const empty = document.createElement('div');
+                                    empty.className = 'px-3 py-4 text-xs text-center text-slate-400';
+                                    empty.textContent = '追加できるキャラがいません';
+                                    dropdown.appendChild(empty);
+                                }
+
+                                btnWrap.appendChild(dropdown);
+                                setTimeout(() => {
+                                    document.addEventListener('click', function handler() {
+                                        dropdown.remove();
+                                        document.removeEventListener('click', handler);
+                                    });
+                                }, 10);
+                            };
+                            btnWrap.appendChild(addMemberBtn);
+                        }
+
+                        const unmergeBtn = document.createElement('button');
+                        unmergeBtn.className = 'text-[10px] px-2 py-1 rounded-lg border border-violet-200 text-violet-500 hover:bg-violet-50 font-bold';
+                        unmergeBtn.textContent = isLeader ? 'グループ解散' : '統合を解除';
+                        unmergeBtn.onclick = () => {
+                            unmergeChar(name);
+                            renderCharStyleList();
+                        };
+                        btnWrap.appendChild(unmergeBtn);
+                    } else {
+                        // 統合ボタン
+                        const mergeBtn = document.createElement('button');
+                        mergeBtn.className = 'text-[10px] px-2 py-1 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 font-bold flex items-center gap-1';
+                        mergeBtn.innerHTML = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M8 6H21M8 12H21M8 18H21M3 6h.01M3 12h.01M3 18h.01"/></svg> 統合する';
+                        mergeBtn.onclick = (e) => {
+                            e.stopPropagation();
+                            // 既存ドロップダウンを閉じる
+                            document.querySelectorAll('.merge-select-dropdown').forEach(d => d.remove());
+
+                            const dropdown = document.createElement('div');
+                            dropdown.className = 'merge-select-dropdown';
+
+                            const label = document.createElement('div');
+                            label.className = 'px-3 py-2 text-[10px] font-bold text-slate-400 border-b border-slate-100';
+                            label.textContent = `「${name}」を統合する先を選択`;
+                            dropdown.appendChild(label);
+
+                            // 自分以外のキャラ（グループリーダー優先表示）
+                            const others = sorted.filter(n => n !== name);
+                            // リーダーだけ表示（グループ代表として）
+                            const seen = new Set();
+                            others.forEach(n => {
+                                const l = getGroupLeader(n);
+                                if (seen.has(l)) return;
+                                seen.add(l);
+                                const item = document.createElement('div');
+                                item.className = 'merge-select-item' + (l !== n ? ' is-leader' : '');
+                                const memberCount = charGroups[l] ? charGroups[l].length + 1 : 1;
+                                item.innerHTML = `<span>${l}</span>${memberCount > 1 ? `<span class="char-group-badge">${memberCount}人</span>` : ''}`;
+                                item.onclick = () => {
+                                    if (!confirm(`「${name}」を「${l}」に統合しますか？\n「${name}」のスタイル・立ち絵が基準になります。`)) { dropdown.remove(); return; }
+                                    mergeChar(name, l);
+                                    dropdown.remove();
+                                    renderCharStyleList();
+                                };
+                                dropdown.appendChild(item);
+                            });
+
+                            if (seen.size === 0) {
+                                const empty = document.createElement('div');
+                                empty.className = 'px-3 py-4 text-xs text-center text-slate-400';
+                                empty.textContent = '統合できるキャラがいません';
+                                dropdown.appendChild(empty);
+                            }
+
+                            btnWrap.appendChild(dropdown);
+
+                            // 外クリックで閉じる
+                            setTimeout(() => {
+                                document.addEventListener('click', function handler() {
+                                    dropdown.remove();
+                                    document.removeEventListener('click', handler);
+                                });
+                            }, 10);
+                        };
+                        btnWrap.appendChild(mergeBtn);
+                    }
+
+                    nameRow.appendChild(btnWrap);
+                    card.appendChild(nameRow);
+
+                    // メンバーの場合はスタイル設定を省略（リーダーで設定するため）
+                    if (!inGroup || isLeader) {
+                        // フォント
+                        const fontRow = document.createElement('div');
+                        fontRow.className = 'flex items-center gap-3';
+                        fontRow.innerHTML = `<span class="text-xs text-slate-500 w-16 shrink-0">フォント</span>
+                            <select class="char-font-select flex-1 text-xs border border-slate-200 rounded-lg px-2 py-1.5 bg-white" data-char="${leader}">
                                 ${fontOptions.map(f => `<option value="${f.val}" ${cs.font === f.val ? 'selected' : ''}>${f.label}</option>`).join('')}
-                            </select>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <span class="text-xs text-slate-500 w-16 shrink-0">背景色</span>
+                            </select>`;
+                        card.appendChild(fontRow);
+
+                        // 背景色
+                        const bgRow = document.createElement('div');
+                        bgRow.className = 'flex items-center gap-3';
+                        bgRow.innerHTML = `<span class="text-xs text-slate-500 w-16 shrink-0">背景色</span>
                             <div class="flex gap-1 flex-wrap">
                                 ${['','#fef9c3','#fee2e2','#dbeafe','#dcfce7','#f3e8ff'].map(c =>
-                                    `<div class="char-bg-btn w-5 h-5 rounded cursor-pointer border ${cs.bg === c ? 'ring-2 ring-blue-500' : 'border-slate-300'}" style="background:${c || '#fff'}" data-char="${name}" data-val="${c}"></div>`
+                                    `<div class="char-bg-btn w-5 h-5 rounded cursor-pointer border ${cs.bg === c ? 'ring-2 ring-blue-500' : 'border-slate-300'}" style="background:${c || '#fff'}" data-char="${leader}" data-val="${c}"></div>`
                                 ).join('')}
                                 <div class="w-5 h-5 rounded cursor-pointer border border-slate-300 overflow-hidden relative" style="background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red)" title="カスタム">
-                                    <input type="color" class="char-bg-custom absolute inset-0 opacity-0 cursor-pointer w-full h-full" data-char="${name}" value="${cs.bg && cs.bg.startsWith('#') && cs.bg.length === 7 ? cs.bg : '#ffffff'}">
+                                    <input type="color" class="char-bg-custom absolute inset-0 opacity-0 cursor-pointer w-full h-full" data-char="${leader}" value="${cs.bg && cs.bg.startsWith('#') && cs.bg.length === 7 ? cs.bg : '#ffffff'}">
                                 </div>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <span class="text-xs text-slate-500 w-16 shrink-0">太字</span>
-                            <input type="checkbox" class="char-bold-cb w-4 h-4" data-char="${name}" ${cs.bold ? 'checked' : ''}>
-                        </div>`;
-                    container.appendChild(row);
+                            </div>`;
+                        card.appendChild(bgRow);
+
+                        // 太字
+                        const boldRow = document.createElement('div');
+                        boldRow.className = 'flex items-center gap-3';
+                        boldRow.innerHTML = `<span class="text-xs text-slate-500 w-16 shrink-0">太字</span>
+                            <input type="checkbox" class="char-bold-cb w-4 h-4" data-char="${leader}" ${cs.bold ? 'checked' : ''}>`;
+                        card.appendChild(boldRow);
+
+                        // グループメンバーがいたら一覧表示
+                        if (isLeader && members.length > 0) {
+                            const memberInfo = document.createElement('div');
+                            memberInfo.className = 'text-[10px] text-violet-500 pt-1 border-t border-violet-100';
+                            memberInfo.textContent = `スタイルが共有されるキャラ: ${members.join('、')}`;
+                            card.appendChild(memberInfo);
+                        }
+                    } else {
+                        // メンバーはリーダーのスタイルを参照中と表示
+                        const refNote = document.createElement('div');
+                        refNote.className = 'text-[10px] text-violet-400';
+                        refNote.textContent = `「${leader}」のスタイル・立ち絵を共有しています`;
+                        card.appendChild(refNote);
+                    }
+
+                    container.appendChild(card);
+
+                    // リーダーならメンバーも続けて描画
+                    if (isLeader && members.length > 0) {
+                        members.forEach(m => {
+                            rendered.add(m);
+                            const memberCard = document.createElement('div');
+                            memberCard.className = 'bg-violet-50 border border-violet-200 rounded-xl p-3 ml-4 flex items-center gap-2';
+                            memberCard.innerHTML = `
+                                <span class="text-xs font-bold text-violet-600 flex-1">${m}</span>
+                                <span class="char-group-badge">→ ${leader}</span>
+                                <button class="unmerge-member-btn text-[10px] px-2 py-1 rounded-lg border border-violet-200 text-violet-400 hover:bg-violet-100 font-bold" data-member="${m}">解除</button>`;
+                            memberCard.querySelector('.unmerge-member-btn').onclick = () => {
+                                unmergeChar(m);
+                                renderCharStyleList();
+                            };
+                            container.appendChild(memberCard);
+                        });
+                    }
+                };
+
+                // 非グループキャラを先に、グループリーダーはメンバーとまとめて描画
+                sorted.forEach(name => {
+                    if (!rendered.has(name)) renderOne(name);
                 });
 
                 // イベント設定
                 container.querySelectorAll('.char-font-select').forEach(sel => {
-                    sel.onchange = () => { if (!charStyles[sel.dataset.char]) charStyles[sel.dataset.char] = {}; charStyles[sel.dataset.char].font = sel.value; };
+                    sel.onchange = () => {
+                        const c = sel.dataset.char;
+                        if (!charStyles[c]) charStyles[c] = {};
+                        charStyles[c].font = sel.value;
+                        // グループメンバーにも伝播
+                        if (charGroups[c]) charGroups[c].forEach(m => { if (!charStyles[m]) charStyles[m] = {}; charStyles[m].font = sel.value; });
+                    };
                 });
                 container.querySelectorAll('.char-bg-btn').forEach(btn => {
                     btn.onclick = () => {
-                        if (!charStyles[btn.dataset.char]) charStyles[btn.dataset.char] = {};
-                        charStyles[btn.dataset.char].bg = btn.dataset.val;
+                        const c = btn.dataset.char;
+                        if (!charStyles[c]) charStyles[c] = {};
+                        charStyles[c].bg = btn.dataset.val;
+                        if (charGroups[c]) charGroups[c].forEach(m => { if (!charStyles[m]) charStyles[m] = {}; charStyles[m].bg = btn.dataset.val; });
                         renderCharStyleList();
                     };
                 });
                 container.querySelectorAll('.char-bg-custom').forEach(inp => {
-                    inp.oninput = () => { if (!charStyles[inp.dataset.char]) charStyles[inp.dataset.char] = {}; charStyles[inp.dataset.char].bg = inp.value; };
+                    inp.oninput = () => {
+                        const c = inp.dataset.char;
+                        if (!charStyles[c]) charStyles[c] = {};
+                        charStyles[c].bg = inp.value;
+                        if (charGroups[c]) charGroups[c].forEach(m => { if (!charStyles[m]) charStyles[m] = {}; charStyles[m].bg = inp.value; });
+                    };
                 });
                 container.querySelectorAll('.char-bold-cb').forEach(cb => {
-                    cb.onchange = () => { if (!charStyles[cb.dataset.char]) charStyles[cb.dataset.char] = {}; charStyles[cb.dataset.char].bold = cb.checked; };
+                    cb.onchange = () => {
+                        const c = cb.dataset.char;
+                        if (!charStyles[c]) charStyles[c] = {};
+                        charStyles[c].bold = cb.checked;
+                        if (charGroups[c]) charGroups[c].forEach(m => { if (!charStyles[m]) charStyles[m] = {}; charStyles[m].bold = cb.checked; });
+                    };
                 });
             }
 
             function applyCharStyles() {
                 logData.forEach((d, i) => {
-                    const cs = charStyles[d.char];
+                    const leader = getGroupLeader(d.char);
+                    const cs = charStyles[leader] || charStyles[d.char];
                     if (!cs) return;
                     if (!logData[i].style) logData[i].style = {};
                     if (cs.font !== undefined) logData[i].style.font = cs.font;
@@ -2889,21 +3252,46 @@
 
             function renderIconUploads() {
                 const container = getEl('icon-upload-container'); container.innerHTML = '';
+                // グループリーダーを代表として表示（メンバーは省略）
+                const shown = new Set();
                 Array.from(characters).sort().forEach(name => {
+                    const leader = getGroupLeader(name);
+                    if (shown.has(leader)) return; // リーダーが既に表示済みならスキップ
+                    shown.add(leader);
+
+                    const members = charGroups[leader] ? charGroups[leader] : [];
+                    const displayName = members.length > 0 ? `${leader}（+${members.join('・')}）` : leader;
+                    const iconData = charIcons[leader];
+
                     const row = document.createElement('div'); row.className = 'group flex items-center gap-4 p-4 border border-slate-200 rounded-2xl bg-white hover:border-blue-400 transition-all shadow-sm';
-                    row.innerHTML = `<div class="portrait-preview-slot" style="${charIcons[name] ? `background-image:url(${charIcons[name]})` : ''}"></div><div class="flex-1 text-sm font-bold text-slate-700">${name}</div><div class="flex items-center gap-2"><span class="text-[10px] text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:inline">画像をD&D</span>${charIcons[name] ? `<button class="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-colors"><i data-lucide="trash-2" size="16"></i></button>` : ''}</div>`;
-                    const delBtn = row.querySelector('button'); if(delBtn) delBtn.onclick = (e) => { e.stopPropagation(); delete charIcons[name]; renderIconUploads(); refreshIcons(); };
+                    row.innerHTML = `<div class="portrait-preview-slot" style="${iconData ? `background-image:url(${iconData})` : ''}"></div><div class="flex-1 text-sm font-bold text-slate-700">${displayName}${members.length > 0 ? `<span class="char-group-badge ml-1">${members.length + 1}人</span>` : ''}</div><div class="flex items-center gap-2"><span class="text-[10px] text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:inline">画像をD&D</span>${iconData ? `<button class="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-colors"><i data-lucide="trash-2" size="16"></i></button>` : ''}</div>`;
+                    const delBtn = row.querySelector('button');
+                    if (delBtn) delBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        delete charIcons[leader];
+                        members.forEach(m => delete charIcons[m]);
+                        renderIconUploads(); refreshIcons();
+                    };
+                    const setIcon = (file) => {
+                        if (file && file.type.startsWith('image/')) {
+                            // リーダー名でcropし、完了後にメンバーにも同じデータをコピー
+                            startCrop(leader, file, () => {
+                                members.forEach(m => { charIcons[m] = charIcons[leader]; });
+                                renderIconUploads(); refreshIcons();
+                            });
+                        }
+                    };
                     row.ondragover = (e) => { e.preventDefault(); row.classList.add('ring-2', 'ring-blue-500', 'bg-blue-50'); };
                     row.ondragleave = () => { row.classList.remove('ring-2', 'ring-blue-500', 'bg-blue-50'); };
-                    row.ondrop = (e) => { e.preventDefault(); row.classList.remove('ring-2', 'ring-blue-500', 'bg-blue-50'); const file = e.dataTransfer.files[0]; if (file && file.type.startsWith('image/')) startCrop(name, file); };
-                    row.onclick = () => { const input = document.createElement('input'); input.type = 'file'; input.accept = 'image/*'; input.onchange = (e) => { if(e.target.files[0]) startCrop(name, e.target.files[0]); }; input.click(); };
+                    row.ondrop = (e) => { e.preventDefault(); row.classList.remove('ring-2', 'ring-blue-500', 'bg-blue-50'); setIcon(e.dataTransfer.files[0]); };
+                    row.onclick = () => { const input = document.createElement('input'); input.type = 'file'; input.accept = 'image/*'; input.onchange = (e) => setIcon(e.target.files[0]); input.click(); };
                     container.appendChild(row);
                 });
                 lucide.createIcons();
             }
 
-            function startCrop(name, file) {
-                currentCropChar = name; const r = new FileReader();
+            function startCrop(name, file, onDone) {
+                currentCropChar = name; currentCropDone = onDone || null; const r = new FileReader();
                 r.onload = (e) => {
                     const img = new Image(); img.onload = () => {
                         currentCropImg = img; getEl('crop-modal').classList.remove('hidden');
@@ -2929,17 +3317,19 @@
             }
             function applyCrop() { 
                 const cv = document.createElement('canvas'); 
-                cv.width = cv.height = 256;  // ← 固定で256x256にリサイズ
+                cv.width = cv.height = 256;
                 const s = cropState.scale; 
                 cv.getContext('2d').drawImage(currentCropImg, cropState.x/s, cropState.y/s, cropState.size/s, cropState.size/s, 0, 0, 256, 256); 
-                charIcons[currentCropChar] = cv.toDataURL('image/png');  // ← PNG形式で保存
-                getEl('crop-modal').classList.add('hidden'); 
-                renderIconUploads(); 
-                refreshIcons(); 
+                charIcons[currentCropChar] = cv.toDataURL('image/png');
+                getEl('crop-modal').classList.add('hidden');
+                if (currentCropDone) { currentCropDone(); currentCropDone = null; }
+                else { renderIconUploads(); refreshIcons(); }
             }
             function refreshIcons() {
                 Array.from(characters).forEach(name => {
-                    const data = charIcons[name]; const safeCharClass = getSafeClassName(name);
+                    const leader = getGroupLeader(name);
+                    const data = charIcons[leader] || charIcons[name];
+                    const safeCharClass = getSafeClassName(name);
                     document.querySelectorAll(`.${safeCharClass}`).forEach(p => {
                         if (data && showPortraits) { p.style.backgroundImage = `url(${data})`; p.style.display = 'block'; }
                         else { p.style.display = 'none'; }
@@ -2975,6 +3365,7 @@
                     logData        = JSON.parse(logRaw  || '[]');
                     sourceFileName = JSON.parse(nameRaw || '"log"');
                     charStyles     = JSON.parse(charStylesRaw || '{}');
+                    charGroups     = JSON.parse((getEl('char-groups-storage')?.textContent) || '{}');
 
                     const styles = JSON.parse(styleRaw || '{}');
                     if(styles.col)   { getEl('col-slider').value = parseInt(styles.col);       updateStyle('--column-width',   styles.col,  'col-val'); }
@@ -3196,6 +3587,7 @@
                         getEl('style-data-storage').textContent = JSON.stringify({ col: getComputedStyle(document.documentElement).getPropertyValue('--column-width').trim(), font: getComputedStyle(document.documentElement).getPropertyValue('--base-font-size').trim(), port: getComputedStyle(document.documentElement).getPropertyValue('--portrait-size').trim(), theme: currentTheme, colInd: showColIndicator });
                         getEl('char-styles-storage').textContent = JSON.stringify(charStyles);
                         getEl('bookmarks-storage').textContent = JSON.stringify(bookmarks);
+                        getEl('char-groups-storage').textContent = JSON.stringify(charGroups);
                         
                         const clone = document.documentElement.cloneNode(true);
                         clone.querySelector('#settings-panel').classList.remove('active'); clone.querySelector('#filter-container').classList.remove('active');
