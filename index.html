@@ -1232,12 +1232,16 @@
                 </svg>
                 <span class="font-medium">ご意見・バグ報告はこちら（マシュマロ）</span>
             </a>
+            <button id="release-notes-btn" class="inline-flex items-center px-5 py-2.5 bg-slate-800 text-white rounded-full text-sm hover:bg-slate-700 transition-all duration-200 shadow-sm">
+                <i data-lucide="list-check" size="16"></i>
+                <span class="ml-2">更新履歴を見る</span>
+            </button>
         </div>
 
         <!-- 著作権・コピーライトなど -->
         <div class="pt-5 border-t border-slate-200">
             <p class="text-slate-400 text-xs">
-                &copy; <span id="current-year"></span> 美園ハジメ（@misono_hajime）<br>
+                &copy; <span id="current-year"></span> 美園ハジメ（@misono_siru）<br>
                 <!-- <span class="mt-2 block">CCFOLIAは、各権利者の商標または登録商標です。</span>
                 <span class="mt-1 block">CCFOLIA is a trademark of its respective owners.</span> -->
             </p>
@@ -1245,9 +1249,104 @@
     </div>
 </footer>
 
+<div id="release-notes-panel" class="fixed inset-0 bg-slate-900/70 z-[250] hidden items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-3xl overflow-hidden">
+        <div class="flex items-start justify-between gap-4 px-6 py-5 border-b border-slate-200">
+            <div>
+                <p class="text-xs font-bold uppercase tracking-[0.24em] text-slate-400">更新履歴</p>
+                <h2 class="mt-2 text-2xl font-bold text-slate-900">リリースノート</h2>
+            </div>
+            <button id="close-release-notes" class="text-slate-400 hover:text-slate-700 p-2 rounded-full">
+                <i data-lucide="x" size="20"></i>
+            </button>
+        </div>
+        <div class="p-6 space-y-5 max-h-[70vh] overflow-y-auto text-sm text-slate-600">
+            <div>
+                <div class="font-bold text-slate-900">v1.7.0</div>
+                <p class="mt-2">キャラクターをグループ化する機能を追加し、立ち絵やスタイル設定をまとめて管理できるようにしました。</p>
+            </div>
+            <div>
+                <div class="font-bold text-slate-900">v1.6.0</div>
+                <p class="mt-2">画面外のコメント表示を知らせるナビを追加。必要に応じて設定から非表示にできます。</p>
+            </div>
+            <div>
+                <div class="font-bold text-slate-900">v1.5.0</div>
+                <p class="mt-2">栞機能を追加し、好きな場所に目印をつけて瞬時にジャンプできるようにしました。</p>
+            </div>
+            <div>
+                <div class="font-bold text-slate-900">v1.4.0</div>
+                <p class="mt-2">キャラクター別に発言の見た目を設定できる機能を追加し、フォントや背景色を個別にカスタマイズ可能にしました。</p>
+            </div>
+            <div>
+                <div class="font-bold text-slate-900">v1.3.2</div>
+                <p class="mt-2">立ち絵を非表示にする設定を追加し、表示をすっきりさせることができます。</p>
+            </div>
+            <div>
+                <div class="font-bold text-slate-900">v1.3.1</div>
+                <p class="mt-2">上記機能で発生していた D&amp;D 操作不能の問題を修正し、編集ボタンを非表示にする設定も追加しました。</p>
+            </div>
+            <div>
+                <div class="font-bold text-slate-900">v1.3.0</div>
+                <p class="mt-2">カラムの順番を自由に入れ替えられるようにしました。</p>
+            </div>
+            <div>
+                <div class="font-bold text-slate-900">v1.2.1</div>
+                <p class="mt-2">PDF出力機能の表示とレイアウトを調整しました。</p>
+            </div>
+            <div>
+                <div class="font-bold text-slate-900">v1.2.0</div>
+                <p class="mt-2">巻き戻し機能を実装し、カラムやコメントの削除などの操作を取り消せるようにしました。整形済みログの読み込みにも対応しています。</p>
+            </div>
+            <div>
+                <div class="font-bold text-slate-900">v1.1.0</div>
+                <p class="mt-2">PDF出力機能とダイス強調機能を追加しました。</p>
+            </div>
+            <div>
+                <div class="font-bold text-slate-900">v1.0.1</div>
+                <p class="mt-2">細かな修正と整理を行いました。</p>
+            </div>
+            <div>
+                <div class="font-bold text-slate-900">v1.0.0</div>
+                <p class="mt-2">公開開始。ランディングページ風の紹介画面を実装し、マルチカラム、立ち絵、検索、コメント編集・装飾、表示/非表示、保存機能を搭載しました。</p>
+            </div>
+        </div>
+        <div class="px-6 py-4 border-t border-slate-200 text-right">
+            <button id="close-release-notes-bottom" class="btn-secondary">閉じる</button>
+        </div>
+    </div>
+</div>
+
 <script>
     // 現在の年を取得して、id="current-year" の場所に入れる
     document.getElementById('current-year').textContent = new Date().getFullYear();
+
+    const releaseNotesBtn = document.getElementById('release-notes-btn');
+    const releaseNotesPanel = document.getElementById('release-notes-panel');
+    const closeReleaseNotes = document.getElementById('close-release-notes');
+    const closeReleaseNotesBottom = document.getElementById('close-release-notes-bottom');
+
+    if (releaseNotesBtn && releaseNotesPanel) {
+        releaseNotesBtn.addEventListener('click', () => {
+            releaseNotesPanel.classList.remove('hidden');
+            releaseNotesPanel.classList.add('flex');
+        });
+        closeReleaseNotes?.addEventListener('click', () => {
+            releaseNotesPanel.classList.add('hidden');
+            releaseNotesPanel.classList.remove('flex');
+        });
+        closeReleaseNotesBottom?.addEventListener('click', () => {
+            releaseNotesPanel.classList.add('hidden');
+            releaseNotesPanel.classList.remove('flex');
+        });
+        releaseNotesPanel.addEventListener('click', (event) => {
+            if (event.target === releaseNotesPanel) {
+                releaseNotesPanel.classList.add('hidden');
+                releaseNotesPanel.classList.remove('flex');
+            }
+        });
+    }
+
+    lucide.createIcons();
 </script>
     </div>
 
