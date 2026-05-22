@@ -7,6 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- SheetJS (xlsx export) -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Noto+Sans+JP:wght@400;700&family=Noto+Serif+JP:wght@600&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@700&display=swap" rel="stylesheet">
@@ -1731,6 +1733,7 @@
                         <option value="html">HTML</option>
                         <option value="markdown">Markdown</option>
                         <option value="text">テキスト</option>
+                        <option value="xlsx">スプレッドシート（xlsx）</option>
                     </select>
                 </div>
                 <button id="download-btn" class="btn-primary w-full flex items-center justify-center gap-2"><i data-lucide="download" size="14"></i> HTMLとして保存</button>
@@ -3834,6 +3837,70 @@
                 }).join('\n\n');
             }
 
+            function buildXLSXExport() {
+                const XLSX = window.XLSX;
+                const locs = allLocations.length > 0
+                    ? allLocations
+                    : Array.from(new Set(logData.map(d => d.loc)));
+
+                const wb = XLSX.utils.book_new();
+                const ws = {};
+                const merges = [];
+
+                // カラムごとに2列（キャラ名・発言）を使う
+                // 列配置: loc0→A,B / loc1→C,D / ...
+                const colBase = (i) => i * 2; // 0始まりの列インデックス
+
+                // ===== 1行目: カラム名（2列結合） =====
+                locs.forEach((loc, i) => {
+                    const c = colBase(i);
+                    const addr = XLSX.utils.encode_cell({ r: 0, c });
+                    ws[addr] = { v: loc, t: 's', s: {
+                        font: { bold: true },
+                        alignment: { horizontal: 'center', vertical: 'center' },
+                        fill: { fgColor: { rgb: 'E0E7FF' } }
+                    }};
+                    // 2列結合
+                    merges.push({ s: { r: 0, c }, e: { r: 0, c: c + 1 } });
+                });
+
+                // ===== 2行目以降: 発言データ =====
+                logData.forEach((d, rowOffset) => {
+                    const r = rowOffset + 1; // 1行目はヘッダー
+                    const locIdx = locs.indexOf(d.loc);
+                    if (locIdx === -1) return;
+
+                    const c = colBase(locIdx);
+                    const char = d.char || '';
+                    const msg  = cleanText(d.msg || d.rawMsg || '');
+
+                    // キャラ名セル
+                    ws[XLSX.utils.encode_cell({ r, c })] = {
+                        v: char, t: 's',
+                        s: { font: { bold: true }, alignment: { vertical: 'top', wrapText: true } }
+                    };
+                    // 発言セル
+                    ws[XLSX.utils.encode_cell({ r, c: c + 1 })] = {
+                        v: msg, t: 's',
+                        s: { alignment: { vertical: 'top', wrapText: true } }
+                    };
+                });
+
+                // シート範囲を設定
+                const totalCols = locs.length * 2;
+                const totalRows = logData.length + 1;
+                ws['!ref'] = XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: totalRows, c: totalCols - 1 } });
+                ws['!merges'] = merges;
+
+                // 列幅を設定（キャラ名列: 12, 発言列: 40）
+                ws['!cols'] = locs.flatMap(() => [{ wch: 12 }, { wch: 40 }]);
+
+                XLSX.utils.book_append_sheet(wb, ws, 'ログ');
+
+                // ArrayBufferで返す
+                return XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+            }
+
             function downloadHTML() {
                 const loading = getEl('loading-overlay');
                 loading.classList.remove('hidden'); loading.classList.add('flex');
@@ -3884,6 +3951,10 @@
                         } else if (format === 'markdown') {
                             fileName += '.md';
                             blob = new Blob([buildMarkdownExport()], { type: 'text/markdown' });
+                        } else if (format === 'xlsx') {
+                            fileName += '.xlsx';
+                            const xlsxData = buildXLSXExport();
+                            blob = new Blob([xlsxData], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
                         } else {
                             fileName += '.txt';
                             blob = new Blob([buildTextExport()], { type: 'text/plain' });
