@@ -1170,6 +1170,13 @@
                         <p class="text-slate-500 leading-relaxed">メイン・雑談・情報を並列表示。メイン→情報→雑談の順で自動整列。カラムの並び替え・追加・名前変更も自由にできます。</p>
                     </div>
                     <div class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100">
+                        <div class="w-12 h-12 bg-cyan-100 text-cyan-600 rounded-xl flex items-center justify-center mb-6">
+                            <i data-lucide="navigation" size="24"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-800 mb-3">画面外カラムナビ</h3>
+                        <p class="text-slate-500 leading-relaxed">今読んでいる高さで、画面外のカラムに発言があるときはナビバッジで通知。クリックすればそのカラムへ瞬時にジャンプできます。</p>
+                    </div>
+                    <div class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100">
                         <div class="w-12 h-12 bg-pink-100 text-pink-600 rounded-xl flex items-center justify-center mb-6">
                             <i data-lucide="image" size="24"></i>
                         </div>
@@ -1177,18 +1184,32 @@
                         <p class="text-slate-500 leading-relaxed">D&Dで簡単設定・トリミング対応。画像はHTML内にbase64で保存されるので、ファイルひとつで完結します。</p>
                     </div>
                     <div class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100">
+                        <div class="w-12 h-12 bg-violet-100 text-violet-600 rounded-xl flex items-center justify-center mb-6">
+                            <i data-lucide="users" size="24"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-800 mb-3">キャラクター統合</h3>
+                        <p class="text-slate-500 leading-relaxed">名前が違っても同一キャラをグループ統合でき、立ち絵・フォント・背景色などのスタイルをまとめて管理。ログ上の表示名はそのままで設定だけ共有されます。</p>
+                    </div>
+                    <div class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100">
                         <div class="w-12 h-12 bg-green-100 text-green-600 rounded-xl flex items-center justify-center mb-6">
                             <i data-lucide="search" size="24"></i>
                         </div>
                         <h3 class="text-xl font-bold text-slate-800 mb-3">検索機能</h3>
-                        <p class="text-slate-500 leading-relaxed">検索結果をクリックすれば、縦横スクロールで発言位置へ正確にジャンプ。</p>
+                        <p class="text-slate-500 leading-relaxed">検索結果をクリックすれば、縦横スクロールで発言位置へ正確にジャンプ。PC・モバイル両対応。</p>
                     </div>
                     <div class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100 shadow-sm">
                         <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center mb-6">
                             <i data-lucide="edit" size="24"></i>
                         </div>
                         <h3 class="text-xl font-bold text-slate-800 mb-3">豊富な編集機能</h3>
-                        <p class="text-slate-500 leading-relaxed">テキスト修正・削除・マーカー装飾・カラム間のコメント移動に対応。操作はUndo（最大10回）で元に戻せます。</p>
+                        <p class="text-slate-500 leading-relaxed">テキスト修正・削除・マーカー装飾・カラム間移動に対応。操作はUndo（最大10回）で元に戻せます。</p>
+                    </div>
+                    <div class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100 shadow-sm">
+                        <div class="w-12 h-12 bg-fuchsia-100 text-fuchsia-600 rounded-xl flex items-center justify-center mb-6">
+                            <i data-lucide="paintbrush" size="24"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-800 mb-3">キャラクタースタイル</h3>
+                        <p class="text-slate-500 leading-relaxed">キャラクターごとにフォント・背景色・太字を個別設定。グループ統合を使えばまとめてスタイルを適用できます。</p>
                     </div>
                     <div class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100 shadow-sm">
                         <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center mb-6">
@@ -1205,6 +1226,13 @@
                         <p class="text-slate-500 leading-relaxed">整形済みHTMLを保存。次回はそのファイルを読み込むだけで最新バージョンで編集を再開できます。</p>
                     </div>
                     <div class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100 shadow-sm">
+                        <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-xl flex items-center justify-center mb-6">
+                            <i data-lucide="file-output" size="24"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-800 mb-3">書き出し形式</h3>
+                        <p class="text-slate-500 leading-relaxed">HTML・Markdown・テキスト・スプレッドシート（xlsx）形式での書き出しに対応。xlsxはカラムごとに列が分かれたセル結合レイアウトで出力されます。</p>
+                    </div>
+                    <div class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100 shadow-sm">
                         <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center mb-6">
                             <i data-lucide="printer" size="24"></i>
                         </div>
@@ -1216,7 +1244,7 @@
                             <i data-lucide="eye" size="24"></i>
                         </div>
                         <h3 class="text-xl font-bold text-slate-800 mb-3">表示カスタマイズ</h3>
-                        <p class="text-slate-500 leading-relaxed">発言者・タブごとの表示切替、テーマカラー・文字サイズ・立ち絵サイズの調整。編集ボタンの表示/非表示も設定できます。</p>
+                        <p class="text-slate-500 leading-relaxed">発言者・カラムごとの表示切替、テーマカラー・文字サイズ・立ち絵サイズの調整。ファイル名はヘッダーをクリックしてその場で編集でき、書き出しファイル名に反映されます。</p>
                     </div>
                     <div class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100 shadow-sm">
                         <div class="w-12 h-12 bg-yellow-100 text-yellow-600 rounded-xl flex items-center justify-center mb-6">
@@ -1329,13 +1357,12 @@
 
 <script>
     // ↓リリースノートはここだよ。更新しようね。
-    const APP_VERSION = '1.9.0';
+    const APP_VERSION = '1.8.1';
     const RELEASE_NOTES = [
-        { version: '1.9.0', date: '2026-05-22', description: 'ヘッダーのファイル名をクリックして直接編集できるようになりました。書き出し時のファイル名に反映されます。' },
-        { version: '1.8.1', date: '2026-05-22', description: 'スプレッドシート形式（xlsx）での書き出しに対応しました。カラムごとに列が並び、セル結合でカラム名が見やすく整理されます。' },
-        { version: '1.8.0', date: '2026-05-21', description: 'Markdown/テキストの書き出し形式を追加しました。' },
-        { version: '1.7.0', date: '2026-05-21', description: 'キャラクターをグループ化する機能を追加し、立ち絵やスタイル設定をまとめて管理できるようにしました。' },
-        { version: '1.6.0', date: '2026-05-21', description: '画面外のコメントの存在を知らせるナビを追加。必要に応じて設定から非表示にできます。' },
+        { version: '1.8.1', description: 'スプレッドシート形式（xlsx）での書き出しに対応しました。カラムごとに列が並び、セル結合でカラム名が見やすく整理されます。' },
+        { version: '1.8.0', description: 'Markdown/テキストの書き出し形式を追加しました。' },
+        { version: '1.7.0', description: 'キャラクターをグループ化する機能を追加し、立ち絵やスタイル設定をまとめて管理できるようにしました。' },
+        { version: '1.6.0', description: '画面外のコメントの存在を知らせるナビを追加。必要に応じて設定から非表示にできます。' },
         { version: '1.5.0', description: '栞機能を追加し、好きな場所に目印をつけて瞬時にジャンプできるようにしました。' },
         { version: '1.4.0', description: 'キャラクター別に発言の見た目を設定できる機能を追加し、フォントや背景色を個別にカスタマイズ可能にしました。' },
         { version: '1.3.2', description: '立ち絵を非表示にする設定を追加し、表示をすっきりさせることができます。' },
@@ -1358,7 +1385,7 @@
         RELEASE_NOTES.forEach((note) => {
             const entry = document.createElement('div');
             entry.innerHTML = `
-                <div class="font-bold text-slate-900">v${note.version}${note.date ? ` <span class="text-xs font-normal text-slate-400">(${note.date})</span>` : ''}</div>
+                <div class="font-bold text-slate-900">v${note.version}</div>
                 <p class="mt-2">${note.description}</p>
             `;
             releaseNotesList.appendChild(entry);
@@ -1374,7 +1401,6 @@
         { title: 'Undo / 巻き戻し', description: '最大10件のUndo履歴を保存し、削除・移動・編集を元に戻せるようにしました。' },
         { title: 'PDF出力', description: 'カラム別の出力設定、立ち絵・アイコン付きPDF、テーマカラー反映に対応しています。' },
         { title: '書き出し形式の選択', description: 'HTML・Markdown・テキスト・スプレッドシート（xlsx）形式の出力に対応。xlsxはカラムごとに列が分かれたセル結合レイアウトで出力されます。' },
-        { title: 'ファイル名編集', description: 'ヘッダーのファイル名をクリックしてその場で編集できます。変更した名前は書き出し時のファイル名に反映されます。' },
         { title: 'キャラクタースタイル', description: 'キャラクターごとにフォント、背景色、太字を設定し、スタイルのグループ共有や統合も可能です。' },
         { title: '栞機能', description: '栞を追加して好きな場所に目印をつけ、クリックでその位置へ瞬時にジャンプできます。' },
         { title: 'ダイス強調', description: 'BCDiceのロール結果を自動検出し、成功・失敗・クリティカル・ファンブルを色付きで強調します。' },
@@ -1642,8 +1668,7 @@
                     <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white" style="background-color: var(--accent-color)">
                         <i data-lucide="layout" size="18"></i>
                     </div>
-                    <h1 id="app-title" class="text-base font-bold text-slate-800 tracking-tight cursor-pointer hover:text-blue-600 transition-colors" title="クリックしてファイル名を編集">ろぐしあたー</h1>
-                    <input id="app-title-input" type="text" class="hidden text-base font-bold text-slate-800 tracking-tight bg-transparent border-b-2 border-blue-500 outline-none w-48 max-w-xs" />
+                    <h1 id="app-title" class="text-base font-bold text-slate-800 tracking-tight">ろぐしあたー</h1>
                     <button id="exit-demo-btn" class="btn-demo-exit"><i data-lucide="log-out" size="12"></i> デモ終了</button>
                 </div>
                 <div id="search-wrapper" class="relative group ml-4 hidden sm:block">
@@ -2258,38 +2283,6 @@
                 getEl('edit-btn-toggle').onclick = () => {
                     showEditButtons = !showEditButtons;
                     applyEditButtonVisibility();
-                };
-
-                // ファイル名インライン編集
-                const appTitle = getEl('app-title');
-                const appTitleInput = getEl('app-title-input');
-
-                appTitle.onclick = () => {
-                    appTitleInput.value = sourceFileName;
-                    appTitleInput.style.width = Math.max(80, appTitle.offsetWidth) + 'px';
-                    appTitle.classList.add('hidden');
-                    appTitleInput.classList.remove('hidden');
-                    appTitleInput.focus();
-                    appTitleInput.select();
-                };
-
-                const commitTitleEdit = () => {
-                    const newName = appTitleInput.value.trim();
-                    if (newName) {
-                        sourceFileName = newName;
-                        appTitle.textContent = newName;
-                    }
-                    appTitleInput.classList.add('hidden');
-                    appTitle.classList.remove('hidden');
-                };
-
-                appTitleInput.onblur = commitTitleEdit;
-                appTitleInput.onkeydown = (e) => {
-                    if (e.key === 'Enter') { e.preventDefault(); commitTitleEdit(); }
-                    if (e.key === 'Escape') {
-                        appTitleInput.classList.add('hidden');
-                        appTitle.classList.remove('hidden');
-                    }
                 };
 
                 // 立ち絵表示トグル
