@@ -1329,12 +1329,13 @@
 
 <script>
     // ↓リリースノートはここだよ。更新しようね。
-    const APP_VERSION = '1.8.1';
+    const APP_VERSION = '1.9.0';
     const RELEASE_NOTES = [
-        { version: '1.8.1', description: 'スプレッドシート形式（xlsx）での書き出しに対応しました。カラムごとに列が並び、セル結合でカラム名が見やすく整理されます。' },
-        { version: '1.8.0', description: 'Markdown/テキストの書き出し形式を追加しました。' },
-        { version: '1.7.0', description: 'キャラクターをグループ化する機能を追加し、立ち絵やスタイル設定をまとめて管理できるようにしました。' },
-        { version: '1.6.0', description: '画面外のコメントの存在を知らせるナビを追加。必要に応じて設定から非表示にできます。' },
+        { version: '1.9.0', date: '2026-05-22', description: 'ヘッダーのファイル名をクリックして直接編集できるようになりました。書き出し時のファイル名に反映されます。' },
+        { version: '1.8.1', date: '2026-05-22', description: 'スプレッドシート形式（xlsx）での書き出しに対応しました。カラムごとに列が並び、セル結合でカラム名が見やすく整理されます。' },
+        { version: '1.8.0', date: '2026-05-21', description: 'Markdown/テキストの書き出し形式を追加しました。' },
+        { version: '1.7.0', date: '2026-05-21', description: 'キャラクターをグループ化する機能を追加し、立ち絵やスタイル設定をまとめて管理できるようにしました。' },
+        { version: '1.6.0', date: '2026-05-21', description: '画面外のコメントの存在を知らせるナビを追加。必要に応じて設定から非表示にできます。' },
         { version: '1.5.0', description: '栞機能を追加し、好きな場所に目印をつけて瞬時にジャンプできるようにしました。' },
         { version: '1.4.0', description: 'キャラクター別に発言の見た目を設定できる機能を追加し、フォントや背景色を個別にカスタマイズ可能にしました。' },
         { version: '1.3.2', description: '立ち絵を非表示にする設定を追加し、表示をすっきりさせることができます。' },
@@ -1357,7 +1358,7 @@
         RELEASE_NOTES.forEach((note) => {
             const entry = document.createElement('div');
             entry.innerHTML = `
-                <div class="font-bold text-slate-900">v${note.version}</div>
+                <div class="font-bold text-slate-900">v${note.version}${note.date ? ` <span class="text-xs font-normal text-slate-400">(${note.date})</span>` : ''}</div>
                 <p class="mt-2">${note.description}</p>
             `;
             releaseNotesList.appendChild(entry);
@@ -1373,6 +1374,7 @@
         { title: 'Undo / 巻き戻し', description: '最大10件のUndo履歴を保存し、削除・移動・編集を元に戻せるようにしました。' },
         { title: 'PDF出力', description: 'カラム別の出力設定、立ち絵・アイコン付きPDF、テーマカラー反映に対応しています。' },
         { title: '書き出し形式の選択', description: 'HTML・Markdown・テキスト・スプレッドシート（xlsx）形式の出力に対応。xlsxはカラムごとに列が分かれたセル結合レイアウトで出力されます。' },
+        { title: 'ファイル名編集', description: 'ヘッダーのファイル名をクリックしてその場で編集できます。変更した名前は書き出し時のファイル名に反映されます。' },
         { title: 'キャラクタースタイル', description: 'キャラクターごとにフォント、背景色、太字を設定し、スタイルのグループ共有や統合も可能です。' },
         { title: '栞機能', description: '栞を追加して好きな場所に目印をつけ、クリックでその位置へ瞬時にジャンプできます。' },
         { title: 'ダイス強調', description: 'BCDiceのロール結果を自動検出し、成功・失敗・クリティカル・ファンブルを色付きで強調します。' },
@@ -1640,7 +1642,8 @@
                     <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white" style="background-color: var(--accent-color)">
                         <i data-lucide="layout" size="18"></i>
                     </div>
-                    <h1 id="app-title" class="text-base font-bold text-slate-800 tracking-tight">ろぐしあたー</h1>
+                    <h1 id="app-title" class="text-base font-bold text-slate-800 tracking-tight cursor-pointer hover:text-blue-600 transition-colors" title="クリックしてファイル名を編集">ろぐしあたー</h1>
+                    <input id="app-title-input" type="text" class="hidden text-base font-bold text-slate-800 tracking-tight bg-transparent border-b-2 border-blue-500 outline-none w-48 max-w-xs" />
                     <button id="exit-demo-btn" class="btn-demo-exit"><i data-lucide="log-out" size="12"></i> デモ終了</button>
                 </div>
                 <div id="search-wrapper" class="relative group ml-4 hidden sm:block">
@@ -2255,6 +2258,38 @@
                 getEl('edit-btn-toggle').onclick = () => {
                     showEditButtons = !showEditButtons;
                     applyEditButtonVisibility();
+                };
+
+                // ファイル名インライン編集
+                const appTitle = getEl('app-title');
+                const appTitleInput = getEl('app-title-input');
+
+                appTitle.onclick = () => {
+                    appTitleInput.value = sourceFileName;
+                    appTitleInput.style.width = Math.max(80, appTitle.offsetWidth) + 'px';
+                    appTitle.classList.add('hidden');
+                    appTitleInput.classList.remove('hidden');
+                    appTitleInput.focus();
+                    appTitleInput.select();
+                };
+
+                const commitTitleEdit = () => {
+                    const newName = appTitleInput.value.trim();
+                    if (newName) {
+                        sourceFileName = newName;
+                        appTitle.textContent = newName;
+                    }
+                    appTitleInput.classList.add('hidden');
+                    appTitle.classList.remove('hidden');
+                };
+
+                appTitleInput.onblur = commitTitleEdit;
+                appTitleInput.onkeydown = (e) => {
+                    if (e.key === 'Enter') { e.preventDefault(); commitTitleEdit(); }
+                    if (e.key === 'Escape') {
+                        appTitleInput.classList.add('hidden');
+                        appTitle.classList.remove('hidden');
+                    }
                 };
 
                 // 立ち絵表示トグル
