@@ -1608,6 +1608,63 @@
             </div>
         </div>
 
+        <!-- 操作ボタン説明モーダル -->
+        <div id="help-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[150] items-center justify-center p-4 hidden">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg flex flex-col max-h-[85vh] overflow-hidden">
+                <div class="p-5 border-b flex justify-between items-center bg-slate-50">
+                    <h3 class="font-bold text-xl text-slate-800 flex items-center gap-2"><i data-lucide="circle-help" size="20"></i> 操作ボタンの説明</h3>
+                    <button id="close-help-modal" class="p-2 hover:bg-slate-200 rounded-full transition-colors"><i data-lucide="x" size="20"></i></button>
+                </div>
+                <div class="overflow-y-auto p-6 flex-1 bg-slate-50 space-y-5">
+                    <div>
+                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wide mb-2">編集モード</p>
+                        <div class="space-y-3">
+                            <div class="flex items-start gap-3 bg-white p-3 rounded-xl border border-slate-100">
+                                <div class="w-9 h-9 flex-shrink-0 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center"><i data-lucide="pencil" size="16"></i></div>
+                                <div><p class="font-bold text-sm text-slate-800">文字編集モード</p><p class="text-xs text-slate-500 leading-relaxed mt-0.5">クリックした発言のテキストをその場で直接修正できます。</p></div>
+                            </div>
+                            <div class="flex items-start gap-3 bg-white p-3 rounded-xl border border-slate-100">
+                                <div class="w-9 h-9 flex-shrink-0 rounded-lg bg-red-50 text-red-600 flex items-center justify-center"><i data-lucide="trash-2" size="16"></i></div>
+                                <div><p class="font-bold text-sm text-slate-800">削除モード</p><p class="text-xs text-slate-500 leading-relaxed mt-0.5">不要な発言や、カラムそのものを削除できます。</p></div>
+                            </div>
+                            <div class="flex items-start gap-3 bg-white p-3 rounded-xl border border-slate-100">
+                                <div class="w-9 h-9 flex-shrink-0 rounded-lg bg-violet-50 text-violet-600 flex items-center justify-center"><i data-lucide="layout-grid" size="16"></i></div>
+                                <div><p class="font-bold text-sm text-slate-800">構造編集モード</p><p class="text-xs text-slate-500 leading-relaxed mt-0.5">カラムの追加・並び替えや、発言を別カラムへ移動できます。</p></div>
+                            </div>
+                            <div class="flex items-start gap-3 bg-white p-3 rounded-xl border border-slate-100">
+                                <div class="w-9 h-9 flex-shrink-0 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center"><i data-lucide="highlighter" size="16"></i></div>
+                                <div><p class="font-bold text-sm text-slate-800">マーカーモード</p><p class="text-xs text-slate-500 leading-relaxed mt-0.5">発言の背景色や文字色などのスタイルを変更できます。</p></div>
+                            </div>
+                            <div class="flex items-start gap-3 bg-white p-3 rounded-xl border border-slate-100">
+                                <div class="w-9 h-9 flex-shrink-0 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center"><i data-lucide="undo-2" size="16"></i></div>
+                                <div><p class="font-bold text-sm text-slate-800">元に戻す（Undo）</p><p class="text-xs text-slate-500 leading-relaxed mt-0.5">直前の削除・移動・編集操作を取り消せます（最大10件）。</p></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wide mb-2">栞・ジャンプ</p>
+                        <div class="space-y-3">
+                            <div class="flex items-start gap-3 bg-white p-3 rounded-xl border border-slate-100">
+                                <div class="w-9 h-9 flex-shrink-0 rounded-lg bg-yellow-50 text-yellow-600 flex items-center justify-center"><i data-lucide="bookmark" size="16"></i></div>
+                                <div><p class="font-bold text-sm text-slate-800">栞リスト</p><p class="text-xs text-slate-500 leading-relaxed mt-0.5">挟んだ栞の一覧を表示し、クリックでその場所へジャンプできます。</p></div>
+                            </div>
+                            <div class="flex items-start gap-3 bg-white p-3 rounded-xl border border-slate-100">
+                                <div class="w-9 h-9 flex-shrink-0 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center"><i data-lucide="arrow-up" size="16"></i></div>
+                                <div><p class="font-bold text-sm text-slate-800">一番上へ</p><p class="text-xs text-slate-500 leading-relaxed mt-0.5">ログの一番最初の位置まで一気に移動します。</p></div>
+                            </div>
+                            <div class="flex items-start gap-3 bg-white p-3 rounded-xl border border-slate-100">
+                                <div class="w-9 h-9 flex-shrink-0 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center"><i data-lucide="arrow-down" size="16"></i></div>
+                                <div><p class="font-bold text-sm text-slate-800">一番下へ</p><p class="text-xs text-slate-500 leading-relaxed mt-0.5">ログの一番最後（最新）の位置まで一気に移動します。</p></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-5 border-t bg-white flex justify-end">
+                    <button id="close-help-modal-btn" class="btn-primary w-full sm:w-auto px-10">閉じる</button>
+                </div>
+            </div>
+        </div>
+
         <!-- PDF出力設定モーダル -->
         <div id="pdf-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[150] items-center justify-center p-4 hidden">
             <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg flex flex-col max-h-[85vh] overflow-hidden">
@@ -1678,6 +1735,7 @@
                 </div>
             </div>
             <div id="header-right-pc" class="flex items-center gap-2">
+                <button id="pc-open-help-modal-btn" class="btn-secondary px-3" title="操作ボタンの説明"><i data-lucide="circle-help" size="14"></i></button>
                 <button id="pc-open-char-modal-btn" class="btn-secondary"><i data-lucide="users" size="14"></i> キャラ設定</button>
                 <button id="pc-settings-btn" class="btn-secondary px-3"><i data-lucide="sliders-horizontal" size="14"></i></button>
             </div>
@@ -2232,15 +2290,20 @@
                 const toggleSettings = (e) => { e.stopPropagation(); getEl('filter-container').classList.remove('active'); getEl('settings-panel').classList.toggle('active'); };
                 const toggleFilterMobile = (e) => { e.stopPropagation(); getEl('settings-panel').classList.remove('active'); getEl('filter-container').classList.toggle('active'); };
                 const openCharModal = () => { getEl('char-modal').classList.remove('hidden'); getEl('char-modal').classList.add('flex'); renderIconUploads(); };
+                const openHelpModal = () => { getEl('help-modal').classList.remove('hidden'); getEl('help-modal').classList.add('flex'); };
+                const closeHelpModal = () => getEl('help-modal').classList.add('hidden');
 
                 getEl('pc-settings-btn').addEventListener('click', toggleSettings);
                 getEl('pc-open-char-modal-btn').addEventListener('click', openCharModal);
+                getEl('pc-open-help-modal-btn').addEventListener('click', openHelpModal);
                 getEl('mb-nav-settings').addEventListener('click', toggleSettings);
                 getEl('mb-nav-filter').addEventListener('click', toggleFilterMobile);
                 getEl('mb-nav-char').addEventListener('click', openCharModal);
 
                 getEl('close-char-modal').onclick = () => getEl('char-modal').classList.add('hidden');
                 getEl('close-char-modal-btn').onclick = () => { applyCharStyles(); getEl('char-modal').classList.add('hidden'); };
+                getEl('close-help-modal').onclick = closeHelpModal;
+                getEl('close-help-modal-btn').onclick = closeHelpModal;
 
                 getEl('col-slider').oninput = (e) => updateStyle('--column-width', e.target.value + 'px', 'col-val');
                 getEl('font-slider').oninput = (e) => updateStyle('--base-font-size', e.target.value + 'px', 'font-val');
