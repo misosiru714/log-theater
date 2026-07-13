@@ -21,7 +21,7 @@
     <meta name="description" content="ココフォリアのログを整形・編集できる無料Webツール。タブ別表示、発言の編集・非表示、立ち絵表示などでTRPGログを読みやすく整理。編集後はHTMLとして保存できます。">
     <meta property="og:site_name" content="ろぐしあたー">
     <!-- アイコン -->
-    <link rel="icon" type="image/png" href="icon.png">
+    <link id="favicon-link" rel="icon" type="image/png" href="icon.png">
     <style>
         :root {
             --column-width: 350px;
@@ -1848,6 +1848,8 @@
 
     <script>
         (function() {
+            // 書き出しHTML用のファビコン(icon.pngをBase64化したもの)。単一ファイルで配布できるよう、保存時のみこちらに差し替える。
+            const FAVICON_BASE64 = 'iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAABZklEQVR4AeyYUY7DIAxEM3v/O3cZVUgQwNhyCKASxWpK8HiezVf+rs2v3wL4vHRZDoV6AvRuEfbstdRSAVgEPcbTXG3NLoAkBOAC8khNeJ+l2lFbBJAEAASNTxEA18PyQ7fkgSWaAL1EJr8VkpcqgJTwlul7nZanAqC18S4443/NWwZQ2zDDqFTz7jEDkBJXfXcAZk/mTOBMwNmBc4ScDXSnnwm4W+gUMEzAWWlQ+gEY1Fi17JmAulWDNp4JDGqsWnbIBAAUn1uA/pradbJxAED5qeW6dGsAEmu6xwwA4dKlrbMrA6CtwGBvAxMnRQFAHztBVAF2gmgC9CDC95mwhaftufhqBlnDLQJQRzpOLPhksJ41ugAUlCD4fmaoAGhwVQg1QIQgyKhgDWuYAKzi1v2xMZa8pQCicYLE597vkgA0rYUYA0AHDwQhGJLU0gDRuASxBQBBWhDbALQgtgKoQWwHQIg0/gEAAP//3wriSwAAAAZJREFUAwBEdf5hQKSTQgAAAABJRU5ErkJggg==';
             let charIcons = {};
             let logData = [];
             let allLocations = [];
@@ -4013,6 +4015,9 @@
                             getEl('char-groups-storage').textContent = JSON.stringify(charGroups);
                             
                             const clone = document.documentElement.cloneNode(true);
+                            // 書き出しHTMLは単体で開かれる想定なので、favicon参照をBase64埋め込みに差し替える
+                            const cloneFavicon = clone.querySelector('#favicon-link');
+                            if (cloneFavicon) cloneFavicon.setAttribute('href', 'data:image/png;base64,' + FAVICON_BASE64);
                             clone.querySelector('#settings-panel').classList.remove('active'); clone.querySelector('#filter-container').classList.remove('active');
                             clone.querySelector('#search-results').innerHTML = ''; clone.querySelector('#search-results').classList.add('hidden');
                             clone.querySelector('#search-results-mobile').innerHTML = ''; clone.querySelector('#search-results-mobile').classList.add('hidden');
