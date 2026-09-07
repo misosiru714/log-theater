@@ -1109,7 +1109,7 @@
             <p class="text-lg md:text-xl text-slate-500 max-w-4xl mb-10 leading-relaxed">
                 TRPGログを読みやすく整形・表示できるツール<br>
                 （ココフォリアログ対応）<br>
-                ココフォリアのログファイル（HTMLのやつ）をドラッグ＆ドロップ。<br>
+                ココフォリアのログファイル（HTML・JSONどちらもOK）をドラッグ＆ドロップ。<br>
                 閲覧だけじゃなく、誤字修正とか色々できるようにしたよ。<br>
                 [all]って書かれたファイルを使うと良いよ。
             </p>
@@ -1135,7 +1135,7 @@
                             <span class="text-lg font-bold">1</span>
                         </div>
                         <h3 class="text-xl font-bold text-slate-800 mb-3">ファイルを読み込む</h3>
-                        <p class="text-slate-500 leading-relaxed">ココフォリアのログHTMLをドラッグ＆ドロップ、またはファイル選択で読み込んでください。</p>
+                        <p class="text-slate-500 leading-relaxed">ココフォリアのログHTML・JSONをドラッグ＆ドロップ、またはファイル選択で読み込んでください。</p>
                     </div>
                     <div class="p-8 bg-white rounded-3xl border border-slate-200 shadow-sm">
                         <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mb-5">
@@ -1357,8 +1357,9 @@
 
 <script>
     // ↓リリースノートはここだよ。更新しようね。
-    const APP_VERSION = '1.8.1';
+    const APP_VERSION = '1.9.0';
     const RELEASE_NOTES = [
+        { version: '1.9.0', description: 'ココフォリアの新しいログ出力形式（立ち絵付きHTML・JSON）の読み込みに対応しました。発言ごとの立ち絵差分（表情差分など）もそのまま反映されます。' },
         { version: '1.8.1', description: 'スプレッドシート形式（xlsx）での書き出しに対応しました。カラムごとに列が並び、セル結合でカラム名が見やすく整理されます。' },
         { version: '1.8.0', description: 'Markdown/テキストの書き出し形式を追加しました。' },
         { version: '1.7.0', description: 'キャラクターをグループ化する機能を追加し、立ち絵やスタイル設定をまとめて管理できるようにしました。' },
@@ -1487,8 +1488,8 @@
                 <h2 class="text-2xl font-bold mb-2 text-slate-800">ログファイルを読み込む</h2>
                 <div id="drop-zone" class="group transition-all duration-200 mt-8">
                     <i data-lucide="upload-cloud" class="mx-auto mb-4 text-slate-300 group-hover:text-blue-400 transition-colors pointer-events-none" size="48"></i>
-                    <p class="text-slate-600 font-medium pointer-events-none">ログHTMLをここにドロップ</p>
-                    <input type="file" id="file-input" class="hidden" accept=".html">
+                    <p class="text-slate-600 font-medium pointer-events-none">ログHTML・JSONをここにドロップ</p>
+                    <input type="file" id="file-input" class="hidden" accept=".html,.json">
                 </div>
             </div>
         </div>
@@ -2173,6 +2174,13 @@
                 return 'pc-' + encodeURIComponent(name).replace(/[%().'!~*]/g, '_');
             }
 
+            function escapeHtml(str) {
+                return String(str)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;');
+            }
+
             // BCDiceダイスロール行を検出して強調HTMLに変換
             function formatDiceLines(rawMsg) {
                 // BCDice出力パターン: 「(コマンド) ＞ 出目 ＞ 結果」または「コマンド ＞ ...」
@@ -2706,23 +2714,33 @@
             function exitDemo() { clearStorage(); location.reload(); }
 
             function handleFile(file) {
-                sourceFileName = file.name.replace('.html','');
+                const isJson = /\.json$/i.test(file.name);
+                sourceFileName = file.name.replace(/\.(html|json)$/i, '');
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     try {
-                        const html = e.target.result;
-                        const doc = new DOMParser().parseFromString(html, 'text/html');
-
-                        // 整形済みHTMLかどうかを判定（log-data-storageの存在で判別）
-                        const logStorage = doc.getElementById('log-data-storage');
-                        const savedLog = logStorage ? JSON.parse(logStorage.textContent || '[]') : [];
-
-                        if (savedLog.length > 0) {
-                            // 整形済みHTML → 保存済みJSONから復元
-                            parseFromStorage(doc);
+                        if (isJson) {
+                            // ココフォリアのJSON形式ログ
+                            const data = JSON.parse(e.target.result);
+                            parseCocofoliaJSON(data);
                         } else {
-                            // ococofolia生ログ → 通常パース
-                            parse(html);
+                            const html = e.target.result;
+                            const doc = new DOMParser().parseFromString(html, 'text/html');
+
+                            // 整形済みHTMLかどうかを判定（log-data-storageの存在で判別）
+                            const logStorage = doc.getElementById('log-data-storage');
+                            const savedLog = logStorage ? JSON.parse(logStorage.textContent || '[]') : [];
+
+                            if (savedLog.length > 0) {
+                                // 整形済みHTML → 保存済みJSONから復元
+                                parseFromStorage(doc);
+                            } else if (doc.querySelector('article.message')) {
+                                // ココフォリアの新しいHTML出力形式（立ち絵付き）
+                                parseCocofoliaNewHTML(doc);
+                            } else {
+                                // ココフォリア旧形式の生ログ → 通常パース
+                                parse(html);
+                            }
                         }
 
                         getEl('app-title').textContent = sourceFileName;
@@ -2763,7 +2781,7 @@
                 logData.forEach(d => characters.add(d.char));
                 renderLayout();
                 getEl('rows-container').innerHTML = '';
-                logData.forEach(m => createRow(m.id, m.loc, m.char, m.color || '#000', m.rawMsg || m.msg, m.style || {}));
+                logData.forEach(m => createRow(m.id, m.loc, m.char, m.color || '#000', m.rawMsg || m.msg, m.style || {}, m.icon || null));
                 refreshIcons();
                 // 栞を復元（行が描画された後に実行）
                 setTimeout(() => restoreBookmarks(JSON.parse(bookmarksRaw || '[]')), 50);
@@ -2785,11 +2803,107 @@
                         const color = p.style.color || '#1e293b';
                         let msg = ""; for(let i=2; i<spans.length; i++) msg += spans[i].innerHTML;
                         locSet.add(loc); characters.add(char);
-                        tempLogData.push({ id: idx, loc, char, msg: msg.replace(/<[^>]+>/g, ''), color: color, rawMsg: msg, style: {} });
+                        tempLogData.push({ id: idx, loc, char, msg: msg.replace(/<[^>]+>/g, ''), color: color, rawMsg: msg, style: {}, icon: null });
                     } catch(e) {}
                 });
                 logData = tempLogData;
-                const locArray = Array.from(locSet).sort(); 
+                finishParsing(locSet);
+            }
+
+            // ココフォリアの新しいHTML出力形式（立ち絵付き）をパース
+            // <article class="message" data-channel="..."> ... <span class="avatar avatar-image-N">
+            function parseCocofoliaNewHTML(doc) {
+                // <style>内の .avatar-image-N { background-image: url(...) } から立ち絵データを収集
+                const iconMap = {};
+                const styleText = Array.from(doc.querySelectorAll('style')).map(s => s.textContent).join('\n');
+                const iconRegex = /\.(avatar-image-\d+)\s*\{[^}]*background-image:\s*url\((?:"|')?(data:image\/[^"')]+)(?:"|')?\)/g;
+                let m;
+                while ((m = iconRegex.exec(styleText))) { iconMap[m[1]] = m[2]; }
+
+                const articles = doc.querySelectorAll('article.message');
+                const locSet = new Set();
+                const tempLogData = [];
+                characters.clear();
+                let idx = 0;
+                articles.forEach(article => {
+                    try {
+                        if (article.classList.contains('system')) return; // システムメッセージは対象外
+
+                        const speakerEl = article.querySelector('.speaker');
+                        if (!speakerEl) return;
+                        const char = speakerEl.textContent.trim();
+
+                        const colorMatch = /--speaker-color:\s*(#[0-9a-fA-F]{3,8})/.exec(speakerEl.getAttribute('style') || '');
+                        const color = colorMatch ? colorMatch[1] : '#1e293b';
+
+                        const channelEl = article.querySelector('.channel-name');
+                        let loc = channelEl ? channelEl.textContent.trim() : 'メイン';
+                        loc = loc.replace(/^\[/, '').replace(/\]$/, '') || 'メイン';
+
+                        const textEl = article.querySelector('.message-text');
+                        const rollEl = article.querySelector('.roll-result');
+                        let msgHtml = textEl ? escapeHtml(textEl.textContent) : '';
+                        if (rollEl) msgHtml += (msgHtml ? '<br>' : '') + escapeHtml(rollEl.textContent.trim());
+
+                        let icon = null;
+                        const avatarEl = article.querySelector('.avatar');
+                        if (avatarEl) {
+                            const imgClass = Array.from(avatarEl.classList).find(c => c.startsWith('avatar-image-'));
+                            if (imgClass && iconMap[imgClass]) icon = iconMap[imgClass];
+                        }
+
+                        locSet.add(loc); characters.add(char);
+                        tempLogData.push({ id: idx, loc, char, msg: msgHtml.replace(/<[^>]+>/g, ''), color, rawMsg: msgHtml, style: {}, icon });
+                        idx++;
+                    } catch (e) {}
+                });
+                logData = tempLogData;
+                finishParsing(locSet);
+            }
+
+            // JSON側の生チャンネル名("main"など)をHTML出力側の表記("メイン"など)に揃える
+            function normalizeChannelName(loc) {
+                const trimmed = (loc || '').trim();
+                if (!trimmed) return 'メイン';
+                if (trimmed.toLowerCase() === 'main') return 'メイン';
+                return trimmed;
+            }
+
+            // ココフォリアのJSON形式ログをパース（{ messages: [...], images: {...} }）
+            function parseCocofoliaJSON(data) {
+                const messages = Array.isArray(data.messages) ? data.messages : [];
+                const images = data.images || {};
+                const locSet = new Set();
+                const tempLogData = [];
+                characters.clear();
+                let idx = 0;
+                messages.forEach(m => {
+                    try {
+                        if (m.type === 'system') return; // システムメッセージは対象外
+                        const char = (m.name || '').trim();
+                        if (!char) return;
+                        const color = m.color || '#1e293b';
+                        const loc = normalizeChannelName(m.channelName || m.channel);
+
+                        let msgHtml = escapeHtml(m.text || '');
+                        const roll = m.extend && m.extend.roll;
+                        if (roll && roll.result) msgHtml += (msgHtml ? '<br>' : '') + escapeHtml(roll.result);
+
+                        let icon = null;
+                        if (m.iconImage && images[m.iconImage]) icon = images[m.iconImage];
+
+                        locSet.add(loc); characters.add(char);
+                        tempLogData.push({ id: idx, loc, char, msg: msgHtml.replace(/<[^>]+>/g, ''), color, rawMsg: msgHtml, style: {}, icon });
+                        idx++;
+                    } catch (e) {}
+                });
+                logData = tempLogData;
+                finishParsing(locSet);
+            }
+
+            // パース結果からカラム順を決定してレイアウト描画するまでの共通処理
+            function finishParsing(locSet) {
+                const locArray = Array.from(locSet);
                 const getPriority = (name) => {
                     const n = name.toLowerCase();
                     if (n.includes('main') || n.includes('メイン')) return 1;
@@ -2804,12 +2918,12 @@
                 });
 
                 renderLayout();
-                getEl('rows-container').innerHTML = ''; 
-                logData.forEach(m => { createRow(m.id, m.loc, m.char, m.color, m.rawMsg, m.style); });
+                getEl('rows-container').innerHTML = '';
+                logData.forEach(m => { createRow(m.id, m.loc, m.char, m.color, m.rawMsg, m.style, m.icon); });
                 refreshIcons();
             }
 
-            function createRow(idx, loc, char, color, msg, style = {}) {
+            function createRow(idx, loc, char, color, msg, style = {}, icon = null) {
                 const row = document.createElement('div');
                 row.className = 'timeline-row'; row.id = `row-${idx}`; row.setAttribute('data-char', char); row.setAttribute('data-loc', loc);
                 const safeCharClass = getSafeClassName(char);
@@ -2865,6 +2979,16 @@
                         if(style.bg) { bubble.style.backgroundColor = style.bg; bubble.style.borderColor = '#fbbf24'; }
                         if(style.bold) bubble.classList.add('font-bold');
                         if(style.font && FONT_MAP[style.font]) bubble.classList.add(FONT_MAP[style.font]);
+
+                        // 発言ごとの立ち絵差分（表情差分など）がある場合はそれを個別に適用
+                        if (icon) {
+                            const portraitEl = cell.querySelector('.char-portrait');
+                            if (portraitEl) {
+                                portraitEl.dataset.ownIcon = '1';
+                                portraitEl.style.backgroundImage = `url(${icon})`;
+                                portraitEl.style.display = showPortraits ? 'block' : 'none';
+                            }
+                        }
                     }
                     row.appendChild(cell);
                 });
@@ -3648,6 +3772,11 @@
                     const data = charIcons[leader] || charIcons[name];
                     const safeCharClass = getSafeClassName(name);
                     document.querySelectorAll(`.${safeCharClass}`).forEach(p => {
+                        // 発言ごとの立ち絵差分が設定済みの場合は上書きせず、表示/非表示だけ切り替える
+                        if (p.dataset.ownIcon === '1') {
+                            p.style.display = showPortraits ? 'block' : 'none';
+                            return;
+                        }
                         if (data && showPortraits) { p.style.backgroundImage = `url(${data})`; p.style.display = 'block'; }
                         else { p.style.display = 'none'; }
                     });
