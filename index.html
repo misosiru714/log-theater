@@ -292,6 +292,17 @@
             text-shadow: -0.5px -0.5px 0 #000, 0.5px -0.5px 0 #000, -0.5px 0.5px 0 #000, 0.5px 0.5px 0 #000;
             letter-spacing: 0.02em;
         }
+        .msg-timestamp {
+            margin-left: 6px;
+            font-size: 10px;
+            color: #1e293b;
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+            vertical-align: middle;
+            background-color: rgba(255, 255, 255, 0.85);
+            padding: 1px 5px;
+            border-radius: 6px;
+        }
 
         .header-nav {
             background: white;
@@ -1003,6 +1014,35 @@
             white-space: nowrap;
             cursor: text;
         }
+        .title-edit-wrap {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        #app-title {
+            cursor: pointer;
+        }
+        #app-title[contenteditable="true"] {
+            outline: none;
+            background: #fef9c3;
+            border-radius: 4px;
+            padding: 1px 6px;
+            cursor: text;
+        }
+        .title-edit-btn {
+            opacity: 0;
+            transition: opacity 0.15s;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        .title-edit-wrap:hover .title-edit-btn {
+            opacity: 1;
+        }
+        .title-edit-btn:hover {
+            color: #2563eb;
+        }
         .bookmark-item-pos {
             font-size: 9px;
             color: #94a3b8;
@@ -1357,8 +1397,11 @@
 
 <script>
     // ↓リリースノートはここだよ。更新しようね。
-    const APP_VERSION = '1.9.0';
+    const APP_VERSION = '1.9.3';
     const RELEASE_NOTES = [
+        { version: '1.9.3', description: '発言時刻の表示形式を「26-9/1・12:20:35」のように日付＋時刻がひと目でわかる形式に変更し、文字色も見やすく調整しました。あわせて、立ち絵付きHTML形式で時刻が反映されないバグを修正しました。' },
+        { version: '1.9.2', description: '発言ごとの時刻表示に対応しました。ココフォリアのHTML・JSONログに含まれるタイムスタンプを読み取り、設定から表示ON/OFFを切り替えられます。' },
+        { version: '1.9.1', description: 'ログ読み込み後、ヘッダーのタイトルをその場で編集できるようにしました（ダブルクリック、またはペンアイコンから）。編集した名前はファイル書き出し時のファイル名にも反映されます。' },
         { version: '1.9.0', description: 'ココフォリアの新しいログ出力形式（立ち絵付きHTML・JSON）の読み込みに対応しました。発言ごとの立ち絵差分（表情差分など）もそのまま反映されます。' },
         { version: '1.8.1', description: 'スプレッドシート形式（xlsx）での書き出しに対応しました。カラムごとに列が並び、セル結合でカラム名が見やすく整理されます。' },
         { version: '1.8.0', description: 'Markdown/テキストの書き出し形式を追加しました。' },
@@ -1726,7 +1769,10 @@
                     <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white" style="background-color: var(--accent-color)">
                         <i data-lucide="layout" size="18"></i>
                     </div>
-                    <h1 id="app-title" class="text-base font-bold text-slate-800 tracking-tight">ろぐしあたー</h1>
+                    <div class="title-edit-wrap">
+                        <h1 id="app-title" class="text-base font-bold text-slate-800 tracking-tight" title="ダブルクリックで編集">ろぐしあたー</h1>
+                        <span id="title-edit-btn" class="title-edit-btn" title="タイトルを編集"><i data-lucide="pencil" size="12"></i></span>
+                    </div>
                     <button id="exit-demo-btn" class="btn-demo-exit"><i data-lucide="log-out" size="12"></i> デモ終了</button>
                 </div>
                 <div id="search-wrapper" class="relative group ml-4 hidden sm:block">
@@ -1807,6 +1853,14 @@
                         </div>
                     </label>
                 </div>
+                <div>
+                    <label class="flex items-center justify-between py-1 cursor-pointer">
+                        <span class="text-xs font-bold text-slate-700">発言時刻を表示</span>
+                        <div id="timestamp-toggle" class="relative w-10 h-5 rounded-full bg-slate-300 transition-colors cursor-pointer">
+                            <div class="absolute top-0.5 right-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform"></div>
+                        </div>
+                    </label>
+                </div>
             </div>
             <div class="mt-6 pt-4 border-t flex flex-col gap-3">
                 <label class="flex items-center justify-between py-2 cursor-pointer">
@@ -1871,6 +1925,7 @@
             let showEditButtons = true;
             let showPortraits = true;
             let showColIndicator = true;
+            let showTimestamps = false;
             let charStyles = {}; // { charName: { font, bold, bg } }
             let bookmarks = []; // { id, label, rowId, rowIndex }
             let charGroups = {}; // { leaderName: [name1, name2, ...] } — エイリアスグループ
@@ -1944,6 +1999,13 @@
                 toggle.querySelector('div').style.transform = showPortraits ? 'translateX(0)' : 'translateX(-20px)';
             }
 
+            function applyTimestampVisibility() {
+                const toggle = getEl('timestamp-toggle');
+                document.querySelectorAll('.msg-timestamp').forEach(el => { el.style.display = showTimestamps ? 'inline' : 'none'; });
+                toggle.style.backgroundColor = showTimestamps ? 'var(--accent-color, #3b82f6)' : '#cbd5e1';
+                toggle.querySelector('div').style.transform = showTimestamps ? 'translateX(0)' : 'translateX(-20px)';
+            }
+
             function pushUndo() {
                 undoStack.push({
                     logData: JSON.parse(JSON.stringify(logData)),
@@ -1962,7 +2024,7 @@
                 logData.forEach(d => characters.add(d.char));
                 renderLayout();
                 getEl('rows-container').innerHTML = '';
-                logData.forEach(m => createRow(m.id, m.loc, m.char, m.color, m.rawMsg, m.style || {}));
+                logData.forEach(m => createRow(m.id, m.loc, m.char, m.color, m.rawMsg, m.style || {}, m.icon || null, m.time || null));
                 refreshIcons();
                 updateRowCounter();
                 updateUndoBtn();
@@ -2181,6 +2243,53 @@
                     .replace(/>/g, '&gt;');
             }
 
+            // エポックミリ秒(UTC) を "YY-M/D・HH:MM:SS" 形式の日本時間表示に変換
+            // （閲覧環境のタイムゾーンに依存させず、常にJSTとして統一表示する）
+            function formatCocofoliaTimestamp(yyyy, month, day, hh, mm, ss) {
+                const yy = String(yyyy).slice(-2);
+                return `${yy}-${month}/${day}・${hh}:${mm}:${ss}`;
+            }
+
+            function formatTimeFromEpoch(ms) {
+                try {
+                    const jst = new Date(ms + 9 * 60 * 60 * 1000);
+                    const hh = String(jst.getUTCHours()).padStart(2, '0');
+                    const mm = String(jst.getUTCMinutes()).padStart(2, '0');
+                    const ss = String(jst.getUTCSeconds()).padStart(2, '0');
+                    return formatCocofoliaTimestamp(jst.getUTCFullYear(), jst.getUTCMonth() + 1, jst.getUTCDate(), hh, mm, ss);
+                } catch (e) { return null; }
+            }
+
+            // ヘッダーのタイトルをその場で編集できるようにする
+            function startEditingTitle(e) {
+                if (e) e.stopPropagation();
+                const titleEl = getEl('app-title');
+                if (titleEl.getAttribute('contenteditable') === 'true') return;
+                titleEl.setAttribute('contenteditable', 'true');
+                titleEl.focus();
+                const sel = window.getSelection();
+                const range = document.createRange();
+                range.selectNodeContents(titleEl);
+                sel.removeAllRanges();
+                sel.addRange(range);
+
+                const finishEditing = () => {
+                    titleEl.setAttribute('contenteditable', 'false');
+                    const newName = titleEl.textContent.trim();
+                    if (newName) {
+                        sourceFileName = newName;
+                        titleEl.textContent = newName;
+                    } else {
+                        titleEl.textContent = sourceFileName;
+                    }
+                };
+                titleEl.onblur = finishEditing;
+                titleEl.onkeydown = (ev) => {
+                    if (ev.key === 'Enter') { ev.preventDefault(); titleEl.blur(); }
+                    if (ev.key === 'Escape') { titleEl.textContent = sourceFileName; titleEl.blur(); }
+                };
+            }
+
             // BCDiceダイスロール行を検出して強調HTMLに変換
             function formatDiceLines(rawMsg) {
                 // BCDice出力パターン: 「(コマンド) ＞ 出目 ＞ 結果」または「コマンド ＞ ...」
@@ -2235,6 +2344,8 @@
                 getEl('back-to-home-btn').addEventListener('click', () => showHomeView());
                 getEl('demo-app-btn').addEventListener('click', loadDemo);
                 getEl('exit-demo-btn').addEventListener('click', exitDemo);
+                getEl('title-edit-btn').addEventListener('click', startEditingTitle);
+                getEl('app-title').addEventListener('dblclick', startEditingTitle);
 
                 getEl('jump-top').onclick = () => getEl('timeline-viewport').scrollTo({ top: 0, behavior: 'smooth' });
                 getEl('jump-bottom').onclick = () => { const vp = getEl('timeline-viewport'); vp.scrollTo({ top: vp.scrollHeight, behavior: 'smooth' }); };
@@ -2367,6 +2478,11 @@
                 getEl('col-indicator-toggle').onclick = () => {
                     showColIndicator = !showColIndicator;
                     applyColIndicatorVisibility();
+                };
+                // 発言時刻表示トグル
+                getEl('timestamp-toggle').onclick = () => {
+                    showTimestamps = !showTimestamps;
+                    applyTimestampVisibility();
                 };
                 getEl('reset-btn').onclick = () => { if(confirm("初期化してもよろしいですか？")) { clearStorage(); location.reload(); } };
                 getEl('tab-visibility').onclick = () => switchTab('visibility');
@@ -2503,7 +2619,7 @@
                 if (idx === -1) return;
                 logData[idx].loc = newLoc;
                 getEl('rows-container').innerHTML = '';
-                logData.forEach(m => createRow(m.id, m.loc, m.char, m.color, m.rawMsg, m.style || {}));
+                logData.forEach(m => createRow(m.id, m.loc, m.char, m.color, m.rawMsg, m.style || {}, m.icon || null, m.time || null));
                 refreshIcons();
                 updateRowCounter();
             }
@@ -2520,7 +2636,7 @@
                 allLocations.push(trimmed);
                 renderLayout();
                 getEl('rows-container').innerHTML = '';
-                logData.forEach(m => createRow(m.id, m.loc, m.char, m.color, m.rawMsg, m.style || {}));
+                logData.forEach(m => createRow(m.id, m.loc, m.char, m.color, m.rawMsg, m.style || {}, m.icon || null, m.time || null));
                 updateRowCounter();
             }
 
@@ -2531,7 +2647,7 @@
                 allLocations = allLocations.filter(l => l !== loc);
                 renderLayout();
                 getEl('rows-container').innerHTML = ''; 
-                logData.forEach(m => { createRow(m.id, m.loc, m.char, m.color, m.rawMsg, m.style); });
+                logData.forEach(m => { createRow(m.id, m.loc, m.char, m.color, m.rawMsg, m.style, m.icon || null, m.time || null); });
                 updateRowCounter();
             }
 
@@ -2540,7 +2656,7 @@
                 pushUndo();
                 logData = logData.filter(d => d.id !== id);
                 getEl('rows-container').innerHTML = ''; 
-                logData.forEach(m => { createRow(m.id, m.loc, m.char, m.color, m.rawMsg, m.style); });
+                logData.forEach(m => { createRow(m.id, m.loc, m.char, m.color, m.rawMsg, m.style, m.icon || null, m.time || null); });
                 updateRowCounter();
             }
             
@@ -2776,13 +2892,15 @@
                 if (styles.port)  { getEl('portrait-slider').value = parseInt(styles.port); updateStyle('--portrait-size', styles.port, 'portrait-val'); }
                 if (styles.theme) setTheme(styles.theme);
                 if (typeof styles.colInd !== 'undefined') { showColIndicator = styles.colInd; applyColIndicatorVisibility(); }
+                if (typeof styles.ts !== 'undefined') { showTimestamps = styles.ts; }
 
                 characters.clear();
                 logData.forEach(d => characters.add(d.char));
                 renderLayout();
                 getEl('rows-container').innerHTML = '';
-                logData.forEach(m => createRow(m.id, m.loc, m.char, m.color || '#000', m.rawMsg || m.msg, m.style || {}, m.icon || null));
+                logData.forEach(m => createRow(m.id, m.loc, m.char, m.color || '#000', m.rawMsg || m.msg, m.style || {}, m.icon || null, m.time || null));
                 refreshIcons();
+                applyTimestampVisibility();
                 // 栞を復元（行が描画された後に実行）
                 setTimeout(() => restoreBookmarks(JSON.parse(bookmarksRaw || '[]')), 50);
                 showAppView();
@@ -2803,7 +2921,7 @@
                         const color = p.style.color || '#1e293b';
                         let msg = ""; for(let i=2; i<spans.length; i++) msg += spans[i].innerHTML;
                         locSet.add(loc); characters.add(char);
-                        tempLogData.push({ id: idx, loc, char, msg: msg.replace(/<[^>]+>/g, ''), color: color, rawMsg: msg, style: {}, icon: null });
+                        tempLogData.push({ id: idx, loc, char, msg: msg.replace(/<[^>]+>/g, ''), color: color, rawMsg: msg, style: {}, icon: null, time: null });
                     } catch(e) {}
                 });
                 logData = tempLogData;
@@ -2845,6 +2963,20 @@
                         let msgHtml = textEl ? escapeHtml(textEl.textContent) : '';
                         if (rollEl) msgHtml += (msgHtml ? '<br>' : '') + escapeHtml(rollEl.textContent.trim());
 
+                        // タイムスタンプ（表示済みの現地時刻テキスト "YYYY/MM/DD HH:MM:SS" から変換）
+                        let time = null;
+                        const timeEl = article.querySelector('.timestamp');
+                        if (timeEl) {
+                            const txt = timeEl.textContent.trim();
+                            const [datePart, timePart] = txt.split(' ');
+                            if (datePart && timePart) {
+                                const [y, mo, d] = datePart.split('/').map(Number);
+                                time = formatCocofoliaTimestamp(y, mo, d, ...timePart.split(':'));
+                            } else {
+                                time = txt;
+                            }
+                        }
+
                         let icon = null;
                         const avatarEl = article.querySelector('.avatar');
                         if (avatarEl) {
@@ -2853,7 +2985,7 @@
                         }
 
                         locSet.add(loc); characters.add(char);
-                        tempLogData.push({ id: idx, loc, char, msg: msgHtml.replace(/<[^>]+>/g, ''), color, rawMsg: msgHtml, style: {}, icon });
+                        tempLogData.push({ id: idx, loc, char, msg: msgHtml.replace(/<[^>]+>/g, ''), color, rawMsg: msgHtml, style: {}, icon, time });
                         idx++;
                     } catch (e) {}
                 });
@@ -2892,8 +3024,11 @@
                         let icon = null;
                         if (m.iconImage && images[m.iconImage]) icon = images[m.iconImage];
 
+                        // タイムスタンプ（createdAtはUTCエポックミリ秒）
+                        const time = m.createdAt ? formatTimeFromEpoch(m.createdAt) : null;
+
                         locSet.add(loc); characters.add(char);
-                        tempLogData.push({ id: idx, loc, char, msg: msgHtml.replace(/<[^>]+>/g, ''), color, rawMsg: msgHtml, style: {}, icon });
+                        tempLogData.push({ id: idx, loc, char, msg: msgHtml.replace(/<[^>]+>/g, ''), color, rawMsg: msgHtml, style: {}, icon, time });
                         idx++;
                     } catch (e) {}
                 });
@@ -2919,11 +3054,11 @@
 
                 renderLayout();
                 getEl('rows-container').innerHTML = '';
-                logData.forEach(m => { createRow(m.id, m.loc, m.char, m.color, m.rawMsg, m.style, m.icon); });
+                logData.forEach(m => { createRow(m.id, m.loc, m.char, m.color, m.rawMsg, m.style, m.icon, m.time); });
                 refreshIcons();
             }
 
-            function createRow(idx, loc, char, color, msg, style = {}, icon = null) {
+            function createRow(idx, loc, char, color, msg, style = {}, icon = null, time = null) {
                 const row = document.createElement('div');
                 row.className = 'timeline-row'; row.id = `row-${idx}`; row.setAttribute('data-char', char); row.setAttribute('data-loc', loc);
                 const safeCharClass = getSafeClassName(char);
@@ -2956,7 +3091,8 @@
                     });
 
                     if (l === loc) {
-                        cell.innerHTML = `<div class="msg-container"><div class="char-portrait ${safeCharClass}"></div><div class="msg-content-wrapper"><div class="msg-info"><span class="char-name-bg" style="border-left: 3px solid ${color}"><span class="char-name" data-name="${char}" style="color:${color}">${char}</span></span></div><div class="bubble" data-id="${idx}">${displayMsg}<div class="delete-msg-btn"><i data-lucide="x" size="14"></i></div></div></div>`;
+                        const timeHtml = time ? `<span class="msg-timestamp" style="display:${showTimestamps ? 'inline' : 'none'}">${escapeHtml(time)}</span>` : '';
+                        cell.innerHTML = `<div class="msg-container"><div class="char-portrait ${safeCharClass}"></div><div class="msg-content-wrapper"><div class="msg-info"><span class="char-name-bg" style="border-left: 3px solid ${color}"><span class="char-name" data-name="${char}" style="color:${color}">${char}</span></span>${timeHtml}</div><div class="bubble" data-id="${idx}">${displayMsg}<div class="delete-msg-btn"><i data-lucide="x" size="14"></i></div></div></div>`;
                         const bubble = cell.querySelector('.bubble');
                         bubble.onclick = (e) => handleBubbleClick(e, idx);
                         const delBtn = cell.querySelector('.delete-msg-btn');
@@ -3246,7 +3382,7 @@
                                 logData.forEach(d => { if (d.loc === loc) d.loc = newName; });
                                 renderLayout();
                                 getEl('rows-container').innerHTML = '';
-                                logData.forEach(m => createRow(m.id, m.loc, m.char, m.color, m.rawMsg, m.style || {}));
+                                logData.forEach(m => createRow(m.id, m.loc, m.char, m.color, m.rawMsg, m.style || {}, m.icon || null, m.time || null));
                                 updateRowCounter();
                             } else {
                                 input.replaceWith(nameSpan);
@@ -3292,7 +3428,7 @@
                         dragSrcLoc = null;
                         renderLayout();
                         getEl('rows-container').innerHTML = '';
-                        logData.forEach(m => createRow(m.id, m.loc, m.char, m.color, m.rawMsg, m.style));
+                        logData.forEach(m => createRow(m.id, m.loc, m.char, m.color, m.rawMsg, m.style, m.icon || null, m.time || null));
                         refreshIcons(); updateRowCounter();
                     });
 
@@ -3638,7 +3774,7 @@
                     if (cs.bold !== undefined) logData[i].style.bold = cs.bold;
                 });
                 getEl('rows-container').innerHTML = '';
-                logData.forEach(m => createRow(m.id, m.loc, m.char, m.color, m.rawMsg, m.style || {}));
+                logData.forEach(m => createRow(m.id, m.loc, m.char, m.color, m.rawMsg, m.style || {}, m.icon || null, m.time || null));
                 refreshIcons(); updateRowCounter();
             }
 
@@ -3822,7 +3958,7 @@
                         getEl('setup-screen').classList.add('hidden'); getEl('app-title').textContent = sourceFileName; getEl('row-counter').style.display = 'block';
                         characters.clear(); logData.forEach(d => characters.add(d.char));
                         renderLayout(); getEl('rows-container').innerHTML = '';
-                        logData.forEach(m => { createRow(m.id, m.loc, m.char, m.color || '#000', m.rawMsg || m.msg, m.style); });
+                        logData.forEach(m => { createRow(m.id, m.loc, m.char, m.color || '#000', m.rawMsg || m.msg, m.style, m.icon || null, m.time || null); });
                         refreshIcons();
                         setTimeout(() => {
                             updateRowCounter();
@@ -4138,7 +4274,7 @@
 
                         if (format === 'html') {
                             getEl('icon-data-storage').textContent = JSON.stringify(charIcons); getEl('loc-data-storage').textContent = JSON.stringify(allLocations); getEl('log-data-storage').textContent = JSON.stringify(logData); getEl('source-filename-storage').textContent = JSON.stringify(sourceFileName);
-                            getEl('style-data-storage').textContent = JSON.stringify({ col: getComputedStyle(document.documentElement).getPropertyValue('--column-width').trim(), font: getComputedStyle(document.documentElement).getPropertyValue('--base-font-size').trim(), port: getComputedStyle(document.documentElement).getPropertyValue('--portrait-size').trim(), theme: currentTheme, colInd: showColIndicator });
+                            getEl('style-data-storage').textContent = JSON.stringify({ col: getComputedStyle(document.documentElement).getPropertyValue('--column-width').trim(), font: getComputedStyle(document.documentElement).getPropertyValue('--base-font-size').trim(), port: getComputedStyle(document.documentElement).getPropertyValue('--portrait-size').trim(), theme: currentTheme, colInd: showColIndicator, ts: showTimestamps });
                             getEl('char-styles-storage').textContent = JSON.stringify(charStyles);
                             getEl('bookmarks-storage').textContent = JSON.stringify(bookmarks);
                             getEl('char-groups-storage').textContent = JSON.stringify(charGroups);
