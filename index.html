@@ -1149,7 +1149,7 @@
             <p class="text-lg md:text-xl text-slate-500 max-w-4xl mb-10 leading-relaxed">
                 TRPGログを読みやすく整形・表示できるツール<br>
                 （ココフォリアログ対応）<br>
-                ココフォリアのログファイル（HTML・JSONどちらもOK）をドラッグ＆ドロップ。<br>
+                ココフォリア・critical-stageのログファイル（HTML・JSONどちらもOK）をドラッグ＆ドロップ。<br>
                 閲覧だけじゃなく、誤字修正とか色々できるようにしたよ。<br>
                 [all]って書かれたファイルを使うと良いよ。
             </p>
@@ -1175,7 +1175,7 @@
                             <span class="text-lg font-bold">1</span>
                         </div>
                         <h3 class="text-xl font-bold text-slate-800 mb-3">ファイルを読み込む</h3>
-                        <p class="text-slate-500 leading-relaxed">ココフォリアのログHTML・JSONをドラッグ＆ドロップ、またはファイル選択で読み込んでください。</p>
+                        <p class="text-slate-500 leading-relaxed">ココフォリア・critical-stageのログHTML・JSONをドラッグ＆ドロップ、またはファイル選択で読み込んでください。</p>
                     </div>
                     <div class="p-8 bg-white rounded-3xl border border-slate-200 shadow-sm">
                         <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mb-5">
@@ -1397,8 +1397,9 @@
 
 <script>
     // ↓リリースノートはここだよ。更新しようね。
-    const APP_VERSION = '1.9.3';
+    const APP_VERSION = '1.9.4';
     const RELEASE_NOTES = [
+        { version: '1.9.4', description: 'ダイスサイト「critical-stage」のチャットログHTML出力の読み込みに対応しました。ダイス結果やキャラクター値の変動もそのまま反映されます。' },
         { version: '1.9.3', description: '発言時刻の表示形式を「26-9/1・12:20:35」のように日付＋時刻がひと目でわかる形式に変更し、文字色も見やすく調整しました。あわせて、立ち絵付きHTML形式で時刻が反映されないバグを修正しました。' },
         { version: '1.9.2', description: '発言ごとの時刻表示に対応しました。ココフォリアのHTML・JSONログに含まれるタイムスタンプを読み取り、設定から表示ON/OFFを切り替えられます。' },
         { version: '1.9.1', description: 'ログ読み込み後、ヘッダーのタイトルをその場で編集できるようにしました（ダブルクリック、またはペンアイコンから）。編集した名前はファイル書き出し時のファイル名にも反映されます。' },
@@ -2853,6 +2854,9 @@
                             } else if (doc.querySelector('article.message')) {
                                 // ココフォリアの新しいHTML出力形式（立ち絵付き）
                                 parseCocofoliaNewHTML(doc);
+                            } else if (doc.querySelector('article.chat-item')) {
+                                // critical-stage形式のチャットログHTML
+                                parseCriticalStageHTML(doc);
                             } else {
                                 // ココフォリア旧形式の生ログ → 通常パース
                                 parse(html);
@@ -2983,6 +2987,53 @@
                             const imgClass = Array.from(avatarEl.classList).find(c => c.startsWith('avatar-image-'));
                             if (imgClass && iconMap[imgClass]) icon = iconMap[imgClass];
                         }
+
+                        locSet.add(loc); characters.add(char);
+                        tempLogData.push({ id: idx, loc, char, msg: msgHtml.replace(/<[^>]+>/g, ''), color, rawMsg: msgHtml, style: {}, icon, time });
+                        idx++;
+                    } catch (e) {}
+                });
+                logData = tempLogData;
+                finishParsing(locSet);
+            }
+
+            // 「critical-stage」形式のチャットログHTML（<article class="chat-item">構造）をパース
+            function parseCriticalStageHTML(doc) {
+                const articles = doc.querySelectorAll('article.chat-item');
+                const locSet = new Set();
+                const tempLogData = [];
+                characters.clear();
+                let idx = 0;
+                articles.forEach(article => {
+                    try {
+                        const nameEl = article.querySelector('.chat-name');
+                        if (!nameEl) return;
+                        const char = nameEl.textContent.trim();
+
+                        const colorMatch = /color:\s*(#[0-9a-fA-F]{3,8})/.exec(nameEl.getAttribute('style') || '');
+                        const color = colorMatch ? colorMatch[1] : '#1e293b';
+
+                        const channelEl = article.querySelector('.chat-channel');
+                        let loc = channelEl ? channelEl.textContent.trim() : 'メイン';
+                        loc = loc.replace(/^\[/, '').replace(/\]$/, '') || 'メイン';
+
+                        const timeEl = article.querySelector('.chat-time');
+                        const time = timeEl ? timeEl.textContent.trim() : null;
+
+                        const textEl = article.querySelector('.chat-text');
+                        let msgHtml = textEl ? escapeHtml(textEl.textContent) : '';
+
+                        // 成否バッジ・キャラクター値変動・ルーム変数の結果を発言に追記
+                        const judgeEl = article.querySelector('.chat-dice-judgement');
+                        if (judgeEl && judgeEl.textContent.trim()) msgHtml += (msgHtml ? '<br>' : '') + escapeHtml(judgeEl.textContent.trim());
+                        const cvEl = article.querySelector('.chat-character-value-result');
+                        if (cvEl && cvEl.textContent.trim()) msgHtml += (msgHtml ? '<br>' : '') + escapeHtml(cvEl.textContent.trim());
+                        const rvEl = article.querySelector('.chat-room-variable-result');
+                        if (rvEl && rvEl.textContent.trim()) msgHtml += (msgHtml ? '<br>' : '') + escapeHtml(rvEl.textContent.trim());
+
+                        let icon = null;
+                        const imgEl = article.querySelector('.chat-icon');
+                        if (imgEl && imgEl.getAttribute('src')) icon = imgEl.getAttribute('src');
 
                         locSet.add(loc); characters.add(char);
                         tempLogData.push({ id: idx, loc, char, msg: msgHtml.replace(/<[^>]+>/g, ''), color, rawMsg: msgHtml, style: {}, icon, time });
