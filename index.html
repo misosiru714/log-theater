@@ -1137,59 +1137,66 @@
                 </div>
                 ろぐしあたー
             </div>
-            <a href="https://ccfolia.com/" target="_blank" class="text-slate-500 hover:text-blue-600 transition-colors text-sm font-medium flex items-center gap-1">
-                ココフォリアへ <i data-lucide="external-link" size="14"></i>
-            </a>
+            <!-- 韓国語モード: 現在は一時停止中。ボタンをコメントアウトで非表示にしているだけで、下のJS機能とdata-ko訳文は全部残してあるので、コメントを外せばいつでも再開できます。
+            <button id="lang-toggle-btn" data-current="ja" class="text-sm font-bold flex items-center gap-0 border border-slate-200 rounded-full overflow-hidden">
+                <span id="lang-toggle-jp" class="px-3 py-1.5 bg-slate-800 text-white transition-colors">JP</span><span id="lang-toggle-kr" class="px-3 py-1.5 text-slate-400 transition-colors">KR</span>
+            </button>
+            -->
         </nav>
+        <div id="ko-translation-banner" class="hidden items-center justify-center gap-2 bg-amber-50 text-amber-700 text-xs md:text-sm text-center px-4 py-2 border-b border-amber-100">
+            <i data-lucide="info" size="14"></i>
+            <span>이 페이지는 기계 번역으로 제공됩니다. 한국어는 이 페이지에만 적용됩니다.</span>
+        </div>
         <section class="flex-1 flex flex-col items-center justify-center text-center px-4 py-12 md:py-20">
             <div id="app-version-badge" class="inline-block mb-4 px-4 py-1.5 rounded-full bg-blue-100 text-blue-700 text-sm font-bold tracking-wide"></div>
-            <h1 class="text-4xl md:text-6xl font-extrabold text-slate-900 mb-6 tracking-tight leading-tight">
+            <h1 class="text-4xl md:text-6xl font-extrabold text-slate-900 mb-6 tracking-tight leading-tight" data-ko='당신의 세션 로그를,<br><span style="color: var(--accent-color)">이야기</span>로 저장하세요.'>
                 あなたのセッションログを、<br><span style="color: var(--accent-color)">物語</span>として保存しよう。
             </h1>
-            <p class="text-lg md:text-xl text-slate-500 max-w-4xl mb-10 leading-relaxed">
-                TRPGログを読みやすく整形・表示できるツール<br>
-                （ココフォリアログ対応）<br>
-                ココフォリア・critical-stageのログファイル（HTML・JSONどちらもOK）をドラッグ＆ドロップ。<br>
-                閲覧だけじゃなく、誤字修正とか色々できるようにしたよ。<br>
-                [all]って書かれたファイルを使うと良いよ。
+            <p class="text-lg md:text-xl text-slate-500 max-w-4xl mb-10 leading-relaxed" data-ko='TRPG(테이블토크 RPG) 세션 로그를, 나중에 다시 읽고 싶어질 만큼<br>읽기 쉽게 정리해주는 도구입니다.<br><br>코코포리아・critical-stage에서 내보낸 로그 파일(HTML/JSON)을<br>드래그 앤 드롭하기만 하면 됩니다. 보기만 하는 것이 아니라 오타 수정이나 캐릭터별<br>스타일 조정까지, 브라우저 안에서 모두 완료됩니다.<br><br><span class="text-sm">※ 코코포리아에서 내보낼 때 "[all]"이 붙은 파일을 선택하면, 여러 탭의 로그를 한번에 불러올 수 있습니다.</span>'>
+                TRPG（テーブルトークRPG）のセッションログを、あとから読み返したくなるくらい<br>
+                読みやすく整えられるツールです。<br><br>
+                ココフォリア・critical-stageから書き出したログファイル（HTML／JSON）を<br>
+                ドラッグ＆ドロップするだけ。読むだけでなく、誤字の修正やキャラクターごとの<br>
+                見た目調整まで、ブラウザの中だけで完結します。<br><br>
+                <span class="text-sm">※ ココフォリアから書き出す際は「[all]」が付いたファイルを選ぶと、複数タブのログをまとめて読み込めます。</span>
             </p>
             <div class="flex flex-col sm:flex-row gap-4 w-full max-w-md mx-auto">
                 <button id="start-app-btn" class="btn-primary btn-large flex items-center justify-center gap-2 shadow-lg shadow-blue-200 hover:shadow-blue-300 transition-all">
-                    <i data-lucide="play" size="20"></i> 今すぐ使う
+                    <i data-lucide="play" size="20"></i> <span data-ko="지금 사용하기">今すぐ使う</span>
                 </button>
                 <button id="demo-app-btn" class="bg-white text-slate-700 btn-large flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all border border-slate-200 font-bold hover:bg-slate-50">
-                    <i data-lucide="eye" size="20"></i> デモを見る
+                    <i data-lucide="eye" size="20"></i> <span data-ko="데모 보기">デモを見る</span>
                 </button>
             </div>
         </section>
         <section class="bg-slate-50 py-16">
             <div class="max-w-6xl mx-auto px-6">
                 <div class="text-center mb-12">
-                    <p class="text-sm font-semibold text-blue-600 uppercase tracking-[0.3em]">簡単クイックスタート</p>
-                    <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mt-4">たった3ステップでログを整形</h2>
-                    <p class="text-slate-500 max-w-2xl mx-auto mt-4">ココフォリアのログHTMLを読み込み、見た目を整えたら保存・PDF出力するだけ。初めてでも迷わない簡単な手順です。</p>
+                    <p class="text-sm font-semibold text-blue-600 uppercase tracking-[0.3em]" data-ko="사용 방법">使い方</p>
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mt-4" data-ko="단 3단계로 로그를 깔끔하게 정리">たった3ステップでログを整形</h2>
+                    <p class="text-slate-500 max-w-2xl mx-auto mt-4" data-ko="코코포리아의 로그 HTML을 불러와서, 모양을 정리한 뒤 HTML・PDF로 출력하면 끝입니다.">ココフォリアのログHTMLを読み込み、見た目を整えたらHTML・PDF出力するだけです。</p>
                 </div>
                 <div class="grid gap-6 md:grid-cols-3">
                     <div class="p-8 bg-white rounded-3xl border border-slate-200 shadow-sm">
                         <div class="w-14 h-14 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mb-5">
                             <span class="text-lg font-bold">1</span>
                         </div>
-                        <h3 class="text-xl font-bold text-slate-800 mb-3">ファイルを読み込む</h3>
-                        <p class="text-slate-500 leading-relaxed">ココフォリア・critical-stageのログHTML・JSONをドラッグ＆ドロップ、またはファイル選択で読み込んでください。</p>
+                        <h3 class="text-xl font-bold text-slate-800 mb-3" data-ko="파일 불러오기">ファイルを読み込む</h3>
+                        <p class="text-slate-500 leading-relaxed" data-ko="코코포리아・critical-stage의 로그 HTML・JSON을 드래그 앤 드롭하거나, 파일 선택으로 불러와 주세요.">ココフォリア・critical-stageのログHTML・JSONをドラッグ＆ドロップ、またはファイル選択で読み込んでください。</p>
                     </div>
                     <div class="p-8 bg-white rounded-3xl border border-slate-200 shadow-sm">
                         <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mb-5">
                             <span class="text-lg font-bold">2</span>
                         </div>
-                        <h3 class="text-xl font-bold text-slate-800 mb-3">見た目を整える</h3>
-                        <p class="text-slate-500 leading-relaxed">カラム分け、立ち絵、文字装飾、栞などを使って読みやすく調整します。</p>
+                        <h3 class="text-xl font-bold text-slate-800 mb-3" data-ko="레이아웃 조정하기">見た目を整える</h3>
+                        <p class="text-slate-500 leading-relaxed" data-ko="칼럼 나누기, 캐릭터 이미지, 글자 장식, 책갈피 등을 사용해 읽기 쉽게 조정합니다.">カラム分け、立ち絵、文字装飾、栞などを使って読みやすく調整します。</p>
                     </div>
                     <div class="p-8 bg-white rounded-3xl border border-slate-200 shadow-sm">
                         <div class="w-14 h-14 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center mb-5">
                             <span class="text-lg font-bold">3</span>
                         </div>
-                        <h3 class="text-xl font-bold text-slate-800 mb-3">保存・出力</h3>
-                        <p class="text-slate-500 leading-relaxed">整形後はHTMLとして保存。必要ならPDF出力も使って物語として保存できます。</p>
+                        <h3 class="text-xl font-bold text-slate-800 mb-3" data-ko="저장・출력">保存・出力</h3>
+                        <p class="text-slate-500 leading-relaxed" data-ko="정리한 후에는 HTML로 저장. 필요하다면 PDF 출력도 사용해 이야기로 남길 수 있습니다.">整形後はHTMLとして保存。必要ならPDF出力も使って物語として保存できます。</p>
                     </div>
                 </div>
             </div>
@@ -1198,107 +1205,107 @@
         <section class="bg-white py-20 border-t border-slate-100">
             <div class="max-w-7xl mx-auto px-6">
                 <div class="text-center mb-16">
-                    <h2 class="text-3xl font-bold text-slate-800 mb-4">主な機能</h2>
-                    <p class="text-slate-500">欲しい機能、周りから聞いた意見を参考に作りました。</p>
+                    <h2 class="text-3xl font-bold text-slate-800 mb-4" data-ko="주요 기능">主な機能</h2>
+                    <p class="text-slate-500" data-ko="원하는 기능, 주변에서 들은 의견을 참고해 만들었습니다.">欲しい機能、周りから聞いた意見を参考に作りました。</p>
                 </div>
                 <div class="grid md:grid-cols-3 gap-8">
                     <div class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100">
                         <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center mb-6">
                             <i data-lucide="columns" size="24"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-slate-800 mb-3">マルチカラム表示</h3>
-                        <p class="text-slate-500 leading-relaxed">メイン・雑談・情報を並列表示。メイン→情報→雑談の順で自動整列。カラムの並び替え・追加・名前変更も自由にできます。</p>
+                        <h3 class="text-xl font-bold text-slate-800 mb-3" data-ko="멀티 칼럼 표시">マルチカラム表示</h3>
+                        <p class="text-slate-500 leading-relaxed" data-ko="메인・잡담・정보를 나란히 표시. 메인→정보→잡담 순서로 자동 정렬됩니다. 칼럼 순서 변경・추가・이름 변경도 자유롭게 가능합니다.">メイン・雑談・情報を並列表示。メイン→情報→雑談の順で自動整列。カラムの並び替え・追加・名前変更も自由にできます。</p>
                     </div>
                     <div class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100">
                         <div class="w-12 h-12 bg-cyan-100 text-cyan-600 rounded-xl flex items-center justify-center mb-6">
                             <i data-lucide="navigation" size="24"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-slate-800 mb-3">画面外カラムナビ</h3>
-                        <p class="text-slate-500 leading-relaxed">今読んでいる高さで、画面外のカラムに発言があるときはナビバッジで通知。クリックすればそのカラムへ瞬時にジャンプできます。</p>
+                        <h3 class="text-xl font-bold text-slate-800 mb-3" data-ko="화면 밖 칼럼 안내">画面外カラムナビ</h3>
+                        <p class="text-slate-500 leading-relaxed" data-ko="지금 보고 있는 위치 기준으로, 화면 밖 칼럼에 새 발언이 있으면 알림 배지로 표시. 클릭하면 그 칼럼으로 바로 이동합니다.">今読んでいる高さで、画面外のカラムに発言があるときはナビバッジで通知。クリックすればそのカラムへ瞬時にジャンプできます。</p>
                     </div>
                     <div class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100">
                         <div class="w-12 h-12 bg-pink-100 text-pink-600 rounded-xl flex items-center justify-center mb-6">
                             <i data-lucide="image" size="24"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-slate-800 mb-3">立ち絵設定</h3>
-                        <p class="text-slate-500 leading-relaxed">D&Dで簡単設定・トリミング対応。画像はHTML内にbase64で保存されるので、ファイルひとつで完結します。</p>
+                        <h3 class="text-xl font-bold text-slate-800 mb-3" data-ko="캐릭터 이미지 설정">立ち絵設定</h3>
+                        <p class="text-slate-500 leading-relaxed" data-ko="드래그 앤 드롭으로 간편 설정・트리밍 지원. 이미지는 HTML 안에 base64로 저장되므로, 파일 하나로 완결됩니다.">D&Dで簡単設定・トリミング対応。画像はHTML内にbase64で保存されるので、ファイルひとつで完結します。</p>
                     </div>
                     <div class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100">
                         <div class="w-12 h-12 bg-violet-100 text-violet-600 rounded-xl flex items-center justify-center mb-6">
                             <i data-lucide="users" size="24"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-slate-800 mb-3">キャラクター統合</h3>
-                        <p class="text-slate-500 leading-relaxed">名前が違っても同一キャラをグループ統合でき、立ち絵・フォント・背景色などのスタイルをまとめて管理。ログ上の表示名はそのままで設定だけ共有されます。</p>
+                        <h3 class="text-xl font-bold text-slate-800 mb-3" data-ko="캐릭터 통합">キャラクター統合</h3>
+                        <p class="text-slate-500 leading-relaxed" data-ko="이름이 달라도 같은 캐릭터를 그룹으로 통합할 수 있으며, 캐릭터 이미지・글꼴・배경색 등의 스타일을 한번에 관리합니다. 로그상의 표시 이름은 그대로 두고 설정만 공유됩니다.">名前が違っても同一キャラをグループ統合でき、立ち絵・フォント・背景色などのスタイルをまとめて管理。ログ上の表示名はそのままで設定だけ共有されます。</p>
                     </div>
                     <div class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100">
                         <div class="w-12 h-12 bg-green-100 text-green-600 rounded-xl flex items-center justify-center mb-6">
                             <i data-lucide="search" size="24"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-slate-800 mb-3">検索機能</h3>
-                        <p class="text-slate-500 leading-relaxed">検索結果をクリックすれば、縦横スクロールで発言位置へ正確にジャンプ。PC・モバイル両対応。</p>
+                        <h3 class="text-xl font-bold text-slate-800 mb-3" data-ko="검색 기능">検索機能</h3>
+                        <p class="text-slate-500 leading-relaxed" data-ko="검색 결과를 클릭하면, 상하좌우 스크롤로 발언 위치까지 정확히 이동합니다. PC・모바일 모두 지원합니다.">検索結果をクリックすれば、縦横スクロールで発言位置へ正確にジャンプ。PC・モバイル両対応。</p>
                     </div>
                     <div class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100 shadow-sm">
                         <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center mb-6">
                             <i data-lucide="edit" size="24"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-slate-800 mb-3">豊富な編集機能</h3>
-                        <p class="text-slate-500 leading-relaxed">テキスト修正・削除・マーカー装飾・カラム間移動に対応。操作はUndo（最大10回）で元に戻せます。</p>
+                        <h3 class="text-xl font-bold text-slate-800 mb-3" data-ko="다양한 편집 기능">豊富な編集機能</h3>
+                        <p class="text-slate-500 leading-relaxed" data-ko="텍스트 수정・삭제・마커 장식・칼럼 간 이동을 지원합니다. 작업은 실행 취소(최대 10회)로 되돌릴 수 있습니다.">テキスト修正・削除・マーカー装飾・カラム間移動に対応。操作はUndo（最大10回）で元に戻せます。</p>
                     </div>
                     <div class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100 shadow-sm">
                         <div class="w-12 h-12 bg-fuchsia-100 text-fuchsia-600 rounded-xl flex items-center justify-center mb-6">
                             <i data-lucide="paintbrush" size="24"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-slate-800 mb-3">キャラクタースタイル</h3>
-                        <p class="text-slate-500 leading-relaxed">キャラクターごとにフォント・背景色・太字を個別設定。グループ統合を使えばまとめてスタイルを適用できます。</p>
+                        <h3 class="text-xl font-bold text-slate-800 mb-3" data-ko="캐릭터 스타일">キャラクタースタイル</h3>
+                        <p class="text-slate-500 leading-relaxed" data-ko="캐릭터별로 글꼴・배경색・굵기를 개별 설정할 수 있습니다. 그룹 통합을 사용하면 스타일을 한번에 적용할 수 있습니다.">キャラクターごとにフォント・背景色・太字を個別設定。グループ統合を使えばまとめてスタイルを適用できます。</p>
                     </div>
                     <div class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100 shadow-sm">
                         <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center mb-6">
                             <i data-lucide="dice-6" size="24"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-slate-800 mb-3">BCDiceダイス強調</h3>
-                        <p class="text-slate-500 leading-relaxed">BCDiceのロール結果を自動検出し、成功・失敗・クリティカル・ファンブルなどを色付きバッジで強調表示。</p>
+                        <h3 class="text-xl font-bold text-slate-800 mb-3" data-ko="BCDice 주사위 강조">BCDiceダイス強調</h3>
+                        <p class="text-slate-500 leading-relaxed" data-ko="BCDice의 주사위 결과를 자동으로 감지해, 성공・실패・크리티컬・펌블 등을 색상 배지로 강조 표시합니다.">BCDiceのロール結果を自動検出し、成功・失敗・クリティカル・ファンブルなどを色付きバッジで強調表示。</p>
                     </div>
                     <div class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100 shadow-sm">
                         <div class="w-12 h-12 bg-teal-100 text-teal-600 rounded-xl flex items-center justify-center mb-6">
                             <i data-lucide="save" size="24"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-slate-800 mb-3">保存・再読み込み</h3>
-                        <p class="text-slate-500 leading-relaxed">整形済みHTMLを保存。次回はそのファイルを読み込むだけで最新バージョンで編集を再開できます。</p>
+                        <h3 class="text-xl font-bold text-slate-800 mb-3" data-ko="저장・재불러오기">保存・再読み込み</h3>
+                        <p class="text-slate-500 leading-relaxed" data-ko="정리된 HTML을 저장. 다음에는 그 파일을 불러오기만 하면 최신 상태에서 편집을 이어갈 수 있습니다.">整形済みHTMLを保存。次回はそのファイルを読み込むだけで最新バージョンで編集を再開できます。</p>
                     </div>
                     <div class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100 shadow-sm">
                         <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-xl flex items-center justify-center mb-6">
                             <i data-lucide="file-output" size="24"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-slate-800 mb-3">書き出し形式</h3>
-                        <p class="text-slate-500 leading-relaxed">HTML・Markdown・テキスト・スプレッドシート（xlsx）形式での書き出しに対応。xlsxはカラムごとに列が分かれたセル結合レイアウトで出力されます。</p>
+                        <h3 class="text-xl font-bold text-slate-800 mb-3" data-ko="내보내기 형식">書き出し形式</h3>
+                        <p class="text-slate-500 leading-relaxed" data-ko="HTML・Markdown・텍스트・스프레드시트(xlsx) 형식으로 내보내기를 지원합니다. xlsx는 칼럼별로 열이 나뉘고 셀 병합으로 정리된 레이아웃으로 출력됩니다.">HTML・Markdown・テキスト・スプレッドシート（xlsx）形式での書き出しに対応。xlsxはカラムごとに列が分かれたセル結合レイアウトで出力されます。</p>
                     </div>
                     <div class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100 shadow-sm">
                         <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center mb-6">
                             <i data-lucide="printer" size="24"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-slate-800 mb-3">PDF出力</h3>
-                        <p class="text-slate-500 leading-relaxed">カラムをメイン・サブに振り分けて2カラムPDFとして出力。立ち絵アイコン付き、テーマカラーも反映されます。</p>
+                        <h3 class="text-xl font-bold text-slate-800 mb-3" data-ko="PDF 출력">PDF出力</h3>
+                        <p class="text-slate-500 leading-relaxed" data-ko="칼럼을 메인・서브로 나누어 2칼럼 PDF로 출력합니다. 캐릭터 이미지 아이콘 포함, 테마 색상도 반영됩니다.">カラムをメイン・サブに振り分けて2カラムPDFとして出力。立ち絵アイコン付き、テーマカラーも反映されます。</p>
                     </div>
                     <div class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100 shadow-sm">
                         <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-xl flex items-center justify-center mb-6">
                             <i data-lucide="eye" size="24"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-slate-800 mb-3">表示カスタマイズ</h3>
-                        <p class="text-slate-500 leading-relaxed">発言者・カラムごとの表示切替、テーマカラー・文字サイズ・立ち絵サイズの調整。ファイル名はヘッダーをクリックしてその場で編集でき、書き出しファイル名に反映されます。</p>
+                        <h3 class="text-xl font-bold text-slate-800 mb-3" data-ko="표시 커스터마이즈">表示カスタマイズ</h3>
+                        <p class="text-slate-500 leading-relaxed" data-ko="발언자・칼럼별 표시 전환, 테마 색상・글자 크기・캐릭터 이미지 크기 조정이 가능합니다. 파일명은 헤더를 클릭해 그 자리에서 편집할 수 있으며, 내보내기 파일명에도 반영됩니다.">発言者・カラムごとの表示切替、テーマカラー・文字サイズ・立ち絵サイズの調整。ファイル名はヘッダーをクリックしてその場で編集でき、書き出しファイル名に反映されます。</p>
                     </div>
                     <div class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100 shadow-sm">
                         <div class="w-12 h-12 bg-yellow-100 text-yellow-600 rounded-xl flex items-center justify-center mb-6">
                             <i data-lucide="bookmark" size="24"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-slate-800 mb-3">栞機能</h3>
-                        <p class="text-slate-500 leading-relaxed">読んでいる途中に栞を複数挟める。クリックでその場所へジャンプ。ラベルも編集可能で、保存HTMLにも引き継がれます。</p>
+                        <h3 class="text-xl font-bold text-slate-800 mb-3" data-ko="책갈피 기능">栞機能</h3>
+                        <p class="text-slate-500 leading-relaxed" data-ko="읽는 도중에 여러 개의 책갈피를 꽂을 수 있습니다. 클릭하면 그 위치로 이동. 라벨도 편집 가능하며, 저장된 HTML에도 그대로 남습니다.">読んでいる途中に栞を複数挟める。クリックでその場所へジャンプ。ラベルも編集可能で、保存HTMLにも引き継がれます。</p>
                     </div>
                     <div class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100 shadow-sm">
                         <div class="w-12 h-12 bg-slate-100 text-slate-600 rounded-xl flex items-center justify-center mb-6">
                             <i data-lucide="shield" size="24"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-slate-800 mb-3">完全ローカル処理</h3>
-                        <p class="text-slate-500 leading-relaxed">読み込んだログはすべてブラウザ内で処理。外部サーバーへの送信はなく、大切なセッションの記録を安全に扱えます。</p>
+                        <h3 class="text-xl font-bold text-slate-800 mb-3" data-ko="완전 로컬 처리">完全ローカル処理</h3>
+                        <p class="text-slate-500 leading-relaxed" data-ko="불러온 로그는 모두 브라우저 안에서만 처리됩니다. 외부 서버로 전송되지 않으며, 소중한 세션 기록을 안전하게 다룰 수 있습니다.">読み込んだログはすべてブラウザ内で処理。外部サーバーへの送信はなく、大切なセッションの記録を安全に扱えます。</p>
                     </div>
                 </div>
             </div>
@@ -1308,18 +1315,18 @@
         <!-- ツール名と説明 -->
         <div class="mb-6">
             <h2 class="text-xl font-bold text-slate-800 mb-2">ろぐしあたー</h2>
-            <p class="text-slate-500 text-sm leading-relaxed mb-4">
+            <p class="text-slate-500 text-sm leading-relaxed mb-4" data-ko="코코포리아의 로그를 정리・편집할 수 있는 무료 웹 도구입니다.<br>탭별 표시나 캐릭터 이미지 표시, 발언 편집・숨기기 등으로 TRPG 로그를 읽기 쉽게 정리하고, HTML로 저장할 수 있습니다.">
                 ココフォリアのログを整形・編集できる無料Webツールです。<br>
                 タブ別表示や立ち絵表示、発言の編集・非表示などでTRPGログを読みやすく整理し、HTMLとして保存できます。
             </p>
 
             <!-- 注意事項を追加 -->
             <div class="inline-block text-left bg-white p-4 rounded-lg border border-slate-200 shadow-sm text-xs text-slate-500 w-full sm:w-auto">
-                <p class="font-bold text-slate-600 mb-2">【ご利用にあたっての注意事項】</p>
+                <p class="font-bold text-slate-600 mb-2" data-ko="【이용 시 주의사항】">【ご利用にあたっての注意事項】</p>
                 <ul class="list-disc list-inside space-y-1">
-                    <li>読み込んだログデータはブラウザ上でのみ処理され、外部サーバーには保存されません。</li>
-                    <li>本ツールの利用によって生じたいかなるトラブルや損害についても、制作者は責任を負いかねます。</li>
-                    <li>ログを公開・共有する際は、同卓された皆様の許可を得るなどマナーを守ってご利用ください。</li>
+                    <li data-ko="불러온 로그 데이터는 브라우저에서만 처리되며, 외부 서버에는 저장되지 않습니다.">読み込んだログデータはブラウザ上でのみ処理され、外部サーバーには保存されません。</li>
+                    <li data-ko="본 도구의 이용으로 발생한 어떠한 문제나 손해에 대해서도 제작자는 책임을 지지 않습니다.">本ツールの利用によって生じたいかなるトラブルや損害についても、制作者は責任を負いかねます。</li>
+                    <li data-ko="로그를 공개・공유할 때는 함께한 참가자들의 허락을 받는 등 매너를 지켜 이용해 주세요.">ログを公開・共有する際は、同卓された皆様の許可を得るなどマナーを守ってご利用ください。</li>
                 </ul>
             </div>
         </div>
@@ -1334,16 +1341,16 @@
                 <svg class="w-4 h-4 mr-2 text-slate-400 group-hover:text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
                 </svg>
-                <span class="font-medium">ご意見・バグ報告はこちら（マシュマロ）</span>
+                <span class="font-medium" data-ko="의견 및 버그 제보는 이쪽으로 (마시멜로)">ご意見・バグ報告はこちら（マシュマロ）</span>
             </a>
             <div class="flex flex-wrap justify-center items-center gap-3">
                 <button id="feature-list-btn" class="inline-flex items-center px-5 py-2.5 bg-slate-800 text-white rounded-full text-sm hover:bg-slate-700 transition-all duration-200 shadow-sm">
                     <i data-lucide="layers" size="16"></i>
-                    <span class="ml-2">機能一覧を見る</span>
+                    <span class="ml-2" data-ko="기능 목록 보기">機能一覧を見る</span>
                 </button>
                 <button id="release-notes-btn" class="inline-flex items-center px-5 py-2.5 bg-slate-800 text-white rounded-full text-sm hover:bg-slate-700 transition-all duration-200 shadow-sm">
                     <i data-lucide="list-check" size="16"></i>
-                    <span class="ml-2">更新履歴を見る</span>
+                    <span class="ml-2" data-ko="업데이트 내역 보기">更新履歴を見る</span>
                 </button>
             </div>
         </div>
@@ -1397,6 +1404,9 @@
 
 <script>
     // ↓リリースノートはここだよ。更新しようね。
+    // 内部バージョン: 1.9.4.2（非公開マイナー更新／サイト表示・更新履歴には出さない）
+    // 更新内容: 韓国語モード（JP/KR切り替え）を一時停止。ボタンはコメントアウトで非表示にしただけで、
+    // data-ko属性の訳文とJSの切り替えロジックはそのまま残しているので、ボタンのコメントを外せばいつでも再開できる。
     const APP_VERSION = '1.9.4';
     const RELEASE_NOTES = [
         { version: '1.9.4', description: 'ダイスサイト「critical-stage」のチャットログHTML出力の読み込みに対応しました。ダイス結果やキャラクター値の変動もそのまま反映されます。' },
@@ -1518,6 +1528,49 @@
             }
         }
     });
+
+    // ランディングページの韓国語/日本語切り替え（このページの表示だけに影響。ツール本体には影響しない）
+    (function initLandingLangToggle() {
+        const homeView = document.getElementById('home-view');
+        const toggleBtn = document.getElementById('lang-toggle-btn');
+        const jpLabel = document.getElementById('lang-toggle-jp');
+        const krLabel = document.getElementById('lang-toggle-kr');
+        const banner = document.getElementById('ko-translation-banner');
+        if (!homeView || !toggleBtn) return;
+
+        function applyLandingLang(lang) {
+            homeView.querySelectorAll('[data-ko]').forEach((el) => {
+                if (el.dataset.jaCache === undefined) {
+                    el.dataset.jaCache = el.innerHTML;
+                }
+                el.innerHTML = lang === 'ko' ? el.getAttribute('data-ko') : el.dataset.jaCache;
+            });
+            if (banner) {
+                banner.classList.toggle('hidden', lang !== 'ko');
+                banner.classList.toggle('flex', lang === 'ko');
+            }
+            if (jpLabel && krLabel) {
+                jpLabel.classList.toggle('bg-slate-800', lang !== 'ko');
+                jpLabel.classList.toggle('text-white', lang !== 'ko');
+                jpLabel.classList.toggle('text-slate-400', lang === 'ko');
+                krLabel.classList.toggle('bg-slate-800', lang === 'ko');
+                krLabel.classList.toggle('text-white', lang === 'ko');
+                krLabel.classList.toggle('text-slate-400', lang !== 'ko');
+            }
+            toggleBtn.dataset.current = lang;
+            try { localStorage.setItem('logtheater_landing_lang', lang); } catch (e) {}
+            lucide.createIcons();
+        }
+
+        toggleBtn.addEventListener('click', () => {
+            const next = toggleBtn.dataset.current === 'ko' ? 'ja' : 'ko';
+            applyLandingLang(next);
+        });
+
+        let savedLang = 'ja';
+        try { savedLang = localStorage.getItem('logtheater_landing_lang') || 'ja'; } catch (e) {}
+        applyLandingLang(savedLang);
+    })();
 
     lucide.createIcons();
 </script>
@@ -2204,21 +2257,27 @@
             }
 
             function getBookmarkStorageKey() {
-                // ファイルごとに分離するキー（sourceFileNameベース）
-                return 'logtheater_bookmarks_' + sourceFileName;
+                // ファイルごとに分離するキー（sourceFileName + ログ件数ベース）。
+                // タイトルだけだと同名の別ログと衝突しやすいため、件数も混ぜて識別性を上げている。
+                return 'logtheater_bookmarks_' + sourceFileName + '_' + (logData ? logData.length : 0);
             }
 
             function restoreBookmarks(savedBookmarks) {
-                // localStorageを優先、なければ引数（scriptタグからの初期値）を使う
-                try {
-                    const lsRaw = localStorage.getItem(getBookmarkStorageKey());
-                    if (lsRaw !== null) {
-                        bookmarks = JSON.parse(lsRaw) || [];
-                    } else {
-                        bookmarks = savedBookmarks || [];
+                // ファイル（またはこれから開くログ）に栞データが埋め込まれている場合は、それを正とする。
+                // 以前は同一キー（タイトル名ベース）のlocalStorageを常に最優先していたため、
+                // 同じタイトルで別に保存した過去のログの栞データが、後から開いた別ファイルの
+                // 正しい栞データを上書きしてしまうバグがあった。
+                // localStorageは「まだ一度も書き出していない編集中セッションをリロードした場合」の
+                // 保険としてのみ使う。
+                if (savedBookmarks && savedBookmarks.length > 0) {
+                    bookmarks = savedBookmarks;
+                } else {
+                    try {
+                        const lsRaw = localStorage.getItem(getBookmarkStorageKey());
+                        bookmarks = lsRaw !== null ? (JSON.parse(lsRaw) || []) : [];
+                    } catch(e) {
+                        bookmarks = [];
                     }
-                } catch(e) {
-                    bookmarks = savedBookmarks || [];
                 }
                 bookmarks.forEach(bm => addBookmarkFlagToRow(bm.rowId));
                 renderBookmarks();
