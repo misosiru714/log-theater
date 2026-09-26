@@ -804,6 +804,21 @@
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
+            /* 発言全体がダイスロールのみの場合、吹き出しそのものを灰色ボックスにする（画面表示と同じ方針） */
+            .print-bubble.dice-only-bubble {
+                background: rgba(0,0,0,0.045);
+                border: 1px solid #cbd5e1;
+                border-left: 3px solid #94a3b8;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            .print-bubble.dice-only-bubble .dice-line {
+                margin: 0;
+                padding: 0;
+                background: transparent;
+                border-left: none;
+                font-size: 9pt;
+            }
         }
 
         #print-layout { display: none; }
@@ -920,6 +935,21 @@
             background: rgba(0,0,0,0.04);
             border-left: 3px solid #94a3b8;
             word-break: break-all;
+        }
+        /* 発言全体がダイスロールだけの場合: 白い吹き出しの中に灰色ボックスを入れ子にせず、
+           吹き出し自体を灰色ボックスとして表示し、大きく見やすくする */
+        .bubble.dice-only-bubble {
+            background: rgba(0,0,0,0.045);
+            border-left: 3px solid #94a3b8;
+            box-shadow: none;
+        }
+        .bubble.dice-only-bubble .dice-line {
+            display: block;
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            border-left: none;
+            font-size: 1em;
         }
         .dice-result-badge {
             display: inline-block;
@@ -2350,6 +2380,19 @@
                 };
             }
 
+            // 発言全体が1行だけのダイスロールで構成されているか判定
+            // （吹き出し自体を灰色のダイスボックスとして表示するかどうかの判定に使う）
+            function isDiceOnlyMessage(rawMsg) {
+                const lines = rawMsg.split(/<br\s*\/?>/i);
+                if (lines.length !== 1) return false;
+                const plain = lines[0].replace(/<[^>]+>/g, '').trim();
+                if (!plain) return false;
+                const hasDiceArrow = plain.includes('＞');
+                const hasDiceCmd = /\d[dDbBuUrR]\d|\dD\d|\dB\d|\dU\d|\(.*\d.*\)/i.test(plain)
+                                || /CC|CF|CCC|2D6|1D100|1D20/i.test(plain);
+                return hasDiceArrow && hasDiceCmd;
+            }
+
             // BCDiceダイスロール行を検出して強調HTMLに変換
             function formatDiceLines(rawMsg) {
                 // BCDice出力パターン: 「(コマンド) ＞ 出目 ＞ 結果」または「コマンド ＞ ...」
@@ -2361,8 +2404,9 @@
                     const hasDiceArrow = plain.includes('＞');
                     const hasDiceCmd = /\d[dDbBuUrR]\d|\dD\d|\dB\d|\dU\d|\(.*\d.*\)/i.test(plain)
                                     || /CC|CF|CCC|2D6|1D100|1D20/i.test(plain);
-                    if (!hasDiceArrow && !hasDiceCmd) return line;
-                    if (!hasDiceArrow) return line;
+                    // 「＞GM」のような宛先表記（ダイス記法を伴わない単なる会話）を誤検出しないよう、
+                    // 「＞」とダイス記法の両方が揃っている場合のみダイス行として扱う。
+                    if (!hasDiceArrow || !hasDiceCmd) return line;
 
                     // 結果バッジを判定
                     const badge = getDiceBadge(plain);
@@ -3174,6 +3218,7 @@
                 const safeCharClass = getSafeClassName(char);
 
                 const displayMsg = formatDiceLines(msg);
+                const diceOnly = isDiceOnlyMessage(msg);
 
                 allLocations.forEach((l, lIdx) => {
                     const cell = document.createElement('div'); cell.className = `timeline-cell col-idx-${lIdx}`;
@@ -3202,7 +3247,7 @@
 
                     if (l === loc) {
                         const timeHtml = time ? `<span class="msg-timestamp" style="display:${showTimestamps ? 'inline' : 'none'}">${escapeHtml(time)}</span>` : '';
-                        cell.innerHTML = `<div class="msg-container"><div class="char-portrait ${safeCharClass}"></div><div class="msg-content-wrapper"><div class="msg-info"><span class="char-name-bg" style="border-left: 3px solid ${color}"><span class="char-name" data-name="${char}" style="color:${color}">${char}</span></span>${timeHtml}</div><div class="bubble" data-id="${idx}">${displayMsg}<div class="delete-msg-btn"><i data-lucide="x" size="14"></i></div></div></div>`;
+                        cell.innerHTML = `<div class="msg-container"><div class="char-portrait ${safeCharClass}"></div><div class="msg-content-wrapper"><div class="msg-info"><span class="char-name-bg" style="border-left: 3px solid ${color}"><span class="char-name" data-name="${char}" style="color:${color}">${char}</span></span>${timeHtml}</div><div class="bubble${diceOnly ? ' dice-only-bubble' : ''}" data-id="${idx}">${displayMsg}<div class="delete-msg-btn"><i data-lucide="x" size="14"></i></div></div></div>`;
                         const bubble = cell.querySelector('.bubble');
                         bubble.onclick = (e) => handleBubbleClick(e, idx);
                         const delBtn = cell.querySelector('.delete-msg-btn');
@@ -4209,7 +4254,7 @@
 
                     // バブル本体
                     const bubble = document.createElement('div');
-                    bubble.className = 'print-bubble';
+                    bubble.className = 'print-bubble' + (isDiceOnlyMessage(m.rawMsg) ? ' dice-only-bubble' : '');
 
                     // スタイル（マーカー背景色）を反映
                     if (m.style && m.style.bg) {
