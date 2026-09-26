@@ -4144,6 +4144,7 @@
 
                 buildPrintLayout(mainLocs, subLocs);
                 closePdfModal();
+                trackExportEvent('pdf');
 
                 // HTMLと同じ命名規則でdocument.titleを一時的に書き換え
                 // Chrome系はdocument.titleをPDFデフォルトファイル名に使う
@@ -4370,7 +4371,17 @@
                 return XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
             }
 
+            // GA4のキーイベント集計用（管理画面でこの「log_export」イベントを「キーイベント」に設定する）
+            function trackExportEvent(method) {
+                try {
+                    if (typeof gtag === 'function') {
+                        gtag('event', 'log_export', { method: method });
+                    }
+                } catch (e) {}
+            }
+
             function downloadHTML() {
+
                 const loading = getEl('loading-overlay');
                 loading.classList.remove('hidden'); loading.classList.add('flex');
 
@@ -4434,6 +4445,7 @@
 
                         const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = fileName; a.click();
                         setTimeout(() => URL.revokeObjectURL(a.href), 100);
+                        trackExportEvent(format);
                     } catch(e) {
                         console.error("Save error:", e);
                         alert("保存中にエラーが発生しました。\nログサイズが大きすぎる可能性があります。");
