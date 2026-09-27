@@ -575,7 +575,7 @@
         @media (max-width: 640px) { .mobile-nav { display: flex; align-items: center; justify-content: space-around; } }
         .font-maru { font-family: 'Zen Maru Gothic', sans-serif; }
 
-        /* カラムD&Dソート・並び替えモード */
+        /* タブD&Dソート・並び替えモード */
         .column-header.dragging { opacity: 0.4; }
         .column-header.drag-over {
             outline: 2px dashed #f59e0b;
@@ -606,7 +606,7 @@
         body.move-mode-active .bubble.dragging-bubble {
             opacity: 0.4;
         }
-        /* バブルのドロップ先カラム */
+        /* バブルのドロップ先タブ */
         body.move-mode-active .timeline-cell.drop-target-cell {
             background: rgba(254, 243, 199, 0.5);
             outline: 2px dashed #f59e0b;
@@ -638,7 +638,7 @@
         .move-menu-item:hover { background: #fef3c7; color: #d97706; }
         .move-menu-item.current { opacity: 0.4; pointer-events: none; }
 
-        /* カラム追加ボタン */
+        /* タブ追加ボタン */
         .add-col-btn {
             flex: 0 0 auto;
             display: none;
@@ -696,7 +696,7 @@
                 print-color-adjust: exact !important;
             }
 
-            /* メイン・サブ2カラムレイアウト */
+            /* メイン・サブ2タブレイアウト */
             #rows-container, #sticky-header { display: none !important; }
             #print-layout { display: block !important; }
 
@@ -823,7 +823,7 @@
 
         #print-layout { display: none; }
 
-        /* ===== カラムインジケーター ===== */
+        /* ===== タブインジケーター ===== */
         #col-indicator-left,
         #col-indicator-right {
             position: fixed;
@@ -1277,7 +1277,7 @@
                             <span class="text-lg font-bold">2</span>
                         </div>
                         <h3 class="text-xl font-bold text-slate-800 mb-3" data-ko="레이아웃 조정하기">見た目を整える</h3>
-                        <p class="text-slate-500 leading-relaxed" data-ko="칼럼 나누기, 캐릭터 이미지, 글자 장식, 책갈피 등을 사용해 읽기 쉽게 조정합니다.">カラム分け、立ち絵、文字装飾、栞などを使って読みやすく調整します。</p>
+                        <p class="text-slate-500 leading-relaxed" data-ko="탭 나누기, 캐릭터 이미지, 글자 장식, 책갈피 등을 사용해 읽기 쉽게 조정합니다.">タブ分け、立ち絵、文字装飾、栞などを使って読みやすく調整します。</p>
                     </div>
                     <div class="p-8 bg-white rounded-3xl border border-slate-200 shadow-sm">
                         <div class="w-14 h-14 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center mb-5">
@@ -1301,15 +1301,15 @@
                         <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center mb-6">
                             <i data-lucide="columns" size="24"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-slate-800 mb-3" data-ko="멀티 칼럼 표시">マルチカラム表示</h3>
-                        <p class="text-slate-500 leading-relaxed" data-ko="메인・잡담・정보를 나란히 표시. 메인→정보→잡담 순서로 자동 정렬됩니다. 칼럼 순서 변경・추가・이름 변경도 자유롭게 가능합니다.">メイン・雑談・情報を並列表示。メイン→情報→雑談の順で自動整列。カラムの並び替え・追加・名前変更も自由にできます。</p>
+                        <h3 class="text-xl font-bold text-slate-800 mb-3" data-ko="멀티 탭 표시">マルチタブ表示</h3>
+                        <p class="text-slate-500 leading-relaxed" data-ko="메인・잡담・정보를 나란히 표시. 메인→정보→잡담 순서로 자동 정렬됩니다. 탭 순서 변경・추가・이름 변경도 자유롭게 가능합니다.">メイン・雑談・情報を並列表示。メイン→情報→雑談の順で自動整列。タブの並び替え・追加・名前変更も自由にできます。</p>
                     </div>
                     <div class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100">
                         <div class="w-12 h-12 bg-cyan-100 text-cyan-600 rounded-xl flex items-center justify-center mb-6">
                             <i data-lucide="navigation" size="24"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-slate-800 mb-3" data-ko="화면 밖 칼럼 안내">画面外カラムナビ</h3>
-                        <p class="text-slate-500 leading-relaxed" data-ko="지금 보고 있는 위치 기준으로, 화면 밖 칼럼에 새 발언이 있으면 알림 배지로 표시. 클릭하면 그 칼럼으로 바로 이동합니다.">今読んでいる高さで、画面外のカラムに発言があるときはナビバッジで通知。クリックすればそのカラムへ瞬時にジャンプできます。</p>
+                        <h3 class="text-xl font-bold text-slate-800 mb-3" data-ko="화면 밖 탭 안내">画面外タブナビ</h3>
+                        <p class="text-slate-500 leading-relaxed" data-ko="지금 보고 있는 위치 기준으로, 화면 밖 탭에 새 발언이 있으면 알림 배지로 표시. 클릭하면 그 탭으로 바로 이동합니다.">今読んでいる高さで、画面外のタブに発言があるときはナビバッジで通知。クリックすればそのタブへ瞬時にジャンプできます。</p>
                     </div>
                     <div class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100">
                         <div class="w-12 h-12 bg-pink-100 text-pink-600 rounded-xl flex items-center justify-center mb-6">
@@ -1337,7 +1337,7 @@
                             <i data-lucide="edit" size="24"></i>
                         </div>
                         <h3 class="text-xl font-bold text-slate-800 mb-3" data-ko="다양한 편집 기능">豊富な編集機能</h3>
-                        <p class="text-slate-500 leading-relaxed" data-ko="텍스트 수정・삭제・마커 장식・칼럼 간 이동을 지원합니다. 작업은 실행 취소(최대 10회)로 되돌릴 수 있습니다.">テキスト修正・削除・マーカー装飾・カラム間移動に対応。操作はUndo（最大10回）で元に戻せます。</p>
+                        <p class="text-slate-500 leading-relaxed" data-ko="텍스트 수정・삭제・마커 장식・탭 간 이동을 지원합니다. 작업은 실행 취소(최대 10회)로 되돌릴 수 있습니다.">テキスト修正・削除・マーカー装飾・タブ間移動に対応。操作はUndo（最大10回）で元に戻せます。</p>
                     </div>
                     <div class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100 shadow-sm">
                         <div class="w-12 h-12 bg-fuchsia-100 text-fuchsia-600 rounded-xl flex items-center justify-center mb-6">
@@ -1365,21 +1365,21 @@
                             <i data-lucide="file-output" size="24"></i>
                         </div>
                         <h3 class="text-xl font-bold text-slate-800 mb-3" data-ko="내보내기 형식">書き出し形式</h3>
-                        <p class="text-slate-500 leading-relaxed" data-ko="HTML・Markdown・텍스트・스프레드시트(xlsx) 형식으로 내보내기를 지원합니다. xlsx는 칼럼별로 열이 나뉘고 셀 병합으로 정리된 레이아웃으로 출력됩니다.">HTML・Markdown・テキスト・スプレッドシート（xlsx）形式での書き出しに対応。xlsxはカラムごとに列が分かれたセル結合レイアウトで出力されます。</p>
+                        <p class="text-slate-500 leading-relaxed" data-ko="HTML・Markdown・텍스트・스프레드시트(xlsx) 형식으로 내보내기를 지원합니다. xlsx는 탭별로 열이 나뉘고 셀 병합으로 정리된 레이아웃으로 출력됩니다.">HTML・Markdown・テキスト・スプレッドシート（xlsx）形式での書き出しに対応。xlsxはタブごとに列が分かれたセル結合レイアウトで出力されます。</p>
                     </div>
                     <div class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100 shadow-sm">
                         <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center mb-6">
                             <i data-lucide="printer" size="24"></i>
                         </div>
                         <h3 class="text-xl font-bold text-slate-800 mb-3" data-ko="PDF 출력">PDF出力</h3>
-                        <p class="text-slate-500 leading-relaxed" data-ko="칼럼을 메인・서브로 나누어 2칼럼 PDF로 출력합니다. 캐릭터 이미지 아이콘 포함, 테마 색상도 반영됩니다.">カラムをメイン・サブに振り分けて2カラムPDFとして出力。立ち絵アイコン付き、テーマカラーも反映されます。</p>
+                        <p class="text-slate-500 leading-relaxed" data-ko="탭을 메인・서브로 나누어 2탭 PDF로 출력합니다. 캐릭터 이미지 아이콘 포함, 테마 색상도 반영됩니다.">タブをメイン・サブに振り分けて2タブPDFとして出力。立ち絵アイコン付き、テーマカラーも反映されます。</p>
                     </div>
                     <div class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100 shadow-sm">
                         <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-xl flex items-center justify-center mb-6">
                             <i data-lucide="eye" size="24"></i>
                         </div>
                         <h3 class="text-xl font-bold text-slate-800 mb-3" data-ko="표시 커스터마이즈">表示カスタマイズ</h3>
-                        <p class="text-slate-500 leading-relaxed" data-ko="발언자・칼럼별 표시 전환, 테마 색상・글자 크기・캐릭터 이미지 크기 조정이 가능합니다. 파일명은 헤더를 클릭해 그 자리에서 편집할 수 있으며, 내보내기 파일명에도 반영됩니다.">発言者・カラムごとの表示切替、テーマカラー・文字サイズ・立ち絵サイズの調整。ファイル名はヘッダーをクリックしてその場で編集でき、書き出しファイル名に反映されます。</p>
+                        <p class="text-slate-500 leading-relaxed" data-ko="발언자・탭별 표시 전환, 테마 색상・글자 크기・캐릭터 이미지 크기 조정이 가능합니다. 파일명은 헤더를 클릭해 그 자리에서 편집할 수 있으며, 내보내기 파일명에도 반영됩니다.">発言者・タブごとの表示切替、テーマカラー・文字サイズ・立ち絵サイズの調整。ファイル名はヘッダーをクリックしてその場で編集でき、書き出しファイル名に反映されます。</p>
                     </div>
                     <div class="feature-card p-8 rounded-2xl bg-slate-50 border border-slate-100 shadow-sm">
                         <div class="w-12 h-12 bg-yellow-100 text-yellow-600 rounded-xl flex items-center justify-center mb-6">
@@ -1491,18 +1491,16 @@
 </div>
 
 <script>
-    // ↓リリースノートはここだよ。更新しようね。
-    // 内部バージョン: 1.9.4.2（非公開マイナー更新／サイト表示・更新履歴には出さない）
-    // 更新内容: 韓国語モード（JP/KR切り替え）を一時停止。ボタンはコメントアウトで非表示にしただけで、
-    // data-ko属性の訳文とJSの切り替えロジックはそのまま残しているので、ボタンのコメントを外せばいつでも再開できる。
-    const APP_VERSION = '1.9.4';
+    // ↓公開リリースノートはここだよ。更新しようね。
+    const APP_VERSION = '1.9.5';
     const RELEASE_NOTES = [
+        { version: '1.9.5', description: 'デモモードに、主要機能を順番に紹介する案内ツアーを追加しました。' },
         { version: '1.9.4', description: 'ダイスサイト「critical-stage」のチャットログHTML出力の読み込みに対応しました。ダイス結果やキャラクター値の変動もそのまま反映されます。' },
         { version: '1.9.3', description: '発言時刻の表示形式を「26-9/1・12:20:35」のように日付＋時刻がひと目でわかる形式に変更し、文字色も見やすく調整しました。あわせて、立ち絵付きHTML形式で時刻が反映されないバグを修正しました。' },
         { version: '1.9.2', description: '発言ごとの時刻表示に対応しました。ココフォリアのHTML・JSONログに含まれるタイムスタンプを読み取り、設定から表示ON/OFFを切り替えられます。' },
         { version: '1.9.1', description: 'ログ読み込み後、ヘッダーのタイトルをその場で編集できるようにしました（ダブルクリック、またはペンアイコンから）。編集した名前はファイル書き出し時のファイル名にも反映されます。' },
         { version: '1.9.0', description: 'ココフォリアの新しいログ出力形式（立ち絵付きHTML・JSON）の読み込みに対応しました。発言ごとの立ち絵差分（表情差分など）もそのまま反映されます。' },
-        { version: '1.8.1', description: 'スプレッドシート形式（xlsx）での書き出しに対応しました。カラムごとに列が並び、セル結合でカラム名が見やすく整理されます。' },
+        { version: '1.8.1', description: 'スプレッドシート形式（xlsx）での書き出しに対応しました。タブごとに列が並び、セル結合でタブ名が見やすく整理されます。' },
         { version: '1.8.0', description: 'Markdown/テキストの書き出し形式を追加しました。' },
         { version: '1.7.0', description: 'キャラクターをグループ化する機能を追加し、立ち絵やスタイル設定をまとめて管理できるようにしました。' },
         { version: '1.6.0', description: '画面外のコメントの存在を知らせるナビを追加。必要に応じて設定から非表示にできます。' },
@@ -1510,12 +1508,34 @@
         { version: '1.4.0', description: 'キャラクター別に発言の見た目を設定できる機能を追加し、フォントや背景色を個別にカスタマイズ可能にしました。' },
         { version: '1.3.2', description: '立ち絵を非表示にする設定を追加し、表示をすっきりさせることができます。' },
         { version: '1.3.1', description: '上記機能で発生していた D&D 操作不能の問題を修正し、編集ボタンを非表示にする設定も追加しました。' },
-        { version: '1.3.0', description: 'カラムの順番を自由に入れ替えられるようにしました。' },
+        { version: '1.3.0', description: 'タブの順番を自由に入れ替えられるようにしました。' },
         { version: '1.2.1', description: 'PDF出力機能の表示とレイアウトを調整しました。' },
-        { version: '1.2.0', description: '巻き戻し機能を実装し、カラムやコメントの削除などの操作を取り消せるようにしました。整形済みログの読み込みにも対応しています。' },
+        { version: '1.2.0', description: '巻き戻し機能を実装し、タブやコメントの削除などの操作を取り消せるようにしました。整形済みログの読み込みにも対応しています。' },
         { version: '1.1.0', description: 'PDF出力機能とダイス強調機能を追加しました。' },
         { version: '1.0.1', description: '細かな修正と整理を行いました。' },
-        { version: '1.0.0', description: '公開開始。ランディングページ風の紹介画面を実装し、マルチカラム、立ち絵、検索、コメント編集・装飾、表示/非表示、保存機能を搭載しました。' }
+        { version: '1.0.0', description: '公開開始。ランディングページ風の紹介画面を実装し、マルチタブ、立ち絵、検索、コメント編集・装飾、表示/非表示、保存機能を搭載しました。' }
+    ];
+
+    // ============================================================
+    // 非公開リリースノート（サイト表示・更新履歴パネルには一切出さない）
+    // サイト上のバージョン表記は上のAPP_VERSIONのままで、ここは開発者向けの
+    // 内部記録専用。バージョンは「公開バージョン.枝番」（例: 1.9.5.1）で管理し、
+    // 同じ公開バージョンの間に非公開の修正をしたら枝番を1つずつ増やしていく。
+    // 公開バージョンが上がったら枝番は1から数え直す。古い項目は消さず、
+    // 新しいものを配列の先頭に追加する形でずっと積み上げていくこと。
+    // ============================================================
+    const HIDDEN_CHANGELOG = [
+        { version: '1.9.5.2', note: 'デモツアーのスマホ対応：キャラ設定・設定ボタンはPC専用要素(pc-open-char-modal-btn/pc-settings-btn)だったため、スマホでは該当ステップが飛ばされ「STEP 2/8」から始まったり最後の案内が出ないまま終わる不具合があった。スマホ用の対応ボタン(mb-nav-char/mb-nav-settings)を自動判定して案内するよう修正し、ステップ番号もその端末で実際に表示されるステップ数を基準に振り直すようにした。' },
+        { version: '1.9.5.1', note: 'UI文言の「カラム」表記をすべて「タブ」に統一（機能紹介・ヘルプモーダル・更新履歴・ツールチップ・確認ダイアログ・PDF設定・デモツアー・韓国語訳(칼럼→탭)を含む）。CCFOLIA側の「タブ」呼称に合わせた。内部のCSSクラス名やJS変数名(--column-width等)は変更していない。' },
+        { version: '1.9.4.9', note: 'デモモード専用のオンボーディングツアーを実装（8ステップ：キャラ設定／文字編集／削除／構造編集／マーカー／栞／検索／設定・保存）。デモに入るたびに毎回表示。ツールチップの位置はハイライト対象と重ならないよう実測サイズで自動調整。' },
+        { version: '1.9.4.8', note: 'Google Analytics 4のキーイベント集計用に、HTML/Markdown/xlsx/テキスト/PDFの保存・出力時に「log_export」イベントを送信するよう実装。' },
+        { version: '1.9.4.7', note: '発言全体が1行だけのダイスロールの場合、白い吹き出しの中に灰色ボックスを入れ子にするのをやめ、吹き出し自体を灰色ボックスとして大きく表示するよう変更（画面表示・PDF印刷の両方に適用）。' },
+        { version: '1.9.4.6', note: 'ダイス強調表示の誤検出を修正：「＞GM」のような宛先表記が全角「＞」を含むだけでダイスロールと誤判定されていた問題を修正。「＞」とダイス記法（1D10、CCなど）の両方がある場合のみダイス行として扱うように変更。' },
+        { version: '1.9.4.5', note: '栞のバグ修正：HTML出力後に別ファイル（同名タイトル）の古いlocalStorage栞データが優先されてしまい、栞が減ったり無関係の位置になる不具合を修正。ファイル自身に埋め込まれた栞データを優先するよう変更し、ストレージキーにもログ件数を加えて衝突しにくくした。' },
+        { version: '1.9.4.4', note: '韓国からのアクセス42件を受け、ランディングページ限定の韓国語切り替え(JP/KR)を機械翻訳で実装したが、様子見のため一時停止。ボタンはコメントアウトで非表示にしただけで、data-ko属性の訳文とJSロジックは温存。ボタンのコメントを外せばいつでも再開可能。' },
+        { version: '1.9.4.3', note: '「使い方」セクション（旧クイックスタート）の見出し・説明文を整理。' },
+        { version: '1.9.4.2', note: 'ヘッダーの「ココフォリアへ」外部リンクを削除。' },
+        { version: '1.9.4.1', note: 'ランディングページのヒーロー説明文を見直し、初心者にも伝わる文言に修正。' }
     ];
 
     const appVersionBadge = document.getElementById('app-version-badge');
@@ -1537,17 +1557,17 @@
 
     const FEATURE_LIST = [
         { title: 'インポート・読み込み', description: 'ココフォリアのログHTMLをドラッグ＆ドロップで読み込み、整形済みHTMLファイルの再読み込みも可能です。' },
-        { title: 'マルチカラム表示', description: '発言を main / 雑談 / 情報 等で分割表示し、カラムの追加・削除・並び替え・表示切替ができます。' },
+        { title: 'マルチタブ表示', description: '発言を main / 雑談 / 情報 等で分割表示し、タブの追加・削除・並び替え・表示切替ができます。' },
         { title: '立ち絵・アイコン', description: 'キャラクターごとに立ち絵を設定でき、アップロードとトリミングの表示切替にも対応します。' },
         { title: '検索', description: 'キーワード検索で該当発言へジャンプでき、PC・モバイル両方の画面で使えます。' },
-        { title: '編集機能', description: '発言の直接編集、削除、マーカー装飾、カラム間移動、コンテキストメニューでのスタイル適用が可能です。' },
+        { title: '編集機能', description: '発言の直接編集、削除、マーカー装飾、タブ間移動、コンテキストメニューでのスタイル適用が可能です。' },
         { title: 'Undo / 巻き戻し', description: '最大10件のUndo履歴を保存し、削除・移動・編集を元に戻せるようにしました。' },
-        { title: 'PDF出力', description: 'カラム別の出力設定、立ち絵・アイコン付きPDF、テーマカラー反映に対応しています。' },
-        { title: '書き出し形式の選択', description: 'HTML・Markdown・テキスト・スプレッドシート（xlsx）形式の出力に対応。xlsxはカラムごとに列が分かれたセル結合レイアウトで出力されます。' },
+        { title: 'PDF出力', description: 'タブ別の出力設定、立ち絵・アイコン付きPDF、テーマカラー反映に対応しています。' },
+        { title: '書き出し形式の選択', description: 'HTML・Markdown・テキスト・スプレッドシート（xlsx）形式の出力に対応。xlsxはタブごとに列が分かれたセル結合レイアウトで出力されます。' },
         { title: 'キャラクタースタイル', description: 'キャラクターごとにフォント、背景色、太字を設定し、スタイルのグループ共有や統合も可能です。' },
         { title: '栞機能', description: '栞を追加して好きな場所に目印をつけ、クリックでその位置へ瞬時にジャンプできます。' },
         { title: 'ダイス強調', description: 'BCDiceのロール結果を自動検出し、成功・失敗・クリティカル・ファンブルを色付きで強調します。' },
-        { title: 'UI/ナビゲーション', description: 'スクロールカウンター、カラムナビ、スティッキーなヘッダー、モバイル対応ボタンなどを実装しています。' },
+        { title: 'UI/ナビゲーション', description: 'スクロールカウンター、タブナビ、スティッキーなヘッダー、モバイル対応ボタンなどを実装しています。' },
         { title: '安全性・保存', description: 'ブラウザ内ローカルのみで処理を完結し、外部サーバーに送信しません。' }
     ];
 
@@ -1681,7 +1701,7 @@
 
         <div id="row-counter">0 / 0</div>
 
-        <!-- カラムインジケーター -->
+        <!-- タブインジケーター -->
         <div id="col-indicator-left"></div>
         <div id="col-indicator-right"></div>
 
@@ -1699,8 +1719,8 @@
         <div id="jump-controls">
             <div id="edit-btn-group">
                 <button id="text-edit-mode-btn" class="jump-btn" title="文字編集モード(クリックして修正)"><i data-lucide="pencil" size="20"></i></button>
-                <button id="edit-mode-toggle-btn" class="jump-btn" title="削除モード(発言・カラムの削除)"><i data-lucide="trash-2" size="20"></i></button>
-                <button id="move-mode-btn" class="jump-btn" title="構造編集モード(カラム追加・並び替え・コメント移動)"><i data-lucide="layout-grid" size="20"></i></button>
+                <button id="edit-mode-toggle-btn" class="jump-btn" title="削除モード(発言・タブの削除)"><i data-lucide="trash-2" size="20"></i></button>
+                <button id="move-mode-btn" class="jump-btn" title="構造編集モード(タブ追加・並び替え・コメント移動)"><i data-lucide="layout-grid" size="20"></i></button>
                 <button id="marker-toggle-btn" class="jump-btn" title="マーカーモード(スタイル変更)"><i data-lucide="highlighter" size="20"></i></button>
                 <button id="undo-btn" class="jump-btn" title="元に戻す（履歴なし）" disabled style="opacity:0.35"><i data-lucide="undo-2" size="20"></i></button>
                 <div class="w-full h-[1px] bg-slate-200 my-1"></div>
@@ -1712,7 +1732,7 @@
 
         <!-- コメント移動メニュー -->
         <div id="move-menu">
-            <div class="text-[10px] font-bold text-slate-400 px-2 pb-1 mb-1 border-b border-slate-100">移動先カラム</div>
+            <div class="text-[10px] font-bold text-slate-400 px-2 pb-1 mb-1 border-b border-slate-100">移動先タブ</div>
             <div id="move-menu-items"></div>
         </div>
 
@@ -1811,11 +1831,11 @@
                             </div>
                             <div class="flex items-start gap-3 bg-white p-3 rounded-xl border border-slate-100">
                                 <div class="w-9 h-9 flex-shrink-0 rounded-lg bg-red-50 text-red-600 flex items-center justify-center"><i data-lucide="trash-2" size="16"></i></div>
-                                <div><p class="font-bold text-sm text-slate-800">削除モード</p><p class="text-xs text-slate-500 leading-relaxed mt-0.5">不要な発言や、カラムそのものを削除できます。</p></div>
+                                <div><p class="font-bold text-sm text-slate-800">削除モード</p><p class="text-xs text-slate-500 leading-relaxed mt-0.5">不要な発言や、タブそのものを削除できます。</p></div>
                             </div>
                             <div class="flex items-start gap-3 bg-white p-3 rounded-xl border border-slate-100">
                                 <div class="w-9 h-9 flex-shrink-0 rounded-lg bg-violet-50 text-violet-600 flex items-center justify-center"><i data-lucide="layout-grid" size="16"></i></div>
-                                <div><p class="font-bold text-sm text-slate-800">構造編集モード</p><p class="text-xs text-slate-500 leading-relaxed mt-0.5">カラムの追加・並び替えや、発言を別カラムへ移動できます。</p></div>
+                                <div><p class="font-bold text-sm text-slate-800">構造編集モード</p><p class="text-xs text-slate-500 leading-relaxed mt-0.5">タブの追加・並び替えや、発言を別タブへ移動できます。</p></div>
                             </div>
                             <div class="flex items-start gap-3 bg-white p-3 rounded-xl border border-slate-100">
                                 <div class="w-9 h-9 flex-shrink-0 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center"><i data-lucide="highlighter" size="16"></i></div>
@@ -1874,9 +1894,9 @@
                             <div class="text-[10px]">（右・狭め）</div>
                         </div>
                     </div>
-                    <!-- カラム振り分け -->
+                    <!-- タブ振り分け -->
                     <div>
-                        <p class="text-xs text-slate-500 mb-3">各カラムをメイン・サブに振り分けてください。選択されていないカラムはPDFに含まれません。</p>
+                        <p class="text-xs text-slate-500 mb-3">各タブをメイン・サブに振り分けてください。選択されていないタブはPDFに含まれません。</p>
                         <div id="pdf-column-list" class="space-y-2"></div>
                     </div>
                 </div>
@@ -1960,7 +1980,7 @@
                 </div>
                 <div>
                     <div class="flex justify-between items-center mb-2">
-                        <label class="text-xs font-bold text-slate-700">カラム幅</label>
+                        <label class="text-xs font-bold text-slate-700">タブ幅</label>
                         <span id="col-val" class="text-[10px] font-mono text-blue-600 bg-blue-50 px-2 py-1 rounded">350px</span>
                     </div>
                     <input type="range" id="col-slider" min="200" max="600" value="350" class="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer">
@@ -1989,7 +2009,7 @@
                 </div>
                 <div>
                     <label class="flex items-center justify-between py-1 cursor-pointer">
-                        <span class="text-xs font-bold text-slate-700">画面外カラムをナビ表示</span>
+                        <span class="text-xs font-bold text-slate-700">画面外タブをナビ表示</span>
                         <div id="col-indicator-toggle" class="relative w-10 h-5 rounded-full bg-blue-500 transition-colors cursor-pointer">
                             <div class="absolute top-0.5 right-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform"></div>
                         </div>
@@ -2027,7 +2047,7 @@
         </div>
 
         <nav class="mobile-nav">
-            <button id="mb-nav-filter" class="flex flex-col items-center gap-1 text-slate-400"><i data-lucide="columns" size="20"></i><span class="text-[10px] font-bold">カラム</span></button>
+            <button id="mb-nav-filter" class="flex flex-col items-center gap-1 text-slate-400"><i data-lucide="columns" size="20"></i><span class="text-[10px] font-bold">タブ</span></button>
             <button id="mb-nav-char" class="flex flex-col items-center gap-1 text-slate-400"><i data-lucide="users" size="20"></i><span class="text-[10px] font-bold">キャラ設定</span></button>
             <button id="mb-nav-settings" class="flex flex-col items-center gap-1 text-slate-400"><i data-lucide="sliders-horizontal" size="20"></i><span class="text-[10px] font-bold">表示設定</span></button>
         </nav>
@@ -2636,7 +2656,7 @@
                     showPortraits = !showPortraits;
                     applyPortraitVisibility();
                 };
-                // カラムインジケータートグル
+                // タブインジケータートグル
                 getEl('col-indicator-toggle').onclick = () => {
                     showColIndicator = !showColIndicator;
                     applyColIndicatorVisibility();
@@ -2787,7 +2807,7 @@
             }
 
             function addColumn() {
-                const name = prompt('新しいカラム名を入力してください：');
+                const name = prompt('新しいタブ名を入力してください：');
                 if (!name || !name.trim()) return;
                 const trimmed = name.trim();
                 if (allLocations.includes(trimmed)) {
@@ -2803,7 +2823,7 @@
             }
 
             function deleteColumn(loc) {
-                if (!confirm(`「${loc}」カラムと、そこに含まれるすべての発言を削除しますか？`)) return;
+                if (!confirm(`「${loc}」タブと、そこに含まれるすべての発言を削除しますか？`)) return;
                 pushUndo();
                 logData = logData.filter(d => d.loc !== loc);
                 allLocations = allLocations.filter(l => l !== loc);
@@ -2979,21 +2999,34 @@
 
             // デモモード限定の初回ガイドツアー（吹き出しで主要機能を順番に案内、スキップ可）
             const TOUR_STEPS = [
-                { selector: '#pc-open-char-modal-btn', text: 'ここから、キャラクターごとの立ち絵・フォント・背景色などを設定できます。' },
+                { selector: () => (document.getElementById('pc-open-char-modal-btn') && document.getElementById('pc-open-char-modal-btn').offsetParent !== null) ? '#pc-open-char-modal-btn' : '#mb-nav-char', text: 'ここから、キャラクターごとの立ち絵・フォント・背景色などを設定できます。' },
                 { selector: '#text-edit-mode-btn', text: '「文字編集モード」。クリックした発言をその場で修正できます。' },
-                { selector: '#edit-mode-toggle-btn', text: '「削除モード」。不要な発言やカラムをまとめて削除できます。' },
-                { selector: '#move-mode-btn', text: '「構造編集モード」。カラムの追加・並び替え・発言の移動ができます。' },
+                { selector: '#edit-mode-toggle-btn', text: '「削除モード」。不要な発言やタブをまとめて削除できます。' },
+                { selector: '#move-mode-btn', text: '「構造編集モード」。タブの追加・並び替え・発言の移動ができます。' },
                 { selector: '#marker-toggle-btn', text: '「マーカーモード」。発言の背景色や文字装飾を変更できます。' },
                 { selector: '#bookmark-toggle-btn', text: '気になる発言に栞を付けておくと、あとからワンタップでその場所に戻れます。' },
                 { selector: () => (document.getElementById('search-input-mobile') && document.getElementById('search-input-mobile').offsetParent !== null) ? '#search-input-mobile' : '#search-input', text: 'ここからログ内を検索できます。見たい発言がすぐ見つかります。' },
-                { selector: '#pc-settings-btn', text: '整形が終わったら、ここから見た目の調整や保存・PDF出力ができます。' }
+                { selector: () => (document.getElementById('pc-settings-btn') && document.getElementById('pc-settings-btn').offsetParent !== null) ? '#pc-settings-btn' : '#mb-nav-settings', text: '整形が終わったら、ここから見た目の調整や保存・PDF出力ができます。' }
             ];
+            let tourSteps = []; // この端末で実際に表示できるステップだけを詰めたもの（番号はこれを基準に振る）
             let tourStepIndex = 0;
             let tourOverlayEl = null;
+
+            function resolveTourTarget(step) {
+                const sel = typeof step.selector === 'function' ? step.selector() : step.selector;
+                return sel ? document.querySelector(sel) : null;
+            }
 
             function startDemoTour() {
                 // デモモード専用のガイドなので「一度きり」にはせず、デモに入るたびに毎回表示する
                 tourStepIndex = 0;
+                // PC専用・スマホ専用のボタンがあるため、今の画面幅で実際に見えているステップだけを
+                // 先に抽出しておく（そうしないと「STEP 2/8」から始まったり、番号が飛んだりする）
+                tourSteps = TOUR_STEPS.filter((step) => {
+                    const el = resolveTourTarget(step);
+                    return el && el.offsetParent !== null;
+                });
+                if (tourSteps.length === 0) return;
                 tourOverlayEl = document.createElement('div');
                 tourOverlayEl.id = 'tour-overlay';
                 tourOverlayEl.innerHTML = '<div class="tour-highlight"></div><div class="tour-tooltip"></div>';
@@ -3006,10 +3039,9 @@
             }
 
             function showTourStep() {
-                const step = TOUR_STEPS[tourStepIndex];
-                const sel = step ? (typeof step.selector === 'function' ? step.selector() : step.selector) : null;
-                const targetEl = sel ? document.querySelector(sel) : null;
-                // 対象が見つからない（非表示など）場合はそのステップを飛ばす
+                const step = tourSteps[tourStepIndex];
+                const targetEl = step ? resolveTourTarget(step) : null;
+                // 表示状態が途中で変わった場合の保険（回転・リサイズなど）。基本はstartDemoTourの絞り込みで解決済み
                 if (!step || !targetEl || targetEl.offsetParent === null) {
                     if (step) { tourStepIndex++; showTourStep(); return; }
                     endDemoTour();
@@ -3024,8 +3056,8 @@
                 highlightEl.style.width = (rect.width + pad * 2) + 'px';
                 highlightEl.style.height = (rect.height + pad * 2) + 'px';
 
-                const isLast = tourStepIndex === TOUR_STEPS.length - 1;
-                tooltipEl.innerHTML = `<div class="tour-step-label">STEP ${tourStepIndex + 1} / ${TOUR_STEPS.length}</div>
+                const isLast = tourStepIndex === tourSteps.length - 1;
+                tooltipEl.innerHTML = `<div class="tour-step-label">STEP ${tourStepIndex + 1} / ${tourSteps.length}</div>
                     <div>${step.text}</div>
                     <div class="tour-actions">
                         <button class="tour-skip-btn" id="tour-skip-btn">スキップ</button>
@@ -3327,7 +3359,7 @@
                 finishParsing(locSet);
             }
 
-            // パース結果からカラム順を決定してレイアウト描画するまでの共通処理
+            // パース結果からタブ順を決定してレイアウト描画するまでの共通処理
             function finishParsing(locSet) {
                 const locArray = Array.from(locSet);
                 const getPriority = (name) => {
@@ -3468,9 +3500,9 @@
                 });
                 if (visibleRows.length === 0) { leftEl.innerHTML = ''; rightEl.innerHTML = ''; return; }
 
-                // ビューポートに映っていないカラムのインデックスを特定
-                const hiddenLeft  = []; // 左にはみ出ているカラム（インデックス昇順）
-                const hiddenRight = []; // 右にはみ出ているカラム
+                // ビューポートに映っていないタブのインデックスを特定
+                const hiddenLeft  = []; // 左にはみ出ているタブ（インデックス昇順）
+                const hiddenRight = []; // 右にはみ出ているタブ
 
                 const headerCells = document.querySelectorAll('#sticky-header .column-header');
                 headerCells.forEach((hCell, idx) => {
@@ -3484,7 +3516,7 @@
                     }
                 });
 
-                // 左インジケーター（右端のカラムインデックスが一番近い）
+                // 左インジケーター（右端のタブインデックスが一番近い）
                 // hiddenLeft は昇順なので末尾が最も近い
                 leftEl.innerHTML = '';
                 const showLeft = hiddenLeft.slice(-3).reverse(); // 最大3個、近い順
@@ -3692,7 +3724,7 @@
                     delColBtn.onclick = (e) => { e.stopPropagation(); deleteColumn(loc); };
                     h.appendChild(delColBtn);
 
-                    // カラムD&Dソート（並び替えモード中のみ有効）
+                    // タブD&Dソート（並び替えモード中のみ有効）
                     h.setAttribute('draggable', true);
                     h.addEventListener('dragstart', (e) => {
                         if (!isMoveMode) { e.preventDefault(); return; }
@@ -3744,10 +3776,10 @@
                     getEl('filter-container').appendChild(chip);
                 });
 
-                // カラム追加ボタン（並び替えモード中に表示）
+                // タブ追加ボタン（並び替えモード中に表示）
                 const addBtn = document.createElement('div');
                 addBtn.className = 'add-col-btn';
-                addBtn.title = '新しいカラムを追加';
+                addBtn.title = '新しいタブを追加';
                 addBtn.innerHTML = '+';
                 addBtn.onclick = addColumn;
                 getEl('sticky-header').appendChild(addBtn);
@@ -4320,7 +4352,7 @@
                 const subLocs  = Object.entries(pdfColumnRoles).filter(([,v]) => v === 'sub').map(([k]) => k);
 
                 if (mainLocs.length === 0 && subLocs.length === 0) {
-                    alert('メインまたはサブに最低1つのカラムを選択してください。');
+                    alert('メインまたはサブに最低1つのタブを選択してください。');
                     return;
                 }
 
@@ -4368,7 +4400,7 @@
                 title.textContent = getEl('app-title').textContent;
                 container.appendChild(title);
 
-                // ヘッダー行（カラム名）
+                // ヘッダー行（タブ名）
                 const header = document.createElement('div');
                 header.className = 'print-header';
                 header.innerHTML = `
@@ -4499,11 +4531,11 @@
                 const ws = {};
                 const merges = [];
 
-                // カラムごとに2列（キャラ名・発言）を使う
+                // タブごとに2列（キャラ名・発言）を使う
                 // 列配置: loc0→A,B / loc1→C,D / ...
                 const colBase = (i) => i * 2; // 0始まりの列インデックス
 
-                // ===== 1行目: カラム名（2列結合） =====
+                // ===== 1行目: タブ名（2列結合） =====
                 locs.forEach((loc, i) => {
                     const c = colBase(i);
                     const addr = XLSX.utils.encode_cell({ r: 0, c });
