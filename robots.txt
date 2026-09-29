@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://log-theater.netlify.app/sitemap.xml
+Sitemap: https://misosiru714.github.io/log-theater/sitemap.xml
