@@ -1525,6 +1525,7 @@
     // 新しいものを配列の先頭に追加する形でずっと積み上げていくこと。
     // ============================================================
     const HIDDEN_CHANGELOG = [
+        { version: '1.9.5.3', note: 'GA4のファネル分析用に「log_loaded」イベントを追加。sourceパラメータでccfolia_json/ccfolia_html_new/ccfolia_html_old/critical_stage/reimported(自分の書き出し済みHTMLを再度読み込み)/restored(書き出し済みHTMLをそのまま開いた)/demo(デモモード)を区別できるようにし、log_exportと組み合わせて「読み込み→保存」の到達率を見られるようにした。' },
         { version: '1.9.5.2', note: 'デモツアーのスマホ対応：キャラ設定・設定ボタンはPC専用要素(pc-open-char-modal-btn/pc-settings-btn)だったため、スマホでは該当ステップが飛ばされ「STEP 2/8」から始まったり最後の案内が出ないまま終わる不具合があった。スマホ用の対応ボタン(mb-nav-char/mb-nav-settings)を自動判定して案内するよう修正し、ステップ番号もその端末で実際に表示されるステップ数を基準に振り直すようにした。' },
         { version: '1.9.5.1', note: 'UI文言の「カラム」表記をすべて「タブ」に統一（機能紹介・ヘルプモーダル・更新履歴・ツールチップ・確認ダイアログ・PDF設定・デモツアー・韓国語訳(칼럼→탭)を含む）。CCFOLIA側の「タブ」呼称に合わせた。内部のCSSクラス名やJS変数名(--column-width等)は変更していない。' },
         { version: '1.9.4.9', note: 'デモモード専用のオンボーディングツアーを実装（8ステップ：キャラ設定／文字編集／削除／構造編集／マーカー／栞／検索／設定・保存）。デモに入るたびに毎回表示。ツールチップの位置はハイライト対象と重ならないよう実測サイズで自動調整。' },
@@ -3087,6 +3088,15 @@
                 if (tourOverlayEl) showTourStep();
             });
 
+            // GA4のファネル分析用（読み込み→保存の到達率を見られるようにする）
+            function trackLoadEvent(source) {
+                try {
+                    if (typeof gtag === 'function') {
+                        gtag('event', 'log_loaded', { source: source });
+                    }
+                } catch (e) {}
+            }
+
             function loadDemo() {
                 const dummyHTML = `<!DOCTYPE html><html><head></head><body><p style="color:#888888"><span> [情報] </span><span>GM</span><span><br>物語は、古びた洋館の扉の前から始まります。<br>風が吹き抜け、枯れ葉が舞う中、あなたたちは重厚な扉を見上げている。</span></p><p style="color:#e60033"><span> [メイン] </span><span>探偵</span><span>ゴクリ……。ついに来てしまったか。ここが噂の幽霊屋敷か。</span></p><p style="color:#2288cc"><span> [メイン] </span><span>助手</span><span>先生、帰りましょうよぉ……。僕、オカルトとか苦手なんですよ。</span></p><p style="color:#888888"><span> [雑談] </span><span>PL2</span><span>助手くんのビビりRP最高ｗ</span></p><p style="color:#e60033"><span> [メイン] </span><span>探偵</span><span>馬鹿を言うな。依頼を受けた以上、調査を完遂するのがプロというものだ。<br>さあ、行くぞ！</span></p><p style="color:#888888"><span> [メイン] </span><span>GM</span><span>探偵は扉に手をかける。鍵はかかっておらず、錆びついた蝶番が悲鳴のような音を立てて開いた。<br>ギィィィィィ……</span></p><p style="color:#2288cc"><span> [メイン] </span><span>助手</span><span>うわぁ！今の音なに！？幽霊！？</span></p><p style="color:#e60033"><span> [メイン] </span><span>探偵</span><span>落ち着け。ただの蝶番の音だ。<br>……だが、中は真っ暗だな。懐中電灯をつけるぞ。</span></p><p style="color:#888888"><span> [情報] </span><span>GM</span><span>懐中電灯の光が廊下を照らす。<br>壁には何枚かの肖像画が飾られており、その視線があなたたちを追っているように感じる。<br>【目星】を振れます。</span></p><p style="color:#e60033"><span> [メイン] </span><span>探偵</span><span>ふむ、肖像画か。何か手がかりがあるかもしれん。<br>CC<=70 【目星】 (1D100<=70) ＞ 15 ＞ 成功</span></p><p style="color:#888888"><span> [情報] </span><span>GM</span><span>成功ですね。では、探偵は一枚の肖像画に違和感を覚えます。<br>他の絵は人物画ですが、その絵だけは「真っ赤な果実」が描かれています。<br>そして、その果実の部分だけ、絵の具がまだ新しいように見えます。</span></p><p style="color:#888888"><span> [雑談] </span><span>PL1</span><span>真っ赤な果実……リンゴ？それとも心臓？</span></p><p style="color:#2288cc"><span> [メイン] </span><span>助手</span><span>先生、あれ見てください！あの絵、なんか変ですよ。</span></p><p style="color:#e60033"><span> [メイン] </span><span>探偵</span><span>ああ、気づいている。<br>……おい助手、少し触ってみてくれないか？</span></p><p style="color:#2288cc"><span> [メイン] </span><span>助手</span><span>ええ！？なんで僕が！？嫌ですよ！</span></p><p style="color:#888888"><span> [雑談] </span><span>PL2</span><span>安定の生贄ｗ</span></p></body></html>`;
                 sourceFileName = "Demo Session";
@@ -3098,6 +3108,7 @@
                 getEl('row-counter').style.display = 'block'; 
                 setTimeout(updateRowCounter, 100);
                 setTimeout(startDemoTour, 500);
+                trackLoadEvent('demo');
             }
 
             function exitDemo() { clearStorage(); location.reload(); }
@@ -3107,11 +3118,13 @@
                 sourceFileName = file.name.replace(/\.(html|json)$/i, '');
                 const reader = new FileReader();
                 reader.onload = (e) => {
+                    let loadSource = 'unknown';
                     try {
                         if (isJson) {
                             // ココフォリアのJSON形式ログ
                             const data = JSON.parse(e.target.result);
                             parseCocofoliaJSON(data);
+                            loadSource = 'ccfolia_json';
                         } else {
                             const html = e.target.result;
                             const doc = new DOMParser().parseFromString(html, 'text/html');
@@ -3123,15 +3136,19 @@
                             if (savedLog.length > 0) {
                                 // 整形済みHTML → 保存済みJSONから復元
                                 parseFromStorage(doc);
+                                loadSource = 'reimported';
                             } else if (doc.querySelector('article.message')) {
                                 // ココフォリアの新しいHTML出力形式（立ち絵付き）
                                 parseCocofoliaNewHTML(doc);
+                                loadSource = 'ccfolia_html_new';
                             } else if (doc.querySelector('article.chat-item')) {
                                 // critical-stage形式のチャットログHTML
                                 parseCriticalStageHTML(doc);
+                                loadSource = 'critical_stage';
                             } else {
                                 // ココフォリア旧形式の生ログ → 通常パース
                                 parse(html);
+                                loadSource = 'ccfolia_html_old';
                             }
                         }
 
@@ -3140,6 +3157,7 @@
                         getEl('exit-demo-btn').style.display = 'none';
                         getEl('row-counter').style.display = 'block';
                         setTimeout(updateRowCounter, 300);
+                        trackLoadEvent(loadSource);
                     } catch (err) { console.error("Log parsing error:", err); }
                 };
                 reader.readAsText(file, 'UTF-8');
@@ -4288,6 +4306,7 @@
                             updateRowCounter();
                             restoreBookmarks(JSON.parse(bookmarksRaw || '[]'));
                         }, 300);
+                        trackLoadEvent('restored');
                     }
                 } catch(e) { console.error("Restore failed", e); }
             }
