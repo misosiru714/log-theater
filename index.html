@@ -806,7 +806,7 @@
             }
             /* 発言全体がダイスロールのみの場合、吹き出しそのものを灰色ボックスにする（画面表示と同じ方針） */
             .print-bubble.dice-only-bubble {
-                background: rgba(0,0,0,0.045);
+                background: #eef1f5;
                 border: 1px solid #cbd5e1;
                 border-left: 3px solid #94a3b8;
                 -webkit-print-color-adjust: exact !important;
@@ -939,9 +939,10 @@
         /* 発言全体がダイスロールだけの場合: 白い吹き出しの中に灰色ボックスを入れ子にせず、
            吹き出し自体を灰色ボックスとして表示し、大きく見やすくする */
         .bubble.dice-only-bubble {
-            background: rgba(0,0,0,0.045);
+            background: #eef1f5;
             border-left: 3px solid #94a3b8;
             box-shadow: none;
+            border-radius: 14px;
         }
         .bubble.dice-only-bubble .dice-line {
             display: block;
@@ -1184,6 +1185,161 @@
             border-radius: 999px;
             padding: 7px 16px;
             cursor: pointer;
+        }
+        /* ============================================================
+           ダークモード（アプリ本体のみ。ランディングページは対象外）
+           body.dark-mode が付いている間だけ有効になる
+           ============================================================ */
+        body.dark-mode {
+            --dm-bg: #0f172a;
+            --dm-panel: #1e293b;
+            --dm-panel-soft: #16202e;
+            --dm-border: #334155;
+            --dm-text: #e2e8f0;
+            --dm-text-secondary: #94a3b8;
+            background-color: var(--dm-bg);
+            color: var(--dm-text);
+        }
+        body.dark-mode ::-webkit-scrollbar-thumb { background: #475569; }
+        body.dark-mode ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+        /* タイムライン・吹き出し */
+        body.dark-mode .column-header {
+            background: rgba(30, 41, 59, 0.92);
+            color: var(--dm-text-secondary);
+            border-color: rgba(51, 65, 85, 0.6);
+        }
+        body.dark-mode .bubble {
+            background-color: var(--dm-panel);
+            color: var(--dm-text);
+        }
+        body.dark-mode body.edit-mode-active .bubble { border-color: #475569; }
+        body.dark-mode .char-name-bg { background-color: rgba(30, 41, 59, 0.85); }
+        body.dark-mode .msg-timestamp { color: var(--dm-text-secondary); }
+        body.dark-mode .dice-line { background: rgba(255, 255, 255, 0.08); }
+        body.dark-mode .bubble.dice-only-bubble { background: var(--dm-panel-soft); border-left-color: #64748b; }
+        body.dark-mode .char-portrait { background-color: rgba(255, 255, 255, 0.08); }
+        body.dark-mode .highlight-jump { background-color: #78350f !important; }
+
+        /* パネル・ボタン類（独自CSSクラス） */
+        body.dark-mode #settings-panel,
+        body.dark-mode #move-menu,
+        body.dark-mode .ctx-menu {
+            background: var(--dm-panel);
+            border-color: var(--dm-border);
+            color: var(--dm-text);
+        }
+        body.dark-mode #bookmark-panel {
+            background: var(--dm-panel);
+            border-color: var(--dm-border);
+        }
+        body.dark-mode .jump-btn {
+            background: rgba(30, 41, 59, 0.9);
+            border-color: var(--dm-border);
+            color: var(--dm-text-secondary);
+        }
+        body.dark-mode .btn-secondary {
+            background: var(--dm-panel-soft);
+            color: var(--dm-text-secondary);
+            border-color: var(--dm-border);
+        }
+        body.dark-mode .btn-secondary:hover { background: var(--dm-border); }
+        body.dark-mode input, body.dark-mode select, body.dark-mode textarea {
+            background-color: var(--dm-panel-soft);
+            color: var(--dm-text);
+            border-color: var(--dm-border);
+        }
+        body.dark-mode #drop-zone:hover { background-color: rgba(59, 130, 246, 0.1); }
+        body.dark-mode .header-nav {
+            background: var(--dm-panel);
+            border-color: var(--dm-border);
+        }
+        body.dark-mode .filter-section {
+            background: var(--dm-panel);
+            border-color: var(--dm-border);
+        }
+        body.dark-mode .filter-chip {
+            background: var(--dm-panel-soft);
+            border-color: var(--dm-border);
+        }
+        body.dark-mode .filter-chip:hover { background: var(--dm-border); }
+        body.dark-mode #app-title { color: var(--dm-text); }
+        body.dark-mode #row-counter { background: rgba(15, 23, 42, 0.9); }
+
+        /* #app-view内のTailwindユーティリティクラスを上書き（ランディングページ側には影響しない） */
+        body.dark-mode #app-view .bg-white { background-color: var(--dm-panel) !important; }
+        body.dark-mode #app-view .bg-slate-50,
+        body.dark-mode #app-view .bg-slate-100,
+        body.dark-mode #app-view .bg-slate-200 { background-color: var(--dm-panel-soft) !important; }
+        body.dark-mode #app-view .text-slate-800,
+        body.dark-mode #app-view .text-slate-700 { color: var(--dm-text) !important; }
+        body.dark-mode #app-view .text-slate-600,
+        body.dark-mode #app-view .text-slate-500,
+        body.dark-mode #app-view .text-slate-400,
+        body.dark-mode #app-view .text-slate-300 { color: var(--dm-text-secondary) !important; }
+        body.dark-mode #app-view .border-slate-100,
+        body.dark-mode #app-view .border-slate-200,
+        body.dark-mode #app-view .border-slate-300 { border-color: var(--dm-border) !important; }
+        body.dark-mode #app-view .bg-blue-50,
+        body.dark-mode #app-view .bg-sky-50,
+        body.dark-mode #app-view .bg-red-50,
+        body.dark-mode #app-view .bg-violet-50,
+        body.dark-mode #app-view .bg-amber-50,
+        body.dark-mode #app-view .bg-yellow-50 { background-color: rgba(255, 255, 255, 0.07) !important; }
+
+        /* ダークモード切り替えスイッチ（設定パネル用） */
+        .dark-mode-toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .dark-mode-switch {
+            width: 42px;
+            height: 24px;
+            background: #cbd5e1;
+            border-radius: 999px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.2s;
+            flex-shrink: 0;
+        }
+        .dark-mode-switch::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 18px;
+            height: 18px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.2s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        .dark-mode-switch.on { background: var(--accent-color); }
+        .dark-mode-switch.on::after { transform: translateX(18px); }
+        /* 画面上部に軽く出すテロップ通知（複数ログ結合時の重複検出お知らせなど） */
+        #app-toast {
+            position: fixed;
+            top: 90px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-10px);
+            background: rgba(15, 23, 42, 0.92);
+            color: #ffffff;
+            padding: 12px 22px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: bold;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+            z-index: 500;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            max-width: calc(100vw - 40px);
+            text-align: center;
+        }
+        #app-toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
         }
     </style>
 
@@ -1492,8 +1648,10 @@
 
 <script>
     // ↓公開リリースノートはここだよ。更新しようね。
-    const APP_VERSION = '1.9.5';
+    const APP_VERSION = '1.9.7';
     const RELEASE_NOTES = [
+        { version: '1.9.7', description: '複数セッションのログを1つに結合できる「追加読み込み」機能を追加しました。末尾と先頭が重なっている場合は自動で重複を除いて繋げ、結果を画面上部のテロップでお知らせします（ヘッダーの＋アイコンから）。' },
+        { version: '1.9.6', description: 'ログ編集画面にダークモードを追加しました。設定パネルのスイッチでいつでも切り替えられます。' },
         { version: '1.9.5', description: 'デモモードに、主要機能を順番に紹介する案内ツアーを追加しました。' },
         { version: '1.9.4', description: 'ダイスサイト「critical-stage」のチャットログHTML出力の読み込みに対応しました。ダイス結果やキャラクター値の変動もそのまま反映されます。' },
         { version: '1.9.3', description: '発言時刻の表示形式を「26-9/1・12:20:35」のように日付＋時刻がひと目でわかる形式に変更し、文字色も見やすく調整しました。あわせて、立ち絵付きHTML形式で時刻が反映されないバグを修正しました。' },
@@ -1525,6 +1683,10 @@
     // 新しいものを配列の先頭に追加する形でずっと積み上げていくこと。
     // ============================================================
     const HIDDEN_CHANGELOG = [
+        { version: '1.9.6.4', note: 'おまけ機能「語録メーカー」を一旦無効化。公開版として1.9.7を出す予定だったが、生成結果の精度が思わしくなかったため1.9.6に差し戻し、公開リリースノート・機能一覧からも項目を削除。ジャンプボタン(#word-cloud-btn)をコメントアウトして非表示にしただけで、モーダルのHTML・extractFrequentPhrases/renderWordCloud等のJSはそのまま残してあるので、ボタンとそのイベントバインドのコメントを外せばいつでも再開できる。' },
+        { version: '1.9.6.3', note: 'ダイスのみバブル(.dice-only-bubble)の背景が半透明(rgba(0,0,0,0.045)など)だったため、テーマカラーの濃い背景の上では下の色が透けてほぼ同化し見づらいバグを修正。画面表示・ダークモード・PDF印刷の3箇所すべてを、不透明な灰色(#eef1f5、ダーク時はvar(--dm-panel-soft))に変更した。修正時に誤ってbox-shadowを追加してしまい形が変わって見えていたため、box-shadow: noneに戻してフラットな見た目に修正済み。さらに、通常の吹き出しが左上だけ角丸4px(発言の尖り)になっているのに対し、ダイスのみバブルは結果表示に近いので四隅とも14pxの均一な角丸に統一した。' },
+        { version: '1.9.6.2', note: 'テーマカラー(青・赤・緑・紫・モノトーン)ごとに、タイムライン背景色のダークモード用バリエーション(bgDark)を追加。ダークモードON/OFFの切り替え時とテーマカラー選択時の両方で、現在のダークモード状態に合った濃さの背景色が自動的に適用されるようにした。' },
+        { version: '1.9.6.1', note: 'ダークモードの上部ヘッダー(.header-nav)とタブフィルターバー(.filter-section)が独自CSSクラスだったため対応漏れで白いまま残っていたバグを修正。フィルターチップの配色もダーク対応した。' },
         { version: '1.9.5.3', note: 'GA4のファネル分析用に「log_loaded」イベントを追加。sourceパラメータでccfolia_json/ccfolia_html_new/ccfolia_html_old/critical_stage/reimported(自分の書き出し済みHTMLを再度読み込み)/restored(書き出し済みHTMLをそのまま開いた)/demo(デモモード)を区別できるようにし、log_exportと組み合わせて「読み込み→保存」の到達率を見られるようにした。' },
         { version: '1.9.5.2', note: 'デモツアーのスマホ対応：キャラ設定・設定ボタンはPC専用要素(pc-open-char-modal-btn/pc-settings-btn)だったため、スマホでは該当ステップが飛ばされ「STEP 2/8」から始まったり最後の案内が出ないまま終わる不具合があった。スマホ用の対応ボタン(mb-nav-char/mb-nav-settings)を自動判定して案内するよう修正し、ステップ番号もその端末で実際に表示されるステップ数を基準に振り直すようにした。' },
         { version: '1.9.5.1', note: 'UI文言の「カラム」表記をすべて「タブ」に統一（機能紹介・ヘルプモーダル・更新履歴・ツールチップ・確認ダイアログ・PDF設定・デモツアー・韓国語訳(칼럼→탭)を含む）。CCFOLIA側の「タブ」呼称に合わせた。内部のCSSクラス名やJS変数名(--column-width等)は変更していない。' },
@@ -1568,6 +1730,8 @@
         { title: 'キャラクタースタイル', description: 'キャラクターごとにフォント、背景色、太字を設定し、スタイルのグループ共有や統合も可能です。' },
         { title: '栞機能', description: '栞を追加して好きな場所に目印をつけ、クリックでその位置へ瞬時にジャンプできます。' },
         { title: 'ダイス強調', description: 'BCDiceのロール結果を自動検出し、成功・失敗・クリティカル・ファンブルを色付きで強調します。' },
+        { title: 'ダークモード', description: '設定パネルのスイッチで、ログ編集画面をダークモードに切り替えられます。' },
+        { title: '複数ログの結合', description: '別のログファイルを追加読み込みして、今開いているログの続きとして結合できます。末尾と先頭が重複している場合は自動で除去します。' },
         { title: 'UI/ナビゲーション', description: 'スクロールカウンター、タブナビ、スティッキーなヘッダー、モバイル対応ボタンなどを実装しています。' },
         { title: '安全性・保存', description: 'ブラウザ内ローカルのみで処理を完結し、外部サーバーに送信しません。' }
     ];
@@ -1727,6 +1891,11 @@
                 <div class="w-full h-[1px] bg-slate-200 my-1"></div>
             </div>
             <button id="bookmark-toggle-btn" class="jump-btn" title="栞リスト"><i data-lucide="bookmark" size="20"></i></button>
+            <!-- 語録メーカー: 一旦無効化中。ボタンをコメントアウトしているだけで、
+                 モーダルのHTMLとJS(extractFrequentPhrases/renderWordCloud等)はそのまま残してあるので、
+                 このコメントを外せばいつでも再開できます。
+            <button id="word-cloud-btn" class="jump-btn" title="語録メーカー（よく出た言葉を画像にする、おまけ機能）"><i data-lucide="sparkles" size="20"></i></button>
+            -->
             <button id="jump-top" class="jump-btn" title="一番上へ"><i data-lucide="arrow-up" size="20"></i></button>
             <button id="jump-bottom" class="jump-btn" title="一番下へ"><i data-lucide="arrow-down" size="20"></i></button>
         </div>
@@ -1910,6 +2079,32 @@
             </div>
         </div>
 
+        <div id="word-cloud-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[150] items-center justify-center p-4 hidden">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl flex flex-col max-h-[90vh] overflow-hidden">
+                <div class="p-5 border-b flex justify-between items-center bg-slate-50">
+                    <h3 class="font-bold text-xl text-slate-800 flex items-center gap-2">
+                        <i data-lucide="sparkles" size="20"></i> 語録メーカー
+                        <span class="text-xs font-normal text-slate-400">（おまけ機能）</span>
+                    </h3>
+                    <button id="close-word-cloud-modal" class="p-2 hover:bg-slate-200 rounded-full transition-colors"><i data-lucide="x" size="20"></i></button>
+                </div>
+                <div class="overflow-y-auto p-6 flex-1 bg-slate-50">
+                    <p class="text-xs text-slate-500 mb-3">このセッションのログからよく出たフレーズを自動で拾って、画像にしてみました。精度はあくまでお楽しみ程度です。</p>
+                    <div class="bg-white rounded-xl border border-slate-200 p-2 flex items-center justify-center">
+                        <canvas id="word-cloud-canvas" width="1200" height="675" style="width:100%;height:auto;max-width:1200px;"></canvas>
+                    </div>
+                </div>
+                <div class="p-5 border-t bg-white flex gap-3">
+                    <button id="word-cloud-shuffle-btn" class="flex-1 py-3 text-slate-600 font-bold hover:bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-center gap-2">
+                        <i data-lucide="shuffle" size="16"></i> 配置をシャッフル
+                    </button>
+                    <button id="word-cloud-download-btn" class="flex-[2] py-3 bg-blue-600 text-white rounded-xl font-bold shadow-lg shadow-blue-200 flex items-center justify-center gap-2">
+                        <i data-lucide="download" size="16"></i> 画像として保存
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <div id="crop-modal" class="fixed inset-0 bg-slate-950/90 z-[200] items-center justify-center p-4 hidden">
             <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in duration-200">
                 <div class="p-5 border-b text-center font-bold text-slate-800">立ち絵の切り抜き</div>
@@ -1946,6 +2141,8 @@
             </div>
             <div id="header-right-pc" class="flex items-center gap-2">
                 <button id="pc-open-help-modal-btn" class="btn-secondary px-3" title="操作ボタンの説明"><i data-lucide="circle-help" size="14"></i></button>
+                <button id="append-log-btn" class="btn-secondary px-3" title="別のログを続けて読み込む（複数セッションの結合）"><i data-lucide="file-plus-2" size="14"></i></button>
+                <input type="file" id="append-log-input" accept=".html,.json" style="display:none">
                 <button id="pc-open-char-modal-btn" class="btn-secondary"><i data-lucide="users" size="14"></i> キャラ設定</button>
                 <button id="pc-settings-btn" class="btn-secondary px-3"><i data-lucide="sliders-horizontal" size="14"></i></button>
             </div>
@@ -1969,6 +2166,10 @@
         <div id="settings-panel">
             <h4 class="font-bold text-xs text-slate-400 mb-4 uppercase tracking-wider">表示設定</h4>
             <div class="space-y-6">
+                <div class="dark-mode-toggle-row">
+                    <label class="text-xs font-bold text-slate-700">ダークモード</label>
+                    <div id="dark-mode-switch" class="dark-mode-switch"></div>
+                </div>
                 <div>
                     <label class="text-xs font-bold text-slate-700 block mb-2">テーマカラー</label>
                     <div class="flex gap-2">
@@ -2070,6 +2271,7 @@
             const FAVICON_BASE64 = 'iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAABZklEQVR4AeyYUY7DIAxEM3v/O3cZVUgQwNhyCKASxWpK8HiezVf+rs2v3wL4vHRZDoV6AvRuEfbstdRSAVgEPcbTXG3NLoAkBOAC8khNeJ+l2lFbBJAEAASNTxEA18PyQ7fkgSWaAL1EJr8VkpcqgJTwlul7nZanAqC18S4443/NWwZQ2zDDqFTz7jEDkBJXfXcAZk/mTOBMwNmBc4ScDXSnnwm4W+gUMEzAWWlQ+gEY1Fi17JmAulWDNp4JDGqsWnbIBAAUn1uA/pradbJxAED5qeW6dGsAEmu6xwwA4dKlrbMrA6CtwGBvAxMnRQFAHztBVAF2gmgC9CDC95mwhaftufhqBlnDLQJQRzpOLPhksJ41ugAUlCD4fmaoAGhwVQg1QIQgyKhgDWuYAKzi1v2xMZa8pQCicYLE597vkgA0rYUYA0AHDwQhGJLU0gDRuASxBQBBWhDbALQgtgKoQWwHQIg0/gEAAP//3wriSwAAAAZJREFUAwBEdf5hQKSTQgAAAABJRU5ErkJggg==';
             let charIcons = {};
             let logData = [];
+            let isAppendLoad = false; // trueの間は、パース結果を既存ログの続きとしてマージする（複数ログの結合用）
             let allLocations = [];
             let characters = new Set();
             let currentCropImg = null, currentCropChar = "", currentCropDone = null;
@@ -2094,11 +2296,11 @@
             let charGroups = {}; // { leaderName: [name1, name2, ...] } — エイリアスグループ
 
             const themes = {
-                blue:   { accent: '#3b82f6', bg: '#709cdb' },
-                red:    { accent: '#ef4444', bg: '#fca5a5' },
-                green:  { accent: '#10b981', bg: '#6ee7b7' },
-                purple: { accent: '#8b5cf6', bg: '#c4b5fd' },
-                mono:   { accent: '#64748b', bg: '#94a3b8' }
+                blue:   { accent: '#3b82f6', bg: '#709cdb', bgDark: '#0f2942' },
+                red:    { accent: '#ef4444', bg: '#fca5a5', bgDark: '#3f1414' },
+                green:  { accent: '#10b981', bg: '#6ee7b7', bgDark: '#0a3327' },
+                purple: { accent: '#8b5cf6', bg: '#c4b5fd', bgDark: '#271c47' },
+                mono:   { accent: '#64748b', bg: '#94a3b8', bgDark: '#1e293b' }
             };
 
             const getEl = (id) => document.getElementById(id);
@@ -2106,6 +2308,9 @@
             function init() {
                 lucide.createIcons();
                 bindEvents();
+                let savedDark = false;
+                try { savedDark = localStorage.getItem('logtheater_dark_mode') === '1'; } catch (e) {}
+                applyDarkMode(savedDark);
                 if (hasStoredData()) {
                     showAppView();
                     restore();
@@ -2580,6 +2785,8 @@
                     el.onclick = () => setTheme(el.dataset.color);
                 });
 
+                getEl('dark-mode-switch').onclick = toggleDarkMode;
+
                 const fileInput = getEl('file-input');
                 const dropZone = getEl('drop-zone');
                 dropZone.onclick = () => fileInput.click();
@@ -2600,6 +2807,13 @@
                 getEl('pc-settings-btn').addEventListener('click', toggleSettings);
                 getEl('pc-open-char-modal-btn').addEventListener('click', openCharModal);
                 getEl('pc-open-help-modal-btn').addEventListener('click', openHelpModal);
+                getEl('append-log-btn').addEventListener('click', () => getEl('append-log-input').click());
+                getEl('append-log-input').addEventListener('change', (e) => {
+                    if (e.target.files && e.target.files[0]) {
+                        handleFile(e.target.files[0], true);
+                        e.target.value = '';
+                    }
+                });
                 getEl('mb-nav-settings').addEventListener('click', toggleSettings);
                 getEl('mb-nav-filter').addEventListener('click', toggleFilterMobile);
                 getEl('mb-nav-char').addEventListener('click', openCharModal);
@@ -2629,6 +2843,12 @@
                 getEl('exec-pdf-btn').onclick = executePrint;
                 getEl('download-btn').onclick = downloadHTML;
                 getEl('pdf-btn').onclick = openPdfModal;
+
+                // 語録メーカーのボタンは一旦コメントアウトで無効化中(上記参照)。再開時はここも復活させること。
+                // getEl('word-cloud-btn').onclick = () => { openPanel(getEl('word-cloud-modal')); renderWordCloud(); };
+                getEl('close-word-cloud-modal').onclick = () => closePanel(getEl('word-cloud-modal'));
+                getEl('word-cloud-shuffle-btn').onclick = renderWordCloud;
+                getEl('word-cloud-download-btn').onclick = downloadWordCloud;
 
                 const exportFormatSelect = getEl('export-format-select');
                 const exportFormatLabels = {
@@ -2715,12 +2935,24 @@
                 getEl('source-filename-storage').textContent = '""';
             }
 
+            function applyDarkMode(isDark) {
+                document.body.classList.toggle('dark-mode', isDark);
+                const sw = document.getElementById('dark-mode-switch');
+                if (sw) sw.classList.toggle('on', isDark);
+                try { localStorage.setItem('logtheater_dark_mode', isDark ? '1' : '0'); } catch (e) {}
+                setTheme(currentTheme); // タイムライン背景をダーク/ライトそれぞれの色に切り替える
+            }
+
+            function toggleDarkMode() {
+                applyDarkMode(!document.body.classList.contains('dark-mode'));
+            }
+
             function setTheme(themeName) {
                 if (!themes[themeName]) return;
                 currentTheme = themeName;
                 const t = themes[themeName];
                 updateStyle('--accent-color', t.accent);
-                updateStyle('--bg-timeline', t.bg);
+                updateStyle('--bg-timeline', document.body.classList.contains('dark-mode') ? t.bgDark : t.bg);
                 document.querySelectorAll('.color-option').forEach(el => {
                     el.classList.toggle('selected', el.dataset.color === themeName);
                 });
@@ -3113,9 +3345,10 @@
 
             function exitDemo() { clearStorage(); location.reload(); }
 
-            function handleFile(file) {
+            function handleFile(file, append) {
                 const isJson = /\.json$/i.test(file.name);
-                sourceFileName = file.name.replace(/\.(html|json)$/i, '');
+                if (!append) sourceFileName = file.name.replace(/\.(html|json)$/i, '');
+                isAppendLoad = !!append;
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     let loadSource = 'unknown';
@@ -3133,8 +3366,8 @@
                             const logStorage = doc.getElementById('log-data-storage');
                             const savedLog = logStorage ? JSON.parse(logStorage.textContent || '[]') : [];
 
-                            if (savedLog.length > 0) {
-                                // 整形済みHTML → 保存済みJSONから復元
+                            if (savedLog.length > 0 && !append) {
+                                // 整形済みHTML → 保存済みJSONから復元（追記読み込みではサポート対象外）
                                 parseFromStorage(doc);
                                 loadSource = 'reimported';
                             } else if (doc.querySelector('article.message')) {
@@ -3152,13 +3385,16 @@
                             }
                         }
 
-                        getEl('app-title').textContent = sourceFileName;
-                        getEl('setup-screen').classList.add('hidden');
-                        getEl('exit-demo-btn').style.display = 'none';
-                        getEl('row-counter').style.display = 'block';
+                        if (!append) {
+                            getEl('app-title').textContent = sourceFileName;
+                            getEl('setup-screen').classList.add('hidden');
+                            getEl('exit-demo-btn').style.display = 'none';
+                            getEl('row-counter').style.display = 'block';
+                        }
                         setTimeout(updateRowCounter, 300);
-                        trackLoadEvent(loadSource);
+                        trackLoadEvent(append ? 'appended' : loadSource);
                     } catch (err) { console.error("Log parsing error:", err); }
+                    isAppendLoad = false;
                 };
                 reader.readAsText(file, 'UTF-8');
             }
@@ -3218,8 +3454,7 @@
                         tempLogData.push({ id: idx, loc, char, msg: msg.replace(/<[^>]+>/g, ''), color: color, rawMsg: msg, style: {}, icon: null, time: null });
                     } catch(e) {}
                 });
-                logData = tempLogData;
-                finishParsing(locSet);
+                commitParsedLog(tempLogData, locSet);
             }
 
             // ココフォリアの新しいHTML出力形式（立ち絵付き）をパース
@@ -3283,8 +3518,7 @@
                         idx++;
                     } catch (e) {}
                 });
-                logData = tempLogData;
-                finishParsing(locSet);
+                commitParsedLog(tempLogData, locSet);
             }
 
             // 「critical-stage」形式のチャットログHTML（<article class="chat-item">構造）をパース
@@ -3330,8 +3564,7 @@
                         idx++;
                     } catch (e) {}
                 });
-                logData = tempLogData;
-                finishParsing(locSet);
+                commitParsedLog(tempLogData, locSet);
             }
 
             // JSON側の生チャンネル名("main"など)をHTML出力側の表記("メイン"など)に揃える
@@ -3373,11 +3606,67 @@
                         idx++;
                     } catch (e) {}
                 });
-                logData = tempLogData;
-                finishParsing(locSet);
+                commitParsedLog(tempLogData, locSet);
             }
 
             // パース結果からタブ順を決定してレイアウト描画するまでの共通処理
+            // 画面上部に軽く出すテロップ通知。alert()と違って操作をブロックしない。
+            let appToastTimer = null;
+            function showAppToast(message, duration) {
+                duration = duration || 3200;
+                let toast = getEl('app-toast');
+                if (!toast) {
+                    toast = document.createElement('div');
+                    toast.id = 'app-toast';
+                    document.body.appendChild(toast);
+                }
+                toast.textContent = message;
+                toast.classList.remove('show');
+                void toast.offsetWidth; // 連続呼び出し時もアニメーションが効くように強制リフロー
+                toast.classList.add('show');
+                if (appToastTimer) clearTimeout(appToastTimer);
+                appToastTimer = setTimeout(() => { toast.classList.remove('show'); }, duration);
+            }
+
+            // 通常読み込み: そのままlogDataを置き換える。追記読み込み中: 既存ログの続きとしてマージする。
+            // マージ時は、既存ログの末尾と新規ログの先頭が重なっている場合、その重複区間を自動で除いてから繋げる
+            // （CCFOLIAで少し被せて書き出した場合などに、同じ発言が二重に並ぶのを防ぐため）。
+            function commitParsedLog(tempLogData, locSet) {
+                if (!isAppendLoad || logData.length === 0) {
+                    logData = tempLogData;
+                    characters.clear();
+                    logData.forEach((d) => characters.add(d.char));
+                    finishParsing(locSet);
+                    return;
+                }
+                const sig = (m) => (m.char || '') + '|' + (m.msg || '').replace(/\s+/g, '');
+                const existingSigs = logData.map(sig);
+                const newSigs = tempLogData.map(sig);
+                const maxOverlap = Math.min(80, existingSigs.length, newSigs.length);
+                let overlap = 0;
+                for (let k = maxOverlap; k >= 1; k--) {
+                    let match = true;
+                    for (let i = 0; i < k; i++) {
+                        if (existingSigs[existingSigs.length - k + i] !== newSigs[i]) { match = false; break; }
+                    }
+                    if (match) { overlap = k; break; }
+                }
+                const toAdd = tempLogData.slice(overlap);
+                let nextId = logData.length ? Math.max(...logData.map((m) => m.id)) + 1 : 0;
+                toAdd.forEach((m) => { m.id = nextId++; });
+                logData = logData.concat(toAdd);
+                characters.clear();
+                logData.forEach((d) => characters.add(d.char));
+                const combinedLocSet = new Set(allLocations);
+                locSet.forEach((l) => combinedLocSet.add(l));
+                finishParsing(combinedLocSet);
+                if (overlap > 0) {
+                    showAppToast(`🔁 重複していた${overlap}件の発言を自動で除いて追加しました`);
+                } else {
+                    showAppToast(`✅ ログを追加しました（${toAdd.length}件、重複なし）`);
+                }
+            }
+
             function finishParsing(locSet) {
                 const locArray = Array.from(locSet);
                 const getPriority = (name) => {
@@ -4501,6 +4790,108 @@
 
                 // timeline-viewportの中に挿入
                 getEl('timeline-viewport').appendChild(container);
+            }
+
+            // ============================================================
+            // 語録メーカー（おまけ機能）：ログからよく出たフレーズを拾って画像にする
+            // ちゃんとした形態素解析は使わず、記号・助詞っぽい文字で区切る簡易方式。
+            // 精度は完璧ではないので、あくまで「お楽しみ」機能として割り切る。
+            // ============================================================
+            const WORD_CLOUD_STOPWORDS = new Set([
+                'です', 'ます', 'した', 'して', 'する', 'ある', 'いる', 'ない', 'そう',
+                'これ', 'それ', 'あの', 'その', 'どの', 'ここ', 'そこ', 'あそこ',
+                'よう', 'こと', 'もの', 'わけ', 'ため', 'とき', 'うん', 'はい',
+                'まあ', 'えっと', 'あー', 'うー', 'なんか', 'ちょっと', 'けど',
+                'でも', 'しかし', 'また', 'だから', 'なので', 'という', 'よね',
+                'ですね', 'ますね', 'くん', 'さん', 'ちゃん', 'それは', 'これは',
+                'だよ', 'だね', 'かな', 'かも', 'みたい', 'ほんと', 'すごい'
+            ]);
+
+            function extractFrequentPhrases(maxResults) {
+                maxResults = maxResults || 22;
+                const text = logData.map(m => cleanText(m.rawMsg || m.msg || '')).join('\n');
+                // 記号・空白・括弧類でいったん分割
+                const rawFragments = text.split(/[\s、。！？!?~～・…「」『』（）()【】\[\]:：;；,，.]+/);
+                // 助詞っぽい繋ぎ文字でさらに分割（完全な形態素解析ではない簡易版）
+                const splitter = /(?:は|が|を|に|で|と|も|の|から|まで|より|や|って|けど|けれど|でも|しかし|また|し|ね|よ|な|わ)/;
+                const counts = new Map();
+                rawFragments.forEach((frag) => {
+                    frag.split(splitter).forEach((piece) => {
+                        const p = piece.trim();
+                        if (p.length < 2 || p.length > 8) return;
+                        if (WORD_CLOUD_STOPWORDS.has(p)) return;
+                        if (/^[0-9a-zA-Z]+$/.test(p)) return;
+                        counts.set(p, (counts.get(p) || 0) + 1);
+                    });
+                });
+                return Array.from(counts.entries())
+                    .filter(([, c]) => c >= 2)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, maxResults);
+            }
+
+            function renderWordCloud() {
+                const canvas = getEl('word-cloud-canvas');
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                const W = canvas.width, H = canvas.height;
+                ctx.clearRect(0, 0, W, H);
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, W, H);
+
+                const words = extractFrequentPhrases(22);
+                if (words.length === 0) {
+                    ctx.fillStyle = '#94a3b8';
+                    ctx.font = 'bold 28px "Noto Sans JP", sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('よく出たフレーズが見つかりませんでした…', W / 2, H / 2);
+                    return;
+                }
+                const maxCount = words[0][1];
+                const minCount = words[words.length - 1][1];
+                const placed = [];
+
+                words.forEach(([word, count]) => {
+                    const ratio = maxCount === minCount ? 1 : (count - minCount) / (maxCount - minCount);
+                    const fontSize = Math.round(26 + ratio * 94); // 26px〜120px
+                    ctx.font = `bold ${fontSize}px "Noto Sans JP", sans-serif`;
+                    const w = ctx.measureText(word).width;
+                    const h = fontSize * 1.05;
+
+                    let x = W / 2, y = H / 2, tries = 0, ok = false;
+                    while (tries < 300 && !ok) {
+                        x = Math.random() * Math.max(W - w - 20, 10) + w / 2 + 10;
+                        y = Math.random() * Math.max(H - h - 20, 10) + h / 2 + 10;
+                        ok = !placed.some((p) => Math.abs(p.x - x) < (p.w + w) / 2 + 6 && Math.abs(p.y - y) < (p.h + h) / 2 + 6);
+                        tries++;
+                    }
+                    placed.push({ x, y, w, h });
+                    ctx.fillStyle = '#1e293b';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(word, x, y);
+                });
+
+                // ハッシュタグ風スタンプ
+                const tag = '#' + (sourceFileName || 'ろぐしあたー');
+                ctx.font = 'bold 20px "Noto Sans JP", sans-serif';
+                const tagW = ctx.measureText(tag).width;
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(W - tagW - 44, H - 50, tagW + 24, 34);
+                ctx.fillStyle = '#ffffff';
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(tag, W - tagW - 32, H - 33);
+            }
+
+            function downloadWordCloud() {
+                const canvas = getEl('word-cloud-canvas');
+                if (!canvas) return;
+                const a = document.createElement('a');
+                a.href = canvas.toDataURL('image/png');
+                a.download = (sourceFileName || 'ろぐしあたー') + '_語録.png';
+                a.click();
             }
 
             function getExportFormat() {
