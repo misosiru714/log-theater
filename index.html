@@ -225,6 +225,32 @@
             padding: 0;
             margin: 0;
         }
+        .bubble-edit-toolbar {
+            display: flex;
+            gap: 6px;
+            margin-top: 6px;
+        }
+        .bubble-edit-toolbar .ruby-insert-btn {
+            font-size: 11px;
+            font-weight: bold;
+            color: #475569;
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 3px 8px;
+            cursor: pointer;
+        }
+        .bubble-edit-toolbar .ruby-insert-btn:hover { background: #e2e8f0; }
+        body.dark-mode .bubble-edit-toolbar .ruby-insert-btn {
+            background: var(--dm-panel-soft);
+            color: var(--dm-text-secondary);
+            border-color: var(--dm-border);
+        }
+        .bubble rt {
+            font-size: 0.6em;
+            opacity: 0.85;
+            user-select: none;
+        }
 
         /* Delete Buttons */
         .delete-col-btn {
@@ -1648,8 +1674,9 @@
 
 <script>
     // ↓公開リリースノートはここだよ。更新しようね。
-    const APP_VERSION = '1.9.7';
+    const APP_VERSION = '1.9.8';
     const RELEASE_NOTES = [
+        { version: '1.9.8', description: 'ルビ振りに対応しました。文字編集モードで「｜文字《ルビ》」と入力するか、文字を選択して「文字《ルビ》」ボタンを押すとルビを振れます。' },
         { version: '1.9.7', description: '複数セッションのログを1つに結合できる「追加読み込み」機能を追加しました。末尾と先頭が重なっている場合は自動で重複を除いて繋げ、結果を画面上部のテロップでお知らせします（ヘッダーの＋アイコンから）。' },
         { version: '1.9.6', description: 'ログ編集画面にダークモードを追加しました。設定パネルのスイッチでいつでも切り替えられます。' },
         { version: '1.9.5', description: 'デモモードに、主要機能を順番に紹介する案内ツアーを追加しました。' },
@@ -1732,6 +1759,7 @@
         { title: 'ダイス強調', description: 'BCDiceのロール結果を自動検出し、成功・失敗・クリティカル・ファンブルを色付きで強調します。' },
         { title: 'ダークモード', description: '設定パネルのスイッチで、ログ編集画面をダークモードに切り替えられます。' },
         { title: '複数ログの結合', description: '別のログファイルを追加読み込みして、今開いているログの続きとして結合できます。末尾と先頭が重複している場合は自動で除去します。' },
+        { title: 'ルビ振り', description: '文字編集モードで「｜文字《ルビ》」と入力するか、文字を選択してボタンを押すとルビを振れます。' },
         { title: 'UI/ナビゲーション', description: 'スクロールカウンター、タブナビ、スティッキーなヘッダー、モバイル対応ボタンなどを実装しています。' },
         { title: '安全性・保存', description: 'ブラウザ内ローカルのみで処理を完結し、外部サーバーに送信しません。' }
     ];
@@ -2677,6 +2705,17 @@
                 return hasDiceArrow && hasDiceCmd;
             }
 
+            // ルビ記法を<ruby>タグに変換する（青空文庫などでおなじみの記法）
+            // |任意の文字列《ルビ》 のように｜で範囲を明示する形式と、
+            // 直前が漢字だけの場合に｜を省略できる簡易形式の両方に対応。
+            // 変換前の生テキスト(rawMsg)自体は書き換えず、表示用のHTMLに変換するだけ。
+            function applyRubyMarkup(html) {
+                if (!html || html.indexOf('《') === -1) return html;
+                let result = html.replace(/\|([^|《]+?)《([^》]+)》/g, '<ruby>$1<rt>$2</rt></ruby>');
+                result = result.replace(/([一-龠々ヶ]+)《([^》]+)》/g, '<ruby>$1<rt>$2</rt></ruby>');
+                return result;
+            }
+
             // BCDiceダイスロール行を検出して強調HTMLに変換
             function formatDiceLines(rawMsg) {
                 // BCDice出力パターン: 「(コマンド) ＞ 出目 ＞ 結果」または「コマンド ＞ ...」
@@ -3101,11 +3140,35 @@
 
                     const currentText = data.rawMsg.replace(/<br>/g, '\n');
                     bubble.innerHTML = '';
-                    
+
+                    // ルビ挿入ツールバー（選択した文字を |文字《》 で囲み、《》の中にカーソルを置く）
+                    const toolbar = document.createElement('div');
+                    toolbar.className = 'bubble-edit-toolbar';
+                    toolbar.innerHTML = `<button type="button" class="ruby-insert-btn" title="選択した文字にルビを振る">文字《ルビ》</button>`;
+
                     const textarea = document.createElement('textarea');
                     textarea.className = 'bubble-textarea';
                     textarea.value = currentText;
-                    
+
+                    toolbar.querySelector('.ruby-insert-btn').onmousedown = (e) => {
+                        e.preventDefault(); // textareaのフォーカスを外さない（外れるとblurで編集確定してしまうため）
+                        e.stopPropagation();
+                        const start = textarea.selectionStart;
+                        const end = textarea.selectionEnd;
+                        if (start === end) {
+                            showAppToast('✏️ ルビを振りたい文字を選択してからボタンを押してね');
+                            return;
+                        }
+                        const selected = textarea.value.slice(start, end);
+                        const before = textarea.value.slice(0, start);
+                        const after = textarea.value.slice(end);
+                        const inserted = `|${selected}《》`;
+                        textarea.value = before + inserted + after;
+                        const cursorPos = before.length + inserted.length - 1; // 《》の中にカーソルを置く
+                        textarea.focus();
+                        textarea.setSelectionRange(cursorPos, cursorPos);
+                    };
+
                     textarea.onblur = () => {
                         const newText = textarea.value;
                         const formattedText = newText.replace(/\n/g, '<br>');
@@ -3115,20 +3178,22 @@
                             logData[dataIndex].rawMsg = formattedText;
                             logData[dataIndex].msg = formattedText.replace(/<[^>]+>/g, '');
                         }
-                        // Re-render this specific bubble nicely
-                        // To be safe, just re-render row or manual reconstruct
-                        const parent = bubble.parentNode;
-                        bubble.innerHTML = formattedText + `<div class="delete-msg-btn"><i data-lucide="x" size="14"></i></div>`;
+                        // Re-render this specific bubble nicely（ルビ記法・ダイス強調も反映する）
+                        bubble.innerHTML = formatDiceLines(applyRubyMarkup(formattedText)) + `<div class="delete-msg-btn"><i data-lucide="x" size="14"></i></div>`;
                         // Re-attach delete listener
                         const delBtn = bubble.querySelector('.delete-msg-btn');
                         if(delBtn) delBtn.onclick = (e) => { e.stopPropagation(); deleteMessage(id); };
                         lucide.createIcons();
+                        // 吹き出しの外に出したツールバーも片付ける
+                        if (toolbar.parentNode) toolbar.parentNode.removeChild(toolbar);
                     };
-                    
+
                     // Stop propagation on click so we can type
                     textarea.onclick = (e) => e.stopPropagation();
-                    
+
                     bubble.appendChild(textarea);
+                    // ツールバーは吹き出しの中ではなく、すぐ下に（吹き出しの外側に）配置する
+                    bubble.after(toolbar);
                     textarea.focus();
                 }
             }
@@ -3693,7 +3758,7 @@
                 row.className = 'timeline-row'; row.id = `row-${idx}`; row.setAttribute('data-char', char); row.setAttribute('data-loc', loc);
                 const safeCharClass = getSafeClassName(char);
 
-                const displayMsg = formatDiceLines(msg);
+                const displayMsg = formatDiceLines(applyRubyMarkup(msg));
                 const diceOnly = isDiceOnlyMessage(msg);
 
                 allLocations.forEach((l, lIdx) => {
@@ -4748,7 +4813,7 @@
                     bubble.appendChild(nameDiv);
 
                     const msgDiv = document.createElement('div');
-                    msgDiv.innerHTML = formatDiceLines(m.rawMsg);
+                    msgDiv.innerHTML = formatDiceLines(applyRubyMarkup(m.rawMsg));
                     bubble.appendChild(msgDiv);
 
                     if (isMain) {
