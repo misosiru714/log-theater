@@ -1710,6 +1710,8 @@
     // 新しいものを配列の先頭に追加する形でずっと積み上げていくこと。
     // ============================================================
     const HIDDEN_CHANGELOG = [
+        { version: '1.9.8.2', note: '大量ログ時のパフォーマンス改善①: createRowで発言ごとに全タブ分(N×M個)の空セルへdragover/dragleave/dropの3リスナーを個別に張っていたのをやめ、rows-container1箇所へのイベント委譲(3リスナーのみ)に変更。タブ数が多いログほど効果が大きい(例: 発言878件×タブ6個なら、約15,800個→3個のイベントリスナーに削減)。見た目・動作に変化なし。' },
+        { version: '1.9.8.1', note: '立ち絵画像の保存形式をPNG(可逆)からWebP(品質0.85)に変更。256×256へのリサイズ自体は既存のまま、透過は維持しつつファイルサイズをさらに抑えられるようにした。WebP非対応の古いブラウザではtoDataURLの仕様により自動的にPNGへフォールバックされる。' },
         { version: '1.9.6.4', note: 'おまけ機能「語録メーカー」を一旦無効化。公開版として1.9.7を出す予定だったが、生成結果の精度が思わしくなかったため1.9.6に差し戻し、公開リリースノート・機能一覧からも項目を削除。ジャンプボタン(#word-cloud-btn)をコメントアウトして非表示にしただけで、モーダルのHTML・extractFrequentPhrases/renderWordCloud等のJSはそのまま残してあるので、ボタンとそのイベントバインドのコメントを外せばいつでも再開できる。' },
         { version: '1.9.6.3', note: 'ダイスのみバブル(.dice-only-bubble)の背景が半透明(rgba(0,0,0,0.045)など)だったため、テーマカラーの濃い背景の上では下の色が透けてほぼ同化し見づらいバグを修正。画面表示・ダークモード・PDF印刷の3箇所すべてを、不透明な灰色(#eef1f5、ダーク時はvar(--dm-panel-soft))に変更した。修正時に誤ってbox-shadowを追加してしまい形が変わって見えていたため、box-shadow: noneに戻してフラットな見た目に修正済み。さらに、通常の吹き出しが左上だけ角丸4px(発言の尖り)になっているのに対し、ダイスのみバブルは結果表示に近いので四隅とも14pxの均一な角丸に統一した。' },
         { version: '1.9.6.2', note: 'テーマカラー(青・赤・緑・紫・モノトーン)ごとに、タイムライン背景色のダークモード用バリエーション(bgDark)を追加。ダークモードON/OFFの切り替え時とテーマカラー選択時の両方で、現在のダークモード状態に合った濃さの背景色が自動的に適用されるようにした。' },
@@ -2778,6 +2780,37 @@
                 getEl('jump-bottom').onclick = () => { const vp = getEl('timeline-viewport'); vp.scrollTo({ top: vp.scrollHeight, behavior: 'smooth' }); };
                 getEl('undo-btn').onclick = undo;
                 getEl('move-mode-btn').onclick = toggleMoveMode;
+
+                // 並び替えモードのドラッグ&ドロップ: セル1つ1つにリスナーを張らず、
+                // rows-container1箇所へのイベント委譲でまとめて処理する（大量ログでの重さ対策）
+                const rowsContainerEl = getEl('rows-container');
+                rowsContainerEl.addEventListener('dragover', (e) => {
+                    if (!isMoveMode || draggingBubbleId === null) return;
+                    const cell = e.target.closest('.timeline-cell');
+                    if (!cell) return;
+                    const l = cell.dataset.cellLoc;
+                    const dragData = logData.find(d => d.id === draggingBubbleId);
+                    if (!dragData || dragData.loc === l) return;
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    cell.classList.add('drop-target-cell');
+                });
+                rowsContainerEl.addEventListener('dragleave', (e) => {
+                    const cell = e.target.closest('.timeline-cell');
+                    if (!cell) return;
+                    if (!cell.contains(e.relatedTarget)) {
+                        cell.classList.remove('drop-target-cell');
+                    }
+                });
+                rowsContainerEl.addEventListener('drop', (e) => {
+                    const cell = e.target.closest('.timeline-cell');
+                    if (!cell) return;
+                    e.preventDefault();
+                    cell.classList.remove('drop-target-cell');
+                    if (!isMoveMode || draggingBubbleId === null) return;
+                    moveMessage(draggingBubbleId, cell.dataset.cellLoc);
+                    draggingBubbleId = null;
+                });
                 
                 getEl('marker-toggle-btn').onclick = toggleMarkerMode;
                 getEl('edit-mode-toggle-btn').onclick = toggleEditMode;
@@ -3763,28 +3796,9 @@
 
                 allLocations.forEach((l, lIdx) => {
                     const cell = document.createElement('div'); cell.className = `timeline-cell col-idx-${lIdx}`;
-
-                    // 並び替えモード: バブルのドロップ先としてcellを設定
-                    cell.addEventListener('dragover', (e) => {
-                        if (!isMoveMode || draggingBubbleId === null) return;
-                        const dragData = logData.find(d => d.id === draggingBubbleId);
-                        if (!dragData || dragData.loc === l) return;
-                        e.preventDefault();
-                        e.dataTransfer.dropEffect = 'move';
-                        cell.classList.add('drop-target-cell');
-                    });
-                    cell.addEventListener('dragleave', (e) => {
-                        if (!cell.contains(e.relatedTarget)) {
-                            cell.classList.remove('drop-target-cell');
-                        }
-                    });
-                    cell.addEventListener('drop', (e) => {
-                        e.preventDefault();
-                        cell.classList.remove('drop-target-cell');
-                        if (!isMoveMode || draggingBubbleId === null) return;
-                        moveMessage(draggingBubbleId, l);
-                        draggingBubbleId = null;
-                    });
+                    // 並び替えモードのドロップ判定はrows-containerに委譲したイベント1つで処理する
+                    // （セルごとにリスナーを3つずつ張ると、タブ数×発言数ぶん増えて大きいログで重くなるため）
+                    cell.dataset.cellLoc = l;
 
                     if (l === loc) {
                         const timeHtml = time ? `<span class="msg-timestamp" style="display:${showTimestamps ? 'inline' : 'none'}">${escapeHtml(time)}</span>` : '';
@@ -4593,7 +4607,9 @@
                 cv.width = cv.height = 256;
                 const s = cropState.scale; 
                 cv.getContext('2d').drawImage(currentCropImg, cropState.x/s, cropState.y/s, cropState.size/s, cropState.size/s, 0, 0, 256, 256); 
-                charIcons[currentCropChar] = cv.toDataURL('image/png');
+                // WebPは透過を保ったまま非可逆圧縮できるのでPNGよりファイルサイズを抑えられる。
+                // 対応していない古いブラウザでは、toDataURLの仕様によりPNGへ自動的にフォールバックされる。
+                charIcons[currentCropChar] = cv.toDataURL('image/webp', 0.85);
                 getEl('crop-modal').classList.add('hidden');
                 if (currentCropDone) { currentCropDone(); currentCropDone = null; }
                 else { renderIconUploads(); refreshIcons(); }
