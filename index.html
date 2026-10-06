@@ -1710,6 +1710,9 @@
     // 新しいものを配列の先頭に追加する形でずっと積み上げていくこと。
     // ============================================================
     const HIDDEN_CHANGELOG = [
+        { version: '1.9.8.5', note: '文字編集モードで発言をクリックすると、本文の前後や行間に余計な空白・改行が入って見えるバグを修正。原因は、元のログHTMLファイル自体が見やすく整形(インデント・改行)されているため、span.innerHTMLをそのまま読み取ると見た目には影響しない空白・改行までメッセージ本文に混ざっていたこと。通常のHTML表示では折りたたまれて見えないが、折りたたみをしないtextareaでは丸見えになっていた。normalizeMsgWhitespace()を追加し、<br>の前後の空白は完全除去、それ以外の改行は半角スペース1個に正規化(HTML表示と同じ挙動)。生ログ読み込み時(parse関数)と、文字編集を開く際の両方に適用。' },
+        { version: '1.9.8.4', note: '大量ログ時のパフォーマンス改善③: タブの表示/非表示切替(フィルターチップのクリック)が、発言件数分の.timeline-cellへ毎回querySelectorAll+classList操作していたため、タブの中身が何件あるかに関係なく常に全行数ぶん重くなっていた問題を修正。セル側の表示切替は<style>タグ1枚にまとめたCSSルールの書き換えに変更し、ブラウザのCSSエンジンに一括処理させる方式にした(JSでのDOM走査が発言件数に依存しなくなる)。他の処理が参照している行(.timeline-row)側の.column-hiddenクラスはそのまま維持し、挙動に変化がないようにしている。(4タブ14,434件のログでタブ切替が重いとの報告を受けての対応)' },
+        { version: '1.9.8.3', note: '大量ログ時のパフォーマンス改善②: 発言行をrows-containerへ1行ずつappendしていたのをやめ、DocumentFragmentにまとめてから最後に1回だけappendするよう変更(renderAllRows関数を新設し、createRowを呼んでいた11箇所をこれに統一)。都度のappendで発生していたreflowの回数を大幅に削減。見た目・並び順・動作に変化なし。(4タブ14,434件のログで約7秒だったのを受けての対応)' },
         { version: '1.9.8.2', note: '大量ログ時のパフォーマンス改善①: createRowで発言ごとに全タブ分(N×M個)の空セルへdragover/dragleave/dropの3リスナーを個別に張っていたのをやめ、rows-container1箇所へのイベント委譲(3リスナーのみ)に変更。タブ数が多いログほど効果が大きい(例: 発言878件×タブ6個なら、約15,800個→3個のイベントリスナーに削減)。見た目・動作に変化なし。' },
         { version: '1.9.8.1', note: '立ち絵画像の保存形式をPNG(可逆)からWebP(品質0.85)に変更。256×256へのリサイズ自体は既存のまま、透過は維持しつつファイルサイズをさらに抑えられるようにした。WebP非対応の古いブラウザではtoDataURLの仕様により自動的にPNGへフォールバックされる。' },
         { version: '1.9.6.4', note: 'おまけ機能「語録メーカー」を一旦無効化。公開版として1.9.7を出す予定だったが、生成結果の精度が思わしくなかったため1.9.6に差し戻し、公開リリースノート・機能一覧からも項目を削除。ジャンプボタン(#word-cloud-btn)をコメントアウトして非表示にしただけで、モーダルのHTML・extractFrequentPhrases/renderWordCloud等のJSはそのまま残してあるので、ボタンとそのイベントバインドのコメントを外せばいつでも再開できる。' },
@@ -2303,6 +2306,7 @@
             let logData = [];
             let isAppendLoad = false; // trueの間は、パース結果を既存ログの続きとしてマージする（複数ログの結合用）
             let allLocations = [];
+            let hiddenColumnLocs = new Set(); // 非表示にしたタブ名の集合（表示切替を軽くするため、大量要素のclassList操作ではなくCSSルールで一括制御する）
             let characters = new Set();
             let currentCropImg = null, currentCropChar = "", currentCropDone = null;
             let cropState = { x: 0, y: 0, size: 200, scale: 1 };
@@ -2422,7 +2426,7 @@
                 logData.forEach(d => characters.add(d.char));
                 renderLayout();
                 getEl('rows-container').innerHTML = '';
-                logData.forEach(m => createRow(m.id, m.loc, m.char, m.color, m.rawMsg, m.style || {}, m.icon || null, m.time || null));
+                renderAllRows(logData);
                 refreshIcons();
                 updateRowCounter();
                 updateUndoBtn();
@@ -2705,6 +2709,19 @@
                 const hasDiceCmd = /\d[dDbBuUrR]\d|\dD\d|\dB\d|\dU\d|\(.*\d.*\)/i.test(plain)
                                 || /CC|CF|CCC|2D6|1D100|1D20/i.test(plain);
                 return hasDiceArrow && hasDiceCmd;
+            }
+
+            // 元のログHTML(ファイル)が見やすいようインデント・改行付きで整形されていることがあり、
+            // span.innerHTMLなどでそのまま読み取ると、見た目には影響しない余分な空白・改行が
+            // そのままメッセージ本文に混ざってしまうことがある（通常のHTML表示では折りたたまれて
+            // 見えないが、編集用のtextareaでは折りたたまれないためそのまま目に見えてしまう）。
+            // <br>の前後は完全に除去、それ以外の改行はHTML表示と同じく半角スペース1個に正規化する。
+            function normalizeMsgWhitespace(html) {
+                if (!html) return html;
+                return html
+                    .replace(/\s*(<br\s*\/?>)\s*/gi, '$1')
+                    .replace(/[ \t]*\n[ \t]*/g, ' ')
+                    .trim();
             }
 
             // ルビ記法を<ruby>タグに変換する（青空文庫などでおなじみの記法）
@@ -3106,7 +3123,7 @@
                 if (idx === -1) return;
                 logData[idx].loc = newLoc;
                 getEl('rows-container').innerHTML = '';
-                logData.forEach(m => createRow(m.id, m.loc, m.char, m.color, m.rawMsg, m.style || {}, m.icon || null, m.time || null));
+                renderAllRows(logData);
                 refreshIcons();
                 updateRowCounter();
             }
@@ -3123,7 +3140,7 @@
                 allLocations.push(trimmed);
                 renderLayout();
                 getEl('rows-container').innerHTML = '';
-                logData.forEach(m => createRow(m.id, m.loc, m.char, m.color, m.rawMsg, m.style || {}, m.icon || null, m.time || null));
+                renderAllRows(logData);
                 updateRowCounter();
             }
 
@@ -3134,7 +3151,7 @@
                 allLocations = allLocations.filter(l => l !== loc);
                 renderLayout();
                 getEl('rows-container').innerHTML = ''; 
-                logData.forEach(m => { createRow(m.id, m.loc, m.char, m.color, m.rawMsg, m.style, m.icon || null, m.time || null); });
+                renderAllRows(logData);
                 updateRowCounter();
             }
 
@@ -3143,7 +3160,7 @@
                 pushUndo();
                 logData = logData.filter(d => d.id !== id);
                 getEl('rows-container').innerHTML = ''; 
-                logData.forEach(m => { createRow(m.id, m.loc, m.char, m.color, m.rawMsg, m.style, m.icon || null, m.time || null); });
+                renderAllRows(logData);
                 updateRowCounter();
             }
             
@@ -3171,7 +3188,7 @@
                     const data = logData.find(d => d.id === id);
                     if (!data) return;
 
-                    const currentText = data.rawMsg.replace(/<br>/g, '\n');
+                    const currentText = normalizeMsgWhitespace(data.rawMsg).replace(/<br\s*\/?>/gi, '\n');
                     bubble.innerHTML = '';
 
                     // ルビ挿入ツールバー（選択した文字を |文字《》 で囲み、《》の中にカーソルを置く）
@@ -3526,7 +3543,7 @@
                 logData.forEach(d => characters.add(d.char));
                 renderLayout();
                 getEl('rows-container').innerHTML = '';
-                logData.forEach(m => createRow(m.id, m.loc, m.char, m.color || '#000', m.rawMsg || m.msg, m.style || {}, m.icon || null, m.time || null));
+                renderAllRows(logData);
                 refreshIcons();
                 applyTimestampVisibility();
                 // 栞を復元（行が描画された後に実行）
@@ -3548,6 +3565,7 @@
                         const char = spans[1].textContent.trim();
                         const color = p.style.color || '#1e293b';
                         let msg = ""; for(let i=2; i<spans.length; i++) msg += spans[i].innerHTML;
+                        msg = normalizeMsgWhitespace(msg);
                         locSet.add(loc); characters.add(char);
                         tempLogData.push({ id: idx, loc, char, msg: msg.replace(/<[^>]+>/g, ''), color: color, rawMsg: msg, style: {}, icon: null, time: null });
                     } catch(e) {}
@@ -3782,8 +3800,21 @@
 
                 renderLayout();
                 getEl('rows-container').innerHTML = '';
-                logData.forEach(m => { createRow(m.id, m.loc, m.char, m.color, m.rawMsg, m.style, m.icon, m.time); });
+                renderAllRows(logData);
                 refreshIcons();
+            }
+
+            // logDataの全件をまとめて描画する。DocumentFragmentに溜めてから最後に1回だけ
+            // rows-containerへappendすることで、大量ログ時に行ごとの再描画(reflow)が
+            // 何千回も発生するのを防ぐ（見た目・並び順はcreateRowを都度呼ぶのと変わらない）。
+            let rowBatchFragment = null;
+            function renderAllRows(dataArray) {
+                rowBatchFragment = document.createDocumentFragment();
+                dataArray.forEach((m) => {
+                    createRow(m.id, m.loc, m.char, m.color || '#000', m.rawMsg || m.msg, m.style || {}, m.icon || null, m.time || null);
+                });
+                getEl('rows-container').appendChild(rowBatchFragment);
+                rowBatchFragment = null;
             }
 
             function createRow(idx, loc, char, color, msg, style = {}, icon = null, time = null) {
@@ -3838,7 +3869,7 @@
                     }
                     row.appendChild(cell);
                 });
-                getEl('rows-container').appendChild(row);
+                (rowBatchFragment || getEl('rows-container')).appendChild(row);
             }
 
             function updateRowCounter() {
@@ -4061,8 +4092,38 @@
                 }
             }
 
+            // 属性セレクタの文字列内で使うため、ダブルクォートとバックスラッシュだけエスケープする
+            function escapeAttrValue(s) {
+                return String(s).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+            }
+
+            // タブの表示/非表示を切り替える。大量の発言がある場合、セル1つ1つにclassList操作をすると
+            // 件数分だけ重くなるため、非表示にしたいタブ分だけのCSSルールを1つの<style>にまとめて書き換える
+            // 方式にして、何件ログがあっても一瞬で切り替えられるようにしている。
+            function updateColumnVisibilityStyle() {
+                let styleEl = getEl('dynamic-visibility-style');
+                if (!styleEl) {
+                    styleEl = document.createElement('style');
+                    styleEl.id = 'dynamic-visibility-style';
+                    document.head.appendChild(styleEl);
+                }
+                // 行自体(.timeline-row)の非表示は、他の処理が.column-hiddenクラスの有無を見て
+                // 「表示中の行だけ」を数えているため、引き続きclassListで個別にトグルする（対象件数が
+                // 少なく済むため許容）。ここでは件数分だけ重くなっていたセル側(.timeline-cell)の
+                // 非表示だけをCSSルールの一括書き換えに置き換える。
+                let css = '';
+                allLocations.forEach((loc, idx) => {
+                    if (hiddenColumnLocs.has(loc)) {
+                        css += `.timeline-cell.col-idx-${idx} { display: none !important; }\n`;
+                    }
+                });
+                styleEl.textContent = css;
+            }
+
             function renderLayout() {
                 getEl('sticky-header').innerHTML = ''; getEl('filter-container').innerHTML = '';
+                hiddenColumnLocs.clear();
+                updateColumnVisibilityStyle();
                 let dragSrcLoc = null;
                 allLocations.forEach((loc, idx) => {
                     const h = document.createElement('div'); h.className = `column-header col-idx-${idx}`;
@@ -4092,7 +4153,7 @@
                                 logData.forEach(d => { if (d.loc === loc) d.loc = newName; });
                                 renderLayout();
                                 getEl('rows-container').innerHTML = '';
-                                logData.forEach(m => createRow(m.id, m.loc, m.char, m.color, m.rawMsg, m.style || {}, m.icon || null, m.time || null));
+                                renderAllRows(logData);
                                 updateRowCounter();
                             } else {
                                 input.replaceWith(nameSpan);
@@ -4138,7 +4199,7 @@
                         dragSrcLoc = null;
                         renderLayout();
                         getEl('rows-container').innerHTML = '';
-                        logData.forEach(m => createRow(m.id, m.loc, m.char, m.color, m.rawMsg, m.style, m.icon || null, m.time || null));
+                        renderAllRows(logData);
                         refreshIcons(); updateRowCounter();
                     });
 
@@ -4155,8 +4216,12 @@
                     const chip = document.createElement('div'); chip.className = 'filter-chip active'; chip.textContent = loc;
                     chip.onclick = () => {
                         const active = chip.classList.toggle('active');
-                        document.querySelectorAll(`.col-idx-${idx}`).forEach(e => active ? e.classList.remove('column-hidden') : e.classList.add('column-hidden'));
-                        document.querySelectorAll(`.timeline-row[data-loc="${loc}"]`).forEach(r => r.classList.toggle('column-hidden', !active));
+                        if (active) hiddenColumnLocs.delete(loc); else hiddenColumnLocs.add(loc);
+                        // ヘッダーセルと、このタブが主な発言先になっている行は数が少ないので従来通りclassListで更新
+                        h.classList.toggle('column-hidden', !active);
+                        document.querySelectorAll(`.timeline-row[data-loc="${escapeAttrValue(loc)}"]`).forEach(r => r.classList.toggle('column-hidden', !active));
+                        // 件数分だけ重くなっていたセル側(.col-idx-N)の非表示切替だけは、CSSルールの一括書き換えにする
+                        updateColumnVisibilityStyle();
                         updateRowCounter();
                     };
                     getEl('filter-container').appendChild(chip);
@@ -4484,7 +4549,7 @@
                     if (cs.bold !== undefined) logData[i].style.bold = cs.bold;
                 });
                 getEl('rows-container').innerHTML = '';
-                logData.forEach(m => createRow(m.id, m.loc, m.char, m.color, m.rawMsg, m.style || {}, m.icon || null, m.time || null));
+                renderAllRows(logData);
                 refreshIcons(); updateRowCounter();
             }
 
@@ -4670,7 +4735,7 @@
                         getEl('setup-screen').classList.add('hidden'); getEl('app-title').textContent = sourceFileName; getEl('row-counter').style.display = 'block';
                         characters.clear(); logData.forEach(d => characters.add(d.char));
                         renderLayout(); getEl('rows-container').innerHTML = '';
-                        logData.forEach(m => { createRow(m.id, m.loc, m.char, m.color || '#000', m.rawMsg || m.msg, m.style, m.icon || null, m.time || null); });
+                        renderAllRows(logData);
                         refreshIcons();
                         setTimeout(() => {
                             updateRowCounter();
