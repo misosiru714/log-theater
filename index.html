@@ -965,10 +965,25 @@
         /* 発言全体がダイスロールだけの場合: 白い吹き出しの中に灰色ボックスを入れ子にせず、
            吹き出し自体を灰色ボックスとして表示し、大きく見やすくする */
         .bubble.dice-only-bubble {
-            background: #eef1f5;
-            border-left: 3px solid #94a3b8;
+            background: var(--dice-bubble-bg, #eef1f5);
+            border: none;
             box-shadow: none;
             border-radius: 14px;
+            padding-left: 20px;
+        }
+        /* 左の帯はborder-leftではなく疑似要素で描く。
+           border-radiusとborder-leftを併用すると、角丸の部分で色が不自然に途切れて見えるため。
+           帯自体の左側だけ吹き出しと同じ丸みを付けることで、削除ボタン(吹き出しの外にはみ出す表示)を
+           隠さずに済むようにしている(overflow:hiddenは使わない)。 */
+        .bubble.dice-only-bubble::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 6px;
+            background: #94a3b8;
+            border-radius: 14px 0 0 14px;
         }
         .bubble.dice-only-bubble .dice-line {
             display: block;
@@ -1243,7 +1258,7 @@
         body.dark-mode .char-name-bg { background-color: rgba(30, 41, 59, 0.85); }
         body.dark-mode .msg-timestamp { color: var(--dm-text-secondary); }
         body.dark-mode .dice-line { background: rgba(255, 255, 255, 0.08); }
-        body.dark-mode .bubble.dice-only-bubble { background: var(--dm-panel-soft); border-left-color: #64748b; }
+        body.dark-mode .bubble.dice-only-bubble::before { background: #64748b; }
         body.dark-mode .char-portrait { background-color: rgba(255, 255, 255, 0.08); }
         body.dark-mode .highlight-jump { background-color: #78350f !important; }
 
@@ -1710,6 +1725,9 @@
     // 新しいものを配列の先頭に追加する形でずっと積み上げていくこと。
     // ============================================================
     const HIDDEN_CHANGELOG = [
+        { version: '1.9.8.8', note: 'ランディングページの「機能一覧を見る」モーダルを、ジャンル分けした表示に変更。FEATURE_LISTの各項目にcategoryを追加し(📥読み込み・データ管理/🖥️表示・レイアウト/✏️編集機能/🔍検索・目印/🎲TRPG特化機能/📤書き出し・共有の6ジャンル)、見出し付きでグループ表示するようにした。' },
+        { version: '1.9.8.7', note: 'ダイスのみバブルの左の帯(border-left)が、border-radiusとの併用で角の部分が不自然な形に見えるバグを修正。border-leftをやめて::before疑似要素で帯を描く方式にし、帯の太さも3px→6pxに。帯自体の左側だけ吹き出しと同じ角丸(14px)を付けて馴染ませ、削除ボタン(吹き出しの外に少しはみ出す表示)を隠さないようoverflow:hiddenは使わずに対応した。' },
+        { version: '1.9.8.6', note: 'ダイスのみバブルの背景が白い吹き出しとほぼ見分けがつかない(#eef1f5が白に近すぎる)との指摘を受け、固定の灰色をやめてテーマカラー(青・赤・緑・紫・モノトーン)それぞれの薄色/濃色(diceBg/diceBgDark)に変更。setTheme()で--dice-bubble-bgというCSS変数を更新し、ダークモード切替時も自動で濃淡が切り替わるようにした。' },
         { version: '1.9.8.5', note: '文字編集モードで発言をクリックすると、本文の前後や行間に余計な空白・改行が入って見えるバグを修正。原因は、元のログHTMLファイル自体が見やすく整形(インデント・改行)されているため、span.innerHTMLをそのまま読み取ると見た目には影響しない空白・改行までメッセージ本文に混ざっていたこと。通常のHTML表示では折りたたまれて見えないが、折りたたみをしないtextareaでは丸見えになっていた。normalizeMsgWhitespace()を追加し、<br>の前後の空白は完全除去、それ以外の改行は半角スペース1個に正規化(HTML表示と同じ挙動)。生ログ読み込み時(parse関数)と、文字編集を開く際の両方に適用。' },
         { version: '1.9.8.4', note: '大量ログ時のパフォーマンス改善③: タブの表示/非表示切替(フィルターチップのクリック)が、発言件数分の.timeline-cellへ毎回querySelectorAll+classList操作していたため、タブの中身が何件あるかに関係なく常に全行数ぶん重くなっていた問題を修正。セル側の表示切替は<style>タグ1枚にまとめたCSSルールの書き換えに変更し、ブラウザのCSSエンジンに一括処理させる方式にした(JSでのDOM走査が発言件数に依存しなくなる)。他の処理が参照している行(.timeline-row)側の.column-hiddenクラスはそのまま維持し、挙動に変化がないようにしている。(4タブ14,434件のログでタブ切替が重いとの報告を受けての対応)' },
         { version: '1.9.8.3', note: '大量ログ時のパフォーマンス改善②: 発言行をrows-containerへ1行ずつappendしていたのをやめ、DocumentFragmentにまとめてから最後に1回だけappendするよう変更(renderAllRows関数を新設し、createRowを呼んでいた11箇所をこれに統一)。都度のappendで発生していたreflowの回数を大幅に削減。見た目・並び順・動作に変化なし。(4タブ14,434件のログで約7秒だったのを受けての対応)' },
@@ -1751,33 +1769,49 @@
     }
 
     const FEATURE_LIST = [
-        { title: 'インポート・読み込み', description: 'ココフォリアのログHTMLをドラッグ＆ドロップで読み込み、整形済みHTMLファイルの再読み込みも可能です。' },
-        { title: 'マルチタブ表示', description: '発言を main / 雑談 / 情報 等で分割表示し、タブの追加・削除・並び替え・表示切替ができます。' },
-        { title: '立ち絵・アイコン', description: 'キャラクターごとに立ち絵を設定でき、アップロードとトリミングの表示切替にも対応します。' },
-        { title: '検索', description: 'キーワード検索で該当発言へジャンプでき、PC・モバイル両方の画面で使えます。' },
-        { title: '編集機能', description: '発言の直接編集、削除、マーカー装飾、タブ間移動、コンテキストメニューでのスタイル適用が可能です。' },
-        { title: 'Undo / 巻き戻し', description: '最大10件のUndo履歴を保存し、削除・移動・編集を元に戻せるようにしました。' },
-        { title: 'PDF出力', description: 'タブ別の出力設定、立ち絵・アイコン付きPDF、テーマカラー反映に対応しています。' },
-        { title: '書き出し形式の選択', description: 'HTML・Markdown・テキスト・スプレッドシート（xlsx）形式の出力に対応。xlsxはタブごとに列が分かれたセル結合レイアウトで出力されます。' },
-        { title: 'キャラクタースタイル', description: 'キャラクターごとにフォント、背景色、太字を設定し、スタイルのグループ共有や統合も可能です。' },
-        { title: '栞機能', description: '栞を追加して好きな場所に目印をつけ、クリックでその位置へ瞬時にジャンプできます。' },
-        { title: 'ダイス強調', description: 'BCDiceのロール結果を自動検出し、成功・失敗・クリティカル・ファンブルを色付きで強調します。' },
-        { title: 'ダークモード', description: '設定パネルのスイッチで、ログ編集画面をダークモードに切り替えられます。' },
-        { title: '複数ログの結合', description: '別のログファイルを追加読み込みして、今開いているログの続きとして結合できます。末尾と先頭が重複している場合は自動で除去します。' },
-        { title: 'ルビ振り', description: '文字編集モードで「｜文字《ルビ》」と入力するか、文字を選択してボタンを押すとルビを振れます。' },
-        { title: 'UI/ナビゲーション', description: 'スクロールカウンター、タブナビ、スティッキーなヘッダー、モバイル対応ボタンなどを実装しています。' },
-        { title: '安全性・保存', description: 'ブラウザ内ローカルのみで処理を完結し、外部サーバーに送信しません。' }
+        { category: '📥 読み込み・データ管理', title: 'インポート・読み込み', description: 'ココフォリアのログHTMLをドラッグ＆ドロップで読み込み、整形済みHTMLファイルの再読み込みも可能です。' },
+        { category: '📥 読み込み・データ管理', title: '複数ログの結合', description: '別のログファイルを追加読み込みして、今開いているログの続きとして結合できます。末尾と先頭が重複している場合は自動で除去します。' },
+        { category: '📥 読み込み・データ管理', title: '安全性・保存', description: 'ブラウザ内ローカルのみで処理を完結し、外部サーバーに送信しません。' },
+        { category: '🖥️ 表示・レイアウト', title: 'マルチタブ表示', description: '発言を main / 雑談 / 情報 等で分割表示し、タブの追加・削除・並び替え・表示切替ができます。' },
+        { category: '🖥️ 表示・レイアウト', title: 'ダークモード', description: '設定パネルのスイッチで、ログ編集画面をダークモードに切り替えられます。' },
+        { category: '🖥️ 表示・レイアウト', title: '立ち絵・アイコン', description: 'キャラクターごとに立ち絵を設定でき、アップロードとトリミングの表示切替にも対応します。' },
+        { category: '🖥️ 表示・レイアウト', title: 'UI/ナビゲーション', description: 'スクロールカウンター、タブナビ、スティッキーなヘッダー、モバイル対応ボタンなどを実装しています。' },
+        { category: '✏️ 編集機能', title: '編集機能', description: '発言の直接編集、削除、マーカー装飾、タブ間移動、コンテキストメニューでのスタイル適用が可能です。' },
+        { category: '✏️ 編集機能', title: 'Undo / 巻き戻し', description: '最大10件のUndo履歴を保存し、削除・移動・編集を元に戻せるようにしました。' },
+        { category: '✏️ 編集機能', title: 'ルビ振り', description: '文字編集モードで「｜文字《ルビ》」と入力するか、文字を選択してボタンを押すとルビを振れます。' },
+        { category: '✏️ 編集機能', title: 'キャラクタースタイル', description: 'キャラクターごとにフォント、背景色、太字を設定し、スタイルのグループ共有や統合も可能です。' },
+        { category: '🔍 検索・目印', title: '検索', description: 'キーワード検索で該当発言へジャンプでき、PC・モバイル両方の画面で使えます。' },
+        { category: '🔍 検索・目印', title: '栞機能', description: '栞を追加して好きな場所に目印をつけ、クリックでその位置へ瞬時にジャンプできます。' },
+        { category: '🎲 TRPG特化機能', title: 'ダイス強調', description: 'BCDiceのロール結果を自動検出し、成功・失敗・クリティカル・ファンブルを色付きで強調します。' },
+        { category: '📤 書き出し・共有', title: 'PDF出力', description: 'タブ別の出力設定、立ち絵・アイコン付きPDF、テーマカラー反映に対応しています。' },
+        { category: '📤 書き出し・共有', title: '書き出し形式の選択', description: 'HTML・Markdown・テキスト・スプレッドシート（xlsx）形式の出力に対応。xlsxはタブごとに列が分かれたセル結合レイアウトで出力されます。' }
     ];
 
     const featureListContent = document.getElementById('feature-list-content');
     if (featureListContent) {
+        // ジャンル(category)ごとにグループ化してから見出し付きで表示する
+        const categories = [];
+        const byCategory = {};
         FEATURE_LIST.forEach((feature) => {
-            const entry = document.createElement('div');
-            entry.innerHTML = `
-                <div class="font-bold text-slate-900">${feature.title}</div>
-                <p class="mt-2">${feature.description}</p>
+            if (!byCategory[feature.category]) {
+                byCategory[feature.category] = [];
+                categories.push(feature.category);
+            }
+            byCategory[feature.category].push(feature);
+        });
+        categories.forEach((cat) => {
+            const section = document.createElement('div');
+            const itemsHtml = byCategory[cat].map((feature) => `
+                <div class="pl-4 border-l-2 border-slate-200">
+                    <div class="font-bold text-slate-900">${feature.title}</div>
+                    <p class="mt-1">${feature.description}</p>
+                </div>
+            `).join('');
+            section.innerHTML = `
+                <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">${cat}</h4>
+                <div class="space-y-4">${itemsHtml}</div>
             `;
-            featureListContent.appendChild(entry);
+            featureListContent.appendChild(section);
         });
     }
 
@@ -2330,11 +2364,13 @@
             let charGroups = {}; // { leaderName: [name1, name2, ...] } — エイリアスグループ
 
             const themes = {
-                blue:   { accent: '#3b82f6', bg: '#709cdb', bgDark: '#0f2942' },
-                red:    { accent: '#ef4444', bg: '#fca5a5', bgDark: '#3f1414' },
-                green:  { accent: '#10b981', bg: '#6ee7b7', bgDark: '#0a3327' },
-                purple: { accent: '#8b5cf6', bg: '#c4b5fd', bgDark: '#271c47' },
-                mono:   { accent: '#64748b', bg: '#94a3b8', bgDark: '#1e293b' }
+                // diceBg/diceBgDark: ダイスのみバブルの背景色。白い吹き出しと見分けがつくよう、
+                // テーマカラーを薄く・濃く反映した色にしている（タイムライン背景(bg)とは別の、専用の薄色）。
+                blue:   { accent: '#3b82f6', bg: '#709cdb', bgDark: '#0f2942', diceBg: '#dbeafe', diceBgDark: '#1e3a5f' },
+                red:    { accent: '#ef4444', bg: '#fca5a5', bgDark: '#3f1414', diceBg: '#fee2e2', diceBgDark: '#5c2323' },
+                green:  { accent: '#10b981', bg: '#6ee7b7', bgDark: '#0a3327', diceBg: '#d1fae5', diceBgDark: '#1c4a3a' },
+                purple: { accent: '#8b5cf6', bg: '#c4b5fd', bgDark: '#271c47', diceBg: '#ede9fe', diceBgDark: '#3f3166' },
+                mono:   { accent: '#64748b', bg: '#94a3b8', bgDark: '#1e293b', diceBg: '#e2e8f0', diceBgDark: '#334155' }
             };
 
             const getEl = (id) => document.getElementById(id);
@@ -3041,7 +3077,9 @@
                 currentTheme = themeName;
                 const t = themes[themeName];
                 updateStyle('--accent-color', t.accent);
-                updateStyle('--bg-timeline', document.body.classList.contains('dark-mode') ? t.bgDark : t.bg);
+                const isDark = document.body.classList.contains('dark-mode');
+                updateStyle('--bg-timeline', isDark ? t.bgDark : t.bg);
+                updateStyle('--dice-bubble-bg', isDark ? t.diceBgDark : t.diceBg);
                 document.querySelectorAll('.color-option').forEach(el => {
                     el.classList.toggle('selected', el.dataset.color === themeName);
                 });
