@@ -114,6 +114,110 @@
             display: none !important;
         }
         
+        /* ===== シーン区切り線 ===== */
+        .scene-divider-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 12px;
+        }
+        .scene-divider-line {
+            height: 0;
+            border-top: 2px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+        }
+        .scene-divider-line-start { flex: 0 0 24px; }
+        .scene-divider-line-end { flex: 1 1 auto; }
+        .scene-divider-label {
+            /* 横スクロールしても見える位置に貼り付ける（12px余白+24px線+10px間隔） */
+            position: sticky;
+            left: 46px;
+            z-index: 5;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 14px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.94);
+            color: #334155;
+            font-weight: 700;
+            font-size: calc(var(--base-font-size) - 1px);
+            letter-spacing: 0.04em;
+            white-space: nowrap;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+        }
+        .scene-divider-label .sd-text { max-width: 70vw; overflow: hidden; text-overflow: ellipsis; }
+        .scene-divider-label .sd-text:empty::before { content: 'ラベルなし'; opacity: 0.55; font-weight: 400; }
+        .scene-divider-del {
+            display: none;
+            border: none;
+            background: #fecdd3;
+            color: #be123c;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            font-size: 12px;
+            line-height: 18px;
+            padding: 0;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+        }
+        .scene-divider-del:hover { background: #fda4af; }
+        /* その場でラベル入力中 */
+        .scene-divider-row.editing .scene-divider-label { box-shadow: 0 0 0 2px #f43f5e; }
+        .scene-divider-row.no-label.editing .scene-divider-line-start { display: block; }
+        .scene-divider-row.no-label.editing .scene-divider-label { display: inline-flex; }
+        .scene-divider-label .sd-input {
+            border: none;
+            outline: none;
+            background: transparent;
+            font: inherit;
+            color: inherit;
+            width: 14em;
+            max-width: 60vw;
+            padding: 0;
+        }
+        @media (pointer: coarse) { .scene-divider-label .sd-input { font-size: 16px; } } /* iOSのフォーカス時ズーム対策 */
+        /* ラベルなしの線は、通常時は線だけ。区切り線モード中だけ掴めるように見せる */
+        .scene-divider-row.no-label .scene-divider-line-start,
+        .scene-divider-row.no-label .scene-divider-label { display: none; }
+        body.divider-mode-active .scene-divider-row.no-label .scene-divider-line-start { display: block; }
+        body.divider-mode-active .scene-divider-row.no-label .scene-divider-label { display: inline-flex; }
+        body.divider-mode-active .scene-divider-del { display: inline-flex; }
+        body.divider-mode-active .scene-divider-label .sd-text { cursor: pointer; }
+        body.divider-mode-active .jump-btn:not(#divider-mode-btn):not(#undo-btn) { opacity: 0.5; pointer-events: none; }
+        body.divider-mode-active #divider-mode-btn { opacity: 1; pointer-events: auto; background-color: #ffe4e6; color: #e11d48; border-color: #fb7185; }
+        body.divider-mode-active .timeline-row,
+        body.divider-mode-active .timeline-row .bubble { cursor: crosshair; }
+        .timeline-row.divider-hover-top { box-shadow: 0 -2px 0 0 #f43f5e; }
+        .timeline-row.divider-hover-bottom { box-shadow: 0 2px 0 0 #f43f5e; }
+        body.dark-mode .scene-divider-line { border-top-color: rgba(226, 232, 240, 0.45); box-shadow: none; }
+        body.dark-mode .scene-divider-label { background: var(--dm-panel); color: var(--dm-text); }
+        /* PDF印刷用 */
+        .print-divider {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 8px 0;
+            break-inside: avoid;
+            break-after: avoid;
+            page-break-after: avoid;
+        }
+        .print-divider-line { flex: 1; height: 0; border-top: 1.5px solid #94a3b8; }
+        .print-divider-label {
+            font-size: 8.5pt;
+            font-weight: 700;
+            color: #475569;
+            padding: 1px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 999px;
+            background: #fff;
+            white-space: nowrap;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
         /* Highlight Animation */
         @keyframes pulse-yellow {
             0%, 100% { box-shadow: 0 0 0 4px rgba(250, 204, 21, 0.6); transform: scale(1.02); }
@@ -1689,8 +1793,9 @@
 
 <script>
     // ↓公開リリースノートはここだよ。更新しようね。
-    const APP_VERSION = '1.9.8';
+    const APP_VERSION = '1.9.9';
     const RELEASE_NOTES = [
+        { version: '1.9.9', description: 'シーンの切れ目に、ラベル付きの区切り線を入れられる「区切り線モード」を追加しました。編集ボタン内の区切り線ボタンを押し、線を入れたい位置の発言をクリックすると、その場でラベルを入力できます。保存したHTML・PDF・テキスト/Markdown出力にも反映されます。' },
         { version: '1.9.8', description: 'ルビ振りに対応しました。文字編集モードで「｜文字《ルビ》」と入力するか、文字を選択して「文字《ルビ》」ボタンを押すとルビを振れます。' },
         { version: '1.9.7', description: '複数セッションのログを1つに結合できる「追加読み込み」機能を追加しました。末尾と先頭が重なっている場合は自動で重複を除いて繋げ、結果を画面上部のテロップでお知らせします（ヘッダーの＋アイコンから）。' },
         { version: '1.9.6', description: 'ログ編集画面にダークモードを追加しました。設定パネルのスイッチでいつでも切り替えられます。' },
@@ -1778,6 +1883,7 @@
         { category: '🖥️ 表示・レイアウト', title: 'UI/ナビゲーション', description: 'スクロールカウンター、タブナビ、スティッキーなヘッダー、モバイル対応ボタンなどを実装しています。' },
         { category: '✏️ 編集機能', title: '編集機能', description: '発言の直接編集、削除、マーカー装飾、タブ間移動、コンテキストメニューでのスタイル適用が可能です。' },
         { category: '✏️ 編集機能', title: 'Undo / 巻き戻し', description: '最大10件のUndo履歴を保存し、削除・移動・編集を元に戻せるようにしました。' },
+        { category: '✏️ 編集機能', title: 'シーン区切り線', description: '区切り線モードで発言の間をクリックすると、ラベル付きの区切り線を入れられます。保存HTML・PDF・テキスト/Markdown出力にも反映されます。' },
         { category: '✏️ 編集機能', title: 'ルビ振り', description: '文字編集モードで「｜文字《ルビ》」と入力するか、文字を選択してボタンを押すとルビを振れます。' },
         { category: '✏️ 編集機能', title: 'キャラクタースタイル', description: 'キャラクターごとにフォント、背景色、太字を設定し、スタイルのグループ共有や統合も可能です。' },
         { category: '🔍 検索・目印', title: '検索', description: 'キーワード検索で該当発言へジャンプでき、PC・モバイル両方の画面で使えます。' },
@@ -1953,6 +2059,7 @@
                 <button id="text-edit-mode-btn" class="jump-btn" title="文字編集モード(クリックして修正)"><i data-lucide="pencil" size="20"></i></button>
                 <button id="edit-mode-toggle-btn" class="jump-btn" title="削除モード(発言・タブの削除)"><i data-lucide="trash-2" size="20"></i></button>
                 <button id="move-mode-btn" class="jump-btn" title="構造編集モード(タブ追加・並び替え・コメント移動)"><i data-lucide="layout-grid" size="20"></i></button>
+                <button id="divider-mode-btn" class="jump-btn" title="区切り線モード(シーンの切れ目に線を入れる)"><i data-lucide="separator-horizontal" size="20"></i></button>
                 <button id="marker-toggle-btn" class="jump-btn" title="マーカーモード(スタイル変更)"><i data-lucide="highlighter" size="20"></i></button>
                 <button id="undo-btn" class="jump-btn" title="元に戻す（履歴なし）" disabled style="opacity:0.35"><i data-lucide="undo-2" size="20"></i></button>
                 <div class="w-full h-[1px] bg-slate-200 my-1"></div>
@@ -2330,6 +2437,7 @@
     <script id="source-filename-storage" type="application/json">""</script>
     <script id="char-styles-storage" type="application/json">{}</script>
     <script id="bookmarks-storage" type="application/json">[]</script>
+    <script id="scene-dividers-storage" type="application/json">[]</script>
     <script id="char-groups-storage" type="application/json">{}</script>
 
     <script>
@@ -2351,6 +2459,8 @@
             let isEditMode = false;
             let isTextEditMode = false;
             let isMoveMode = false;
+            let isDividerMode = false;
+            let lastDividerHoverRow = null;
             let currentEditingId = null;
             let draggingBubbleId = null;
             let undoStack = [];
@@ -2362,6 +2472,7 @@
             let charStyles = {}; // { charName: { font, bold, bg } }
             let bookmarks = []; // { id, label, rowId, rowIndex }
             let charGroups = {}; // { leaderName: [name1, name2, ...] } — エイリアスグループ
+            let sceneDividers = []; // { id, beforeId(この発言の直前に線を置く。nullなら末尾), label }
 
             const themes = {
                 // diceBg/diceBgDark: ダイスのみバブルの背景色。白い吹き出しと見分けがつくよう、
@@ -2420,6 +2531,7 @@
                     if (isTextEditMode) toggleTextEditMode();
                     if (isMoveMode) toggleMoveMode();
                     if (isMarkerMode) toggleMarkerMode();
+                    if (isDividerMode) toggleDividerMode();
                     group.style.display = 'none';
                     toggle.style.backgroundColor = '#cbd5e1';
                     toggle.querySelector('div').style.transform = 'translateX(-20px)';
@@ -2447,6 +2559,7 @@
             function pushUndo() {
                 undoStack.push({
                     logData: JSON.parse(JSON.stringify(logData)),
+                    sceneDividers: JSON.parse(JSON.stringify(sceneDividers)),
                     allLocations: [...allLocations]
                 });
                 if (undoStack.length > UNDO_MAX) undoStack.shift();
@@ -2457,6 +2570,7 @@
                 if (undoStack.length === 0) return;
                 const snapshot = undoStack.pop();
                 logData = snapshot.logData;
+                sceneDividers = snapshot.sceneDividers || [];
                 allLocations = snapshot.allLocations;
                 characters.clear();
                 logData.forEach(d => characters.add(d.char));
@@ -2833,6 +2947,13 @@
                 getEl('jump-bottom').onclick = () => { const vp = getEl('timeline-viewport'); vp.scrollTo({ top: vp.scrollHeight, behavior: 'smooth' }); };
                 getEl('undo-btn').onclick = undo;
                 getEl('move-mode-btn').onclick = toggleMoveMode;
+                getEl('divider-mode-btn').onclick = toggleDividerMode;
+                (function () {
+                    const rc = getEl('rows-container');
+                    rc.addEventListener('mousemove', onDividerHover);
+                    rc.addEventListener('mouseleave', clearDividerHover);
+                    rc.addEventListener('click', onDividerClick, true); // captureで受けて、他モードのバブル処理より先に処理する
+                })();
 
                 // 並び替えモードのドラッグ&ドロップ: セル1つ1つにリスナーを張らず、
                 // rows-container1箇所へのイベント委譲でまとめて処理する（大量ログでの重さ対策）
@@ -3089,6 +3210,7 @@
                 if (isEditMode) toggleEditMode();
                 if (isTextEditMode) toggleTextEditMode();
                 if (isMoveMode) toggleMoveMode();
+                if (isDividerMode) toggleDividerMode();
                 isMarkerMode = !isMarkerMode;
                 getEl('marker-toggle-btn').classList.toggle('active', isMarkerMode);
                 document.body.classList.toggle('marker-mode-active', isMarkerMode);
@@ -3099,6 +3221,7 @@
                 if (isMarkerMode) toggleMarkerMode();
                 if (isTextEditMode) toggleTextEditMode();
                 if (isMoveMode) toggleMoveMode();
+                if (isDividerMode) toggleDividerMode();
                 isEditMode = !isEditMode;
                 getEl('edit-mode-toggle-btn').classList.toggle('active', isEditMode);
                 document.body.classList.toggle('edit-mode-active', isEditMode);
@@ -3108,6 +3231,7 @@
                 if (isMarkerMode) toggleMarkerMode();
                 if (isEditMode) toggleEditMode();
                 if (isMoveMode) toggleMoveMode();
+                if (isDividerMode) toggleDividerMode();
                 isTextEditMode = !isTextEditMode;
                 getEl('text-edit-mode-btn').classList.toggle('active', isTextEditMode);
                 document.body.classList.toggle('text-edit-mode-active', isTextEditMode);
@@ -3117,6 +3241,7 @@
                 if (isMarkerMode) toggleMarkerMode();
                 if (isEditMode) toggleEditMode();
                 if (isTextEditMode) toggleTextEditMode();
+                if (isDividerMode) toggleDividerMode();
                 isMoveMode = !isMoveMode;
                 getEl('move-mode-btn').classList.toggle('active', isMoveMode);
                 document.body.classList.toggle('move-mode-active', isMoveMode);
@@ -3166,6 +3291,202 @@
                 updateRowCounter();
             }
 
+            function toggleDividerMode() {
+                if (isMarkerMode) toggleMarkerMode();
+                if (isEditMode) toggleEditMode();
+                if (isTextEditMode) toggleTextEditMode();
+                if (isMoveMode) toggleMoveMode();
+                isDividerMode = !isDividerMode;
+                getEl('divider-mode-btn').classList.toggle('active', isDividerMode);
+                document.body.classList.toggle('divider-mode-active', isDividerMode);
+                if (isDividerMode) {
+                    showAppToast('➖ 線を入れたい位置の発言をクリック（上半分＝その上／下半分＝その下）。ラベルはその場で入力、Enterで確定', 5000);
+                } else {
+                    clearDividerHover();
+                }
+            }
+
+            function clearDividerHover() {
+                if (lastDividerHoverRow) {
+                    lastDividerHoverRow.classList.remove('divider-hover-top', 'divider-hover-bottom');
+                    lastDividerHoverRow = null;
+                }
+            }
+
+            function onDividerHover(e) {
+                if (!isDividerMode) return;
+                const row = e.target.closest('.timeline-row');
+                if (!row) { clearDividerHover(); return; }
+                const rect = row.getBoundingClientRect();
+                const above = (e.clientY - rect.top) < rect.height / 2;
+                if (lastDividerHoverRow && lastDividerHoverRow !== row) {
+                    lastDividerHoverRow.classList.remove('divider-hover-top', 'divider-hover-bottom');
+                }
+                row.classList.toggle('divider-hover-top', above);
+                row.classList.toggle('divider-hover-bottom', !above);
+                lastDividerHoverRow = row;
+            }
+
+            // 区切り線モード中のクリック: 発言の上半分なら「その発言の直前」、下半分なら「次の発言の直前」に線を入れる
+            function onDividerClick(e) {
+                if (!isDividerMode) return;
+                const row = e.target.closest('.timeline-row');
+                if (!row) return;
+                e.stopPropagation();
+                e.preventDefault();
+                const id = parseInt(row.id.replace('row-', ''), 10);
+                if (isNaN(id)) return;
+                const rect = row.getBoundingClientRect();
+                const above = (e.clientY - rect.top) < rect.height / 2;
+                let beforeId = id;
+                if (!above) {
+                    const idx = logData.findIndex(d => d.id === id);
+                    beforeId = (idx >= 0 && idx + 1 < logData.length) ? logData[idx + 1].id : null;
+                }
+                addDividerAt(beforeId);
+            }
+
+            function nextDividerId() {
+                return sceneDividers.length ? Math.max(...sceneDividers.map(d => d.id)) + 1 : 1;
+            }
+
+            function createDividerEl(dv) {
+                const el = document.createElement('div');
+                el.className = 'scene-divider-row' + (dv.label ? '' : ' no-label');
+                el.dataset.divId = dv.id;
+                el.innerHTML = '<span class="scene-divider-line scene-divider-line-start"></span>'
+                    + '<span class="scene-divider-label"><span class="sd-text">' + escapeHtml(dv.label || '') + '</span>'
+                    + '<button type="button" class="scene-divider-del" title="この区切り線を削除">×</button></span>'
+                    + '<span class="scene-divider-line scene-divider-line-end"></span>';
+                el.querySelector('.sd-text').onclick = (e) => {
+                    if (!isDividerMode) return;
+                    e.stopPropagation();
+                    editDividerLabel(dv.id);
+                };
+                el.querySelector('.scene-divider-del').onclick = (e) => {
+                    e.stopPropagation();
+                    deleteDivider(dv.id);
+                };
+                return el;
+            }
+
+            function addDividerAt(beforeId) {
+                if (sceneDividers.some(d => d.beforeId === beforeId)) {
+                    showAppToast('➖ そこにはすでに区切り線があります（ラベルをクリックで編集できます）');
+                    return;
+                }
+                pushUndo();
+                const dv = { id: nextDividerId(), beforeId: beforeId, label: '' };
+                sceneDividers.push(dv);
+                const container = getEl('rows-container');
+                const ref = beforeId === null ? null : getEl('row-' + beforeId);
+                container.insertBefore(createDividerEl(dv), ref);
+                updateRowCounter();
+                startDividerInlineEdit(dv.id, true); // 線を入れた直後に、その場でラベルを入力できる
+            }
+
+            function editDividerLabel(id) {
+                startDividerInlineEdit(id, false);
+            }
+
+            // 区切り線のラベルをその場で入力する（Enter=確定 / Esc=キャンセル / フォーカスが外れたら確定）。
+            // 日本語入力の変換中のEnter(isComposing)では確定しない。
+            // isNew=true は「線を追加した直後」: Escなら線ごと取り消し（追加時に積んだUndoも戻す）
+            function startDividerInlineEdit(id, isNew) {
+                const el = document.querySelector('.scene-divider-row[data-div-id="' + id + '"]');
+                const dv = sceneDividers.find(d => d.id === id);
+                if (!el || !dv || el.classList.contains('editing')) return;
+                el.classList.add('editing');
+                const text = el.querySelector('.sd-text');
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'sd-input';
+                input.value = dv.label || '';
+                input.placeholder = 'ラベル（空でもOK）';
+                input.maxLength = 60;
+                text.style.display = 'none';
+                text.after(input);
+                input.focus();
+                input.select();
+                let done = false;
+                const finish = (commit) => {
+                    if (done) return;
+                    done = true;
+                    if (commit) {
+                        const val = input.value.trim();
+                        if (val !== (dv.label || '')) {
+                            if (!isNew) pushUndo();
+                            dv.label = val;
+                        }
+                    } else if (isNew) {
+                        undoStack.pop();
+                        updateUndoBtn();
+                        sceneDividers = sceneDividers.filter(d => d.id !== id);
+                        el.remove();
+                        updateRowCounter();
+                        return;
+                    }
+                    el.replaceWith(createDividerEl(dv));
+                };
+                input.addEventListener('keydown', (e) => {
+                    e.stopPropagation();
+                    if (e.isComposing || e.keyCode === 229) return;
+                    if (e.key === 'Enter') { e.preventDefault(); finish(true); }
+                    else if (e.key === 'Escape') { e.preventDefault(); finish(false); }
+                });
+                input.addEventListener('click', (e) => e.stopPropagation());
+                input.addEventListener('blur', () => finish(true));
+            }
+
+            function deleteDivider(id) {
+                pushUndo();
+                sceneDividers = sceneDividers.filter(d => d.id !== id);
+                const el = document.querySelector('.scene-divider-row[data-div-id="' + id + '"]');
+                if (el) el.remove();
+                updateRowCounter();
+            }
+
+            // 発言が削除されたとき、その発言の直前にあった線を「次に残っている発言」の直前へ付け替える（残りが無ければ末尾）
+            function reanchorDividers(prevLog) {
+                if (!sceneDividers.length) return;
+                const alive = new Set(logData.map(d => d.id));
+                const order = prevLog.map(d => d.id);
+                sceneDividers.forEach(dv => {
+                    if (dv.beforeId === null || alive.has(dv.beforeId)) return;
+                    let next = null;
+                    for (let i = order.indexOf(dv.beforeId) + 1; i < order.length; i++) {
+                        if (alive.has(order[i])) { next = order[i]; break; }
+                    }
+                    dv.beforeId = next;
+                });
+                // 付け替えの結果、同じ位置に重なった線は1本にまとめる（ラベルがある方を残す）
+                const seen = new Map();
+                sceneDividers = sceneDividers.filter(dv => {
+                    const prev = seen.get(dv.beforeId);
+                    if (!prev) { seen.set(dv.beforeId, dv); return true; }
+                    if (!prev.label && dv.label) prev.label = dv.label;
+                    return false;
+                });
+            }
+
+            // 保存データの読み込み時: 壊れた項目を除き、存在しない発言を指す線は末尾扱いにする
+            function sanitizeDividers(arr) {
+                if (!Array.isArray(arr)) return [];
+                const ids = new Set(logData.map(d => d.id));
+                const seen = new Set();
+                const out = [];
+                arr.forEach(dv => {
+                    if (!dv || typeof dv.id !== 'number' || seen.has(dv.id)) return;
+                    seen.add(dv.id);
+                    out.push({
+                        id: dv.id,
+                        beforeId: (typeof dv.beforeId === 'number' && ids.has(dv.beforeId)) ? dv.beforeId : null,
+                        label: typeof dv.label === 'string' ? dv.label : ''
+                    });
+                });
+                return out;
+            }
+
             function addColumn() {
                 const name = prompt('新しいタブ名を入力してください：');
                 if (!name || !name.trim()) return;
@@ -3185,7 +3506,9 @@
             function deleteColumn(loc) {
                 if (!confirm(`「${loc}」タブと、そこに含まれるすべての発言を削除しますか？`)) return;
                 pushUndo();
+                const prevLog = logData;
                 logData = logData.filter(d => d.loc !== loc);
+                reanchorDividers(prevLog);
                 allLocations = allLocations.filter(l => l !== loc);
                 renderLayout();
                 getEl('rows-container').innerHTML = ''; 
@@ -3196,7 +3519,9 @@
             function deleteMessage(id) {
                 if (!confirm('この発言を削除しますか？')) return;
                 pushUndo();
+                const prevLog = logData;
                 logData = logData.filter(d => d.id !== id);
+                reanchorDividers(prevLog);
                 getEl('rows-container').innerHTML = ''; 
                 renderAllRows(logData);
                 updateRowCounter();
@@ -3389,6 +3714,7 @@
                 { selector: '#text-edit-mode-btn', text: '「文字編集モード」。クリックした発言をその場で修正できます。' },
                 { selector: '#edit-mode-toggle-btn', text: '「削除モード」。不要な発言やタブをまとめて削除できます。' },
                 { selector: '#move-mode-btn', text: '「構造編集モード」。タブの追加・並び替え・発言の移動ができます。' },
+                { selector: '#divider-mode-btn', text: '「区切り線モード」。シーンの切れ目をクリックして、ラベル付きの線を入れられます。' },
                 { selector: '#marker-toggle-btn', text: '「マーカーモード」。発言の背景色や文字装飾を変更できます。' },
                 { selector: '#bookmark-toggle-btn', text: '気になる発言に栞を付けておくと、あとからワンタップでその場所に戻れます。' },
                 { selector: () => (document.getElementById('search-input-mobile') && document.getElementById('search-input-mobile').offsetParent !== null) ? '#search-input-mobile' : '#search-input', text: 'ここからログ内を検索できます。見たい発言がすぐ見つかります。' },
@@ -3565,6 +3891,7 @@
                 charIcons      = JSON.parse(iconRaw);
                 allLocations   = JSON.parse(locRaw);
                 logData        = JSON.parse(logRaw);
+                sceneDividers  = sanitizeDividers(JSON.parse(doc.getElementById('scene-dividers-storage')?.textContent || '[]'));
                 sourceFileName = JSON.parse(nameRaw);
                 charStyles     = JSON.parse(charStylesRaw);
                 charGroups     = JSON.parse(charGroupsRaw);
@@ -3788,6 +4115,7 @@
             function commitParsedLog(tempLogData, locSet) {
                 if (!isAppendLoad || logData.length === 0) {
                     logData = tempLogData;
+                    sceneDividers = [];
                     characters.clear();
                     logData.forEach((d) => characters.add(d.char));
                     finishParsing(locSet);
@@ -3848,9 +4176,14 @@
             let rowBatchFragment = null;
             function renderAllRows(dataArray) {
                 rowBatchFragment = document.createDocumentFragment();
+                const dividerByAnchor = new Map();
+                sceneDividers.forEach((dv) => { if (dv.beforeId !== null) dividerByAnchor.set(dv.beforeId, dv); });
                 dataArray.forEach((m) => {
+                    const dv = dividerByAnchor.get(m.id);
+                    if (dv) rowBatchFragment.appendChild(createDividerEl(dv));
                     createRow(m.id, m.loc, m.char, m.color || '#000', m.rawMsg || m.msg, m.style || {}, m.icon || null, m.time || null);
                 });
+                sceneDividers.forEach((dv) => { if (dv.beforeId === null) rowBatchFragment.appendChild(createDividerEl(dv)); });
                 getEl('rows-container').appendChild(rowBatchFragment);
                 rowBatchFragment = null;
             }
@@ -4760,6 +5093,7 @@
                     charIcons      = JSON.parse(iconRaw || '{}');
                     allLocations   = JSON.parse(locRaw  || '[]');
                     logData        = JSON.parse(logRaw  || '[]');
+                    sceneDividers  = sanitizeDividers(JSON.parse((getEl('scene-dividers-storage')?.textContent) || '[]'));
                     sourceFileName = JSON.parse(nameRaw || '"log"');
                     charStyles     = JSON.parse(charStylesRaw || '{}');
                     charGroups     = JSON.parse((getEl('char-groups-storage')?.textContent) || '{}');
@@ -4903,7 +5237,28 @@
                 // 対象ログを時系列でフィルタ
                 const targetLogs = logData.filter(d => mainLocs.includes(d.loc) || subLocs.includes(d.loc));
 
+                // 区切り線: 印刷対象外の発言に紐づく線も、次に出力される発言の直前へ回して取りこぼさない
+                const printDivBefore = new Map();
+                {
+                    const targetIdSet = new Set(targetLogs.map(d => d.id));
+                    const byAnchor = new Map();
+                    sceneDividers.forEach(dv => { if (dv.beforeId !== null) byAnchor.set(dv.beforeId, dv); });
+                    let pending = [];
+                    logData.forEach(d => {
+                        const dv = byAnchor.get(d.id);
+                        if (dv) pending.push(dv);
+                        if (targetIdSet.has(d.id) && pending.length) { printDivBefore.set(d.id, pending); pending = []; }
+                    });
+                }
+
                 targetLogs.forEach(m => {
+                    (printDivBefore.get(m.id) || []).forEach(dv => {
+                        const dEl = document.createElement('div');
+                        dEl.className = 'print-divider';
+                        dEl.innerHTML = '<span class="print-divider-line"></span>'
+                            + (dv.label ? '<span class="print-divider-label">' + escapeHtml(dv.label) + '</span><span class="print-divider-line"></span>' : '');
+                        container.appendChild(dEl);
+                    });
                     const isMain = mainLocs.includes(m.loc);
                     const row = document.createElement('div');
                     row.className = 'print-row';
@@ -5092,13 +5447,34 @@
                 return lines.map((line, index) => index === 0 ? `${prefix}${line}` : `${prefix}  ${line}`).join('\n');
             }
 
+            // テキスト/Markdown出力用: 指定タブの発言を時系列に並べ、区切り線を「次に出るそのタブの発言」の直前へ差し込む
+            function exportRowsWithDividers(loc, fmtMsg, fmtDivider) {
+                const out = [];
+                const byAnchor = new Map();
+                sceneDividers.forEach(dv => { if (dv.beforeId !== null) byAnchor.set(dv.beforeId, dv); });
+                let pending = [];
+                logData.forEach(d => {
+                    const dv = byAnchor.get(d.id);
+                    if (dv) pending.push(dv);
+                    if (d.loc === loc) {
+                        // このタブに発言が無い区間で線が連続した場合は、ラベル付きだけを残す（全部ラベル無しなら1本）
+                        const labeled = pending.filter(p => p.label);
+                        const toShow = labeled.length ? labeled : pending.slice(0, 1);
+                        toShow.forEach(p => out.push(fmtDivider(p)));
+                        pending = [];
+                        out.push(fmtMsg(d));
+                    }
+                });
+                return out;
+            }
+
             function buildTextExport() {
                 const locs = Array.from(new Set(logData.map(d => d.loc)));
                 return locs.map(loc => {
-                    const rows = logData.filter(d => d.loc === loc).map(d => {
+                    const rows = exportRowsWithDividers(loc, (d) => {
                         const content = cleanText(d.msg || d.rawMsg);
                         return formatMultilineText(content, `${d.char}: `);
-                    });
+                    }, (dv) => dv.label ? `━━━━ ${dv.label} ━━━━` : '━━━━━━━━━━━━');
                     return `== ${loc} ==\n\n${rows.join('\n\n')}`;
                 }).join('\n\n');
             }
@@ -5106,11 +5482,11 @@
             function buildMarkdownExport() {
                 const locs = Array.from(new Set(logData.map(d => d.loc)));
                 return locs.map(loc => {
-                    const rows = logData.filter(d => d.loc === loc).map(d => {
+                    const rows = exportRowsWithDividers(loc, (d) => {
                         const content = cleanText(d.msg || d.rawMsg);
                         const formatted = content.split('\n').map((line, index) => index === 0 ? line : `    ${line}`).join('  \n');
                         return `- **${d.char}**: ${formatted}`;
-                    });
+                    }, (dv) => '\n---\n' + (dv.label ? `\n**▼ ${dv.label}**\n` : ''));
                     return `## ${loc}\n\n${rows.join('\n')}`;
                 }).join('\n\n');
             }
@@ -5206,6 +5582,7 @@
                             getEl('style-data-storage').textContent = JSON.stringify({ col: getComputedStyle(document.documentElement).getPropertyValue('--column-width').trim(), font: getComputedStyle(document.documentElement).getPropertyValue('--base-font-size').trim(), port: getComputedStyle(document.documentElement).getPropertyValue('--portrait-size').trim(), theme: currentTheme, colInd: showColIndicator, ts: showTimestamps });
                             getEl('char-styles-storage').textContent = JSON.stringify(charStyles);
                             getEl('bookmarks-storage').textContent = JSON.stringify(bookmarks);
+                            getEl('scene-dividers-storage').textContent = JSON.stringify(sceneDividers).replace(/</g, '\\u003c');
                             getEl('char-groups-storage').textContent = JSON.stringify(charGroups);
                             
                             const clone = document.documentElement.cloneNode(true);
@@ -5220,7 +5597,7 @@
                             clone.querySelector('#home-view').classList.add('hidden'); clone.querySelector('#app-view').classList.remove('hidden');
                             
                             // Clean states
-                            clone.querySelector('body').classList.remove('marker-mode-active', 'edit-mode-active', 'text-edit-mode-active', 'move-mode-active');
+                            clone.querySelector('body').classList.remove('marker-mode-active', 'edit-mode-active', 'text-edit-mode-active', 'move-mode-active', 'divider-mode-active');
                             // 保存HTMLでは編集ボタンをデフォルト非表示
                             const cloneEditGroup = clone.querySelector('#edit-btn-group');
                             if (cloneEditGroup) cloneEditGroup.style.display = 'none';
