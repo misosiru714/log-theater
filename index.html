@@ -127,11 +127,16 @@
         .dv-svg { display: block; overflow: hidden; }
         .dv-svg.dv-default { color: rgba(255, 255, 255, 0.92); filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.3)); }
         .dv-svg.dv-print { color: #94a3b8; }
-        .scene-divider-label {
+        .scene-divider-labels {
             /* 横スクロールしても見える位置に貼り付ける（12px余白+24px線+10px間隔） */
             position: sticky;
             left: 46px;
             z-index: 5;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .scene-divider-label {
             display: inline-flex;
             align-items: center;
             gap: 6px;
@@ -145,7 +150,7 @@
             white-space: nowrap;
             box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
         }
-        .scene-divider-label .sd-text { max-width: 70vw; overflow: hidden; text-overflow: ellipsis; }
+        .scene-divider-label .sd-text { max-width: 45vw; overflow: hidden; text-overflow: ellipsis; }
         .scene-divider-label .sd-text:empty::before { content: 'ラベルなし'; opacity: 0.55; font-weight: 400; }
         .scene-divider-del {
             display: none;
@@ -164,9 +169,9 @@
         }
         .scene-divider-del:hover { background: #fda4af; }
         .scene-divider-row.no-label .scene-divider-line-start,
-        .scene-divider-row.no-label .scene-divider-label { display: none; }
+        .scene-divider-row.no-label .scene-divider-labels { display: none; }
         body.divider-mode-active .scene-divider-row.no-label .scene-divider-line-start { display: block; }
-        body.divider-mode-active .scene-divider-row.no-label .scene-divider-label { display: inline-flex; }
+        body.divider-mode-active .scene-divider-row.no-label .scene-divider-labels { display: inline-flex; }
         body.divider-mode-active .scene-divider-del { display: inline-flex; }
         body.divider-mode-active .scene-divider-label .sd-text { cursor: pointer; }
         body.divider-mode-active .jump-btn:not(#divider-mode-btn):not(#undo-btn) { opacity: 0.5; pointer-events: none; }
@@ -188,6 +193,7 @@
             page-break-after: avoid;
         }
         .print-divider-line { flex: 1; min-width: 0; line-height: 0; }
+        .print-divider-labels { display: flex; gap: 4px; }
         .print-divider-label {
             font-size: 8.5pt;
             font-weight: 700;
@@ -219,12 +225,18 @@
             color: #334155;
         }
         .dv-panel-label { display: flex; justify-content: space-between; font-size: 10px; font-weight: 700; color: #94a3b8; margin-bottom: 4px; }
-        #dv-label-input {
+        .dv-label-row { display: flex; gap: 4px; margin-bottom: 4px; }
+        .dv-label-row .dv-label-input { flex: 1; min-width: 0; }
+        .dv-label-del { flex: 0 0 26px; border-radius: 8px; border: 1px solid #e2e8f0; background: #fff; color: #94a3b8; font-size: 14px; cursor: pointer; }
+        .dv-label-del:hover { background: #fff1f2; color: #e11d48; border-color: #fda4af; }
+        #dv-label-add { font-size: 11px; font-weight: 700; color: #e11d48; padding: 2px 4px; cursor: pointer; }
+        #dv-label-add:disabled { color: #cbd5e1; cursor: default; }
+        .dv-label-input {
             width: 100%; border: 1px solid #e2e8f0; border-radius: 8px; padding: 6px 8px;
             font-size: 13px; outline: none; background: #fff; color: #1e293b;
         }
-        #dv-label-input:focus { border-color: #f43f5e; }
-        @media (pointer: coarse) { #dv-label-input { font-size: 16px; } } /* iOSのフォーカス時ズーム対策 */
+        .dv-label-input:focus { border-color: #f43f5e; }
+        @media (pointer: coarse) { .dv-label-input { font-size: 16px; } } /* iOSのフォーカス時ズーム対策 */
         .dv-type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
         .dv-type-btn {
             display: flex; flex-direction: column; gap: 3px; padding: 6px 4px 4px;
@@ -248,10 +260,63 @@
         #dv-reset-btn:hover { color: #475569; }
         #dv-delete-btn:hover { color: #ef4444; }
         body.dark-mode #divider-style-panel { background: var(--dm-panel); border-color: var(--dm-border); color: var(--dm-text); }
-        body.dark-mode #dv-label-input { background: var(--dm-panel-soft); border-color: var(--dm-border); color: var(--dm-text); }
+        body.dark-mode .dv-label-input { background: var(--dm-panel-soft); border-color: var(--dm-border); color: var(--dm-text); }
+        body.dark-mode .dv-label-del { background: var(--dm-panel-soft); border-color: var(--dm-border); }
         body.dark-mode .dv-type-btn { background: var(--dm-panel-soft); border-color: var(--dm-border); }
         body.dark-mode .dv-type-btn.active { background: #4c0519; border-color: #f43f5e; }
         body.dark-mode .dv-panel-foot { border-color: var(--dm-border); }
+
+        /* ===== シーン一覧（ラベルから区切り線へジャンプ） ===== */
+        @keyframes dvFlash { 0%, 100% { background: transparent; } 50% { background: rgba(250, 204, 21, 0.4); } }
+        .scene-divider-row.dv-flash { animation: dvFlash 0.9s ease-in-out 3; }
+        .scene-divider-label.dv-flash-pill { box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.95); }
+        #scene-list-panel {
+            position: fixed;
+            bottom: 80px;
+            right: 80px;
+            width: 300px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            box-shadow: 0 20px 30px -10px rgba(0,0,0,0.15);
+            z-index: 90;
+            overflow: hidden;
+            display: none;
+            flex-direction: column;
+            animation: fadeIn 0.2s ease-out;
+        }
+        #scene-list-panel.open { display: flex; }
+        .scene-list-header {
+            padding: 12px 14px;
+            background: #fff1f2;
+            border-bottom: 1px solid #fecdd3;
+            font-size: 12px;
+            font-weight: 700;
+            color: #9f1239;
+        }
+        #scene-list { max-height: 320px; overflow-y: auto; padding: 6px; display: flex; flex-direction: column; gap: 4px; }
+        .scene-item {
+            display: flex; align-items: flex-start; gap: 8px; padding: 8px 10px;
+            border-radius: 10px; border: 1px solid #f1f5f9; border-left: 4px solid #fda4af;
+            cursor: pointer; transition: background 0.15s;
+        }
+        .scene-item:hover { background: #fff1f2; border-color: #fecdd3; }
+        .scene-item-num { flex: 0 0 auto; font-size: 10px; font-weight: 700; color: #94a3b8; padding-top: 4px; min-width: 14px; }
+        .scene-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+        .scene-chip {
+            border: 1px solid #fecdd3; background: #fff; color: #881337; border-radius: 999px;
+            font-size: 11px; font-weight: 700; padding: 2px 10px; cursor: pointer; max-width: 100%;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .scene-chip:hover { background: #ffe4e6; }
+        .scene-chip.empty { color: #94a3b8; border-style: dashed; font-weight: 400; }
+        .scene-list-empty { text-align: center; color: #94a3b8; font-size: 11px; padding: 20px 0; }
+        @media (max-width: 640px) { #scene-list-panel { right: 16px; left: 16px; width: auto; bottom: 90px; } }
+        body.dark-mode #scene-list-panel { background: var(--dm-panel); border-color: var(--dm-border); }
+        body.dark-mode .scene-list-header { background: #4c0519; border-color: #881337; color: #fecdd3; }
+        body.dark-mode .scene-item { border-color: var(--dm-border); }
+        body.dark-mode .scene-item:hover { background: var(--dm-panel-soft); }
+        body.dark-mode .scene-chip { background: var(--dm-panel-soft); color: var(--dm-text); border-color: var(--dm-border); }
 
         /* Highlight Animation */
         @keyframes pulse-yellow {
@@ -835,7 +900,7 @@
             .header-nav, #filter-container, #jump-controls,
             #settings-panel, #row-counter, .mobile-nav,
             #setup-screen, #home-view, #char-modal, #crop-modal,
-            #pdf-modal, #loading-overlay, #style-context-menu, #divider-style-panel { display: none !important; }
+            #pdf-modal, #loading-overlay, #style-context-menu, #divider-style-panel, #scene-list-panel { display: none !important; }
 
             body, html {
                 overflow: visible !important;
@@ -1830,7 +1895,7 @@
     // ↓公開リリースノートはここだよ。更新しようね。
     const APP_VERSION = '1.9.9';
     const RELEASE_NOTES = [
-        { version: '1.9.9', description: 'シーンの切れ目に、ラベル付きの区切り線を入れられる「区切り線モード」を追加しました。編集ボタン内の区切り線ボタンを押し、線を入れたい位置の発言をクリックすると出るパネルで、ラベル・線の種類（線／破線／点線／波線／二重線／ジグザグ線）・太さ・色を設定できます。保存したHTML・PDF・テキスト/Markdown出力にも反映されます。' },
+        { version: '1.9.9', description: 'シーンの切れ目に、ラベル付きの区切り線を入れられる「区切り線モード」を追加しました。編集ボタン内の区切り線ボタンを押し、線を入れたい位置の発言をクリックすると出るパネルで、ラベル（1本の線に複数つけられます）・線の種類（線／破線／点線／波線／二重線／ジグザグ線）・太さ・色を設定できます。区切り線がある場合は「シーン一覧」ボタンから、ラベルを押してその区切り線へジャンプできます。保存したHTML・PDF・テキスト/Markdown出力にも反映されます。' },
         { version: '1.9.8', description: 'ルビ振りに対応しました。文字編集モードで「｜文字《ルビ》」と入力するか、文字を選択して「文字《ルビ》」ボタンを押すとルビを振れます。' },
         { version: '1.9.7', description: '複数セッションのログを1つに結合できる「追加読み込み」機能を追加しました。末尾と先頭が重なっている場合は自動で重複を除いて繋げ、結果を画面上部のテロップでお知らせします（ヘッダーの＋アイコンから）。' },
         { version: '1.9.6', description: 'ログ編集画面にダークモードを追加しました。設定パネルのスイッチでいつでも切り替えられます。' },
@@ -1918,10 +1983,11 @@
         { category: '🖥️ 表示・レイアウト', title: 'UI/ナビゲーション', description: 'スクロールカウンター、タブナビ、スティッキーなヘッダー、モバイル対応ボタンなどを実装しています。' },
         { category: '✏️ 編集機能', title: '編集機能', description: '発言の直接編集、削除、マーカー装飾、タブ間移動、コンテキストメニューでのスタイル適用が可能です。' },
         { category: '✏️ 編集機能', title: 'Undo / 巻き戻し', description: '最大10件のUndo履歴を保存し、削除・移動・編集を元に戻せるようにしました。' },
-        { category: '✏️ 編集機能', title: 'シーン区切り線', description: '区切り線モードで発言の間をクリックすると区切り線を入れられます。ラベルのほか、線の種類（線・破線・点線・波線・二重線・ジグザグ線）・太さ・色をパネルで変更できます。保存HTML・PDF・テキスト/Markdown出力にも反映されます。' },
+        { category: '✏️ 編集機能', title: 'シーン区切り線', description: '区切り線モードで発言の間をクリックすると区切り線を入れられます。ラベルは1本の線に複数つけられ、線の種類（線・破線・点線・波線・二重線・ジグザグ線）・太さ・色もパネルで変更できます。保存HTML・PDF・テキスト/Markdown出力にも反映されます。' },
         { category: '✏️ 編集機能', title: 'ルビ振り', description: '文字編集モードで「｜文字《ルビ》」と入力するか、文字を選択してボタンを押すとルビを振れます。' },
         { category: '✏️ 編集機能', title: 'キャラクタースタイル', description: 'キャラクターごとにフォント、背景色、太字を設定し、スタイルのグループ共有や統合も可能です。' },
         { category: '🔍 検索・目印', title: '検索', description: 'キーワード検索で該当発言へジャンプでき、PC・モバイル両方の画面で使えます。' },
+        { category: '🔍 検索・目印', title: 'シーン一覧ジャンプ', description: '区切り線につけたラベルを一覧にして、押すとその区切り線へジャンプできます。保存したHTMLでも使えるので、長いログの目次として便利です。' },
         { category: '🔍 検索・目印', title: '栞機能', description: '栞を追加して好きな場所に目印をつけ、クリックでその位置へ瞬時にジャンプできます。' },
         { category: '🎲 TRPG特化機能', title: 'ダイス強調', description: 'BCDiceのロール結果を自動検出し、成功・失敗・クリティカル・ファンブルを色付きで強調します。' },
         { category: '📤 書き出し・共有', title: 'PDF出力', description: 'タブ別の出力設定、立ち絵・アイコン付きPDF、テーマカラー反映に対応しています。' },
@@ -2089,6 +2155,12 @@
             <div id="bookmark-add-btn">＋ 現在地に栞を追加</div>
         </div>
 
+        <!-- シーン一覧パネル（区切り線のラベルからジャンプ） -->
+        <div id="scene-list-panel">
+            <div class="scene-list-header">🧭 シーン一覧（ラベルを押すとジャンプ）</div>
+            <div id="scene-list"></div>
+        </div>
+
         <div id="jump-controls">
             <div id="edit-btn-group">
                 <button id="text-edit-mode-btn" class="jump-btn" title="文字編集モード(クリックして修正)"><i data-lucide="pencil" size="20"></i></button>
@@ -2099,6 +2171,7 @@
                 <button id="undo-btn" class="jump-btn" title="元に戻す（履歴なし）" disabled style="opacity:0.35"><i data-lucide="undo-2" size="20"></i></button>
                 <div class="w-full h-[1px] bg-slate-200 my-1"></div>
             </div>
+            <button id="scene-list-btn" class="jump-btn" title="シーン一覧（区切り線のラベルへジャンプ）" style="display:none"><i data-lucide="list" size="20"></i></button>
             <button id="bookmark-toggle-btn" class="jump-btn" title="栞リスト"><i data-lucide="bookmark" size="20"></i></button>
             <!-- 語録メーカー: 一旦無効化中。ボタンをコメントアウトしているだけで、
                  モーダルのHTMLとJS(extractFrequentPhrases/renderWordCloud等)はそのまま残してあるので、
@@ -2167,8 +2240,9 @@
                 <button id="dv-panel-close" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" size="14"></i></button>
             </div>
             <div>
-                <span class="dv-panel-label">ラベル</span>
-                <input id="dv-label-input" type="text" maxlength="60" placeholder="例）シーン2 ／ 翌日（空でもOK）" autocomplete="off">
+                <span class="dv-panel-label"><span>ラベル（複数つけられます）</span></span>
+                <div id="dv-label-list"></div>
+                <button id="dv-label-add" type="button">＋ ラベルを追加</button>
             </div>
             <div>
                 <span class="dv-panel-label">線の種類</span>
@@ -2510,6 +2584,8 @@
             let logData = [];
             let isAppendLoad = false; // trueの間は、パース結果を既存ログの続きとしてマージする（複数ログの結合用）
             let allLocations = [];
+            let charStylesDirty = false; // スタイル設定タブで未反映の変更があるか
+            let hiddenChars = new Set(); // 非表示にしたキャラ名の集合（行の作り直し・パネルの開閉をまたいで表示状態を保つ）
             let hiddenColumnLocs = new Set(); // 非表示にしたタブ名の集合（表示切替を軽くするため、大量要素のclassList操作ではなくCSSルールで一括制御する）
             let characters = new Set();
             let currentCropImg = null, currentCropChar = "", currentCropDone = null;
@@ -3012,6 +3088,7 @@
                 getEl('move-mode-btn').onclick = toggleMoveMode;
                 getEl('divider-mode-btn').onclick = toggleDividerMode;
                 initDividerPanel();
+                initSceneList();
                 (function () {
                     const rc = getEl('rows-container');
                     rc.addEventListener('mousemove', onDividerHover);
@@ -3130,6 +3207,16 @@
 
                 getEl('close-char-modal').onclick = () => getEl('char-modal').classList.add('hidden');
                 getEl('close-char-modal-btn').onclick = () => { applyCharStyles(); getEl('char-modal').classList.add('hidden'); };
+                // パネルの外（暗い背景）をクリックしても閉じる。
+                // キャラ設定は、スタイル設定に未反映の変更があれば閉じる前に反映する（表示切替などは操作した時点で反映済み）
+                bindBackdropClose(getEl('char-modal'), () => {
+                    if (charStylesDirty) applyCharStyles();
+                    getEl('char-modal').classList.add('hidden');
+                });
+                bindBackdropClose(getEl('help-modal'), closeHelpModal);
+                bindBackdropClose(getEl('pdf-modal'), closePdfModal);
+                bindBackdropClose(getEl('word-cloud-modal'), () => closePanel(getEl('word-cloud-modal')));
+                // トリミング画面(crop-modal)は、切り抜き作業が消えるのとドラッグ操作が多いので対象外
                 getEl('close-help-modal').onclick = closeHelpModal;
                 getEl('close-help-modal-btn').onclick = closeHelpModal;
 
@@ -3206,6 +3293,7 @@
                 // 栞ボタン
                 getEl('bookmark-toggle-btn').onclick = (e) => {
                     e.stopPropagation();
+                    closeSceneList();
                     const panel = getEl('bookmark-panel');
                     panel.classList.toggle('open');
                     const isOpen = panel.classList.contains('open');
@@ -3466,9 +3554,30 @@
                 el.querySelector('.scene-divider-line-end').innerHTML = dividerLineSVG(dv, 'dvp-' + dv.id + '-e', 'screen');
             }
 
+            const DV_MAX_LABELS = 6;
+            const DV_LABEL_MAX_LEN = 60;
+            // 表示・出力に使うラベル（前後の空白を除き、空は捨てる）。旧データの単一 label も読む
+            function dvLabels(dv) {
+                const src = Array.isArray(dv.labels) ? dv.labels : (typeof dv.label === 'string' ? [dv.label] : []);
+                return src.map(s => String(s).trim()).filter(Boolean);
+            }
+
             function refreshDividerLabel(el, dv) {
-                el.querySelector('.sd-text').textContent = dv.label || '';
-                el.classList.toggle('no-label', !dv.label);
+                const box = el.querySelector('.scene-divider-labels');
+                box.querySelectorAll('.scene-divider-label').forEach(n => n.remove());
+                const delBtn = box.querySelector('.scene-divider-del');
+                const labels = dvLabels(dv);
+                const list = labels.length ? labels : ['']; // ラベルなしでも、区切り線モード中は掴めるように空のラベルを1つ置く
+                list.forEach((text) => {
+                    const pill = document.createElement('span');
+                    pill.className = 'scene-divider-label';
+                    const tx = document.createElement('span');
+                    tx.className = 'sd-text';
+                    tx.textContent = text;
+                    pill.appendChild(tx);
+                    box.insertBefore(pill, delBtn);
+                });
+                el.classList.toggle('no-label', labels.length === 0);
             }
 
             function getDividerEl(id) {
@@ -3477,13 +3586,13 @@
 
             function createDividerEl(dv) {
                 const el = document.createElement('div');
-                el.className = 'scene-divider-row' + (dv.label ? '' : ' no-label');
+                el.className = 'scene-divider-row';
                 el.dataset.divId = dv.id;
                 el.innerHTML = '<span class="scene-divider-line scene-divider-line-start"></span>'
-                    + '<span class="scene-divider-label"><span class="sd-text"></span>'
+                    + '<span class="scene-divider-labels">'
                     + '<button type="button" class="scene-divider-del" title="この区切り線を削除">×</button></span>'
                     + '<span class="scene-divider-line scene-divider-line-end"></span>';
-                el.querySelector('.sd-text').textContent = dv.label || '';
+                refreshDividerLabel(el, dv);
                 renderDividerLines(el, dv);
                 el.querySelector('.scene-divider-del').onclick = (e) => {
                     e.stopPropagation();
@@ -3504,12 +3613,13 @@
                 const existing = sceneDividers.find(d => d.beforeId === beforeId);
                 if (existing) { openDividerPanel(existing.id, false); return; }
                 pushUndo();
-                const dv = { id: nextDividerId(), beforeId: beforeId, label: '' };
+                const dv = { id: nextDividerId(), beforeId: beforeId, labels: [] };
                 sceneDividers.push(dv);
                 const container = getEl('rows-container');
                 const ref = beforeId === null ? null : getEl('row-' + beforeId);
                 container.insertBefore(createDividerEl(dv), ref);
                 updateRowCounter();
+                onDividersChanged();
                 openDividerPanel(dv.id, true); // 線を入れた直後に、スタイル編集パネルを開く（ラベルにフォーカス）
             }
 
@@ -3529,7 +3639,6 @@
             }
 
             function syncDividerPanel(dv) {
-                getEl('dv-label-input').value = dv.label || '';
                 const type = DV_TYPES.some(t => t[0] === dv.line) ? dv.line : 'solid';
                 document.querySelectorAll('.dv-type-btn').forEach(b => b.classList.toggle('active', b.dataset.type === type));
                 const w = Math.max(1, Math.min(10, Math.round(Number(dv.width)) || 2));
@@ -3569,9 +3678,61 @@
                 const panel = getEl('divider-style-panel');
                 panel.style.display = 'flex';
                 positionDividerPanel(el);
-                const input = getEl('dv-label-input');
-                input.focus();
-                input.select();
+                renderDividerLabelInputs(dv);
+                const first = document.querySelector('#dv-label-list .dv-label-input');
+                if (first) { first.focus(); first.select(); }
+            }
+
+            // ラベル入力欄（複数）をパネルに並べ直す。個数が変わるとき（開く・追加・削除）だけ呼ぶ
+            // 文字入力のたびに作り直すと、カーソルが飛ぶため
+            function renderDividerLabelInputs(dv, focusIndex) {
+                if (!Array.isArray(dv.labels)) dv.labels = dvLabels(dv);
+                const list = getEl('dv-label-list');
+                list.innerHTML = '';
+                const arr = dv.labels.length ? dv.labels : [''];
+                arr.forEach((val, i) => {
+                    const row = document.createElement('div');
+                    row.className = 'dv-label-row';
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.className = 'dv-label-input';
+                    input.maxLength = DV_LABEL_MAX_LEN;
+                    input.autocomplete = 'off';
+                    input.placeholder = i === 0 ? '例）シーン2 ／ 翌日（空でもOK）' : 'ラベル' + (i + 1);
+                    input.value = val;
+                    input.oninput = () => applyDividerChange(d => { while (d.labels.length <= i) d.labels.push(''); d.labels[i] = input.value; });
+                    input.onkeydown = (e) => {
+                        e.stopPropagation();
+                        if (e.isComposing || e.keyCode === 229) return; // 日本語入力の変換中は無視
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            const next = list.querySelectorAll('.dv-label-input')[i + 1];
+                            if (next) { next.focus(); next.select(); } else hideDividerPanel(); // 最後の欄でEnterなら閉じる
+                        } else if (e.key === 'Escape') {
+                            e.preventDefault();
+                            if (dvPanelIsNew && !dvPanelTouched) cancelNewDivider(); else hideDividerPanel();
+                        }
+                    };
+                    row.appendChild(input);
+                    if (arr.length > 1) {
+                        const del = document.createElement('button');
+                        del.type = 'button';
+                        del.className = 'dv-label-del';
+                        del.title = 'このラベルを削除';
+                        del.textContent = '×';
+                        del.onclick = () => {
+                            applyDividerChange(d => { d.labels.splice(i, 1); });
+                            renderDividerLabelInputs(currentPanelDivider(), Math.max(0, i - 1));
+                        };
+                        row.appendChild(del);
+                    }
+                    list.appendChild(row);
+                });
+                getEl('dv-label-add').disabled = arr.length >= DV_MAX_LABELS;
+                if (focusIndex !== undefined) {
+                    const target = list.querySelectorAll('.dv-label-input')[focusIndex];
+                    if (target) { target.focus(); target.select(); }
+                }
             }
 
             // パネルを閉じる。ラベルの前後の空白は閉じるときに整える
@@ -3580,11 +3741,13 @@
                 const dv = currentPanelDivider();
                 const el = getDividerEl(dvPanelId);
                 if (dv) {
-                    const trimmed = (dv.label || '').trim();
-                    if (trimmed !== dv.label) { dv.label = trimmed; if (el) refreshDividerLabel(el, dv); }
+                    // 前後の空白を整え、空のラベルは捨てる
+                    const cleaned = dvLabels(dv);
+                    if (JSON.stringify(cleaned) !== JSON.stringify(dv.labels)) { dv.labels = cleaned; if (el) refreshDividerLabel(el, dv); }
                 }
                 getEl('divider-style-panel').style.display = 'none';
                 dvPanelId = null;
+                onDividersChanged();
             }
 
             // 追加した直後で、まだ何も触っていない線をEscで取り消す（追加時に積んだUndoも戻す）
@@ -3598,6 +3761,7 @@
                 sceneDividers = sceneDividers.filter(d => d.id !== id);
                 if (el) el.remove();
                 updateRowCounter();
+                onDividersChanged();
             }
 
             function applyDividerChange(mutator) {
@@ -3608,15 +3772,8 @@
                 mutator(dv);
                 renderDividerLines(el, dv);
                 refreshDividerLabel(el, dv);
-                syncDividerPanelKeepInput(dv);
-            }
-
-            // ラベル入力中に自分で value を書き戻さない（カーソル位置が飛ぶのを防ぐ）
-            function syncDividerPanelKeepInput(dv) {
-                const input = getEl('dv-label-input');
-                const keep = input.value;
                 syncDividerPanel(dv);
-                input.value = keep;
+                onDividersChanged();
             }
 
             function initDividerPanel() {
@@ -3655,16 +3812,17 @@
                     const w = parseInt(e.target.value, 10);
                     applyDividerChange(dv => { dv.width = w; });
                 };
-                const label = getEl('dv-label-input');
-                label.oninput = () => applyDividerChange(dv => { dv.label = label.value; });
-                label.onkeydown = (e) => {
-                    e.stopPropagation();
-                    if (e.isComposing || e.keyCode === 229) return; // 日本語入力の変換中は無視
-                    if (e.key === 'Enter') { e.preventDefault(); hideDividerPanel(); }
-                    else if (e.key === 'Escape') {
-                        e.preventDefault();
-                        if (dvPanelIsNew && !dvPanelTouched) cancelNewDivider(); else hideDividerPanel();
-                    }
+                getEl('dv-label-add').onclick = () => {
+                    const dv = currentPanelDivider();
+                    if (!dv) return;
+                    let idx = 0;
+                    applyDividerChange(d => {
+                        if (!Array.isArray(d.labels)) d.labels = [];
+                        if (d.labels.length === 0) d.labels.push(''); // 画面に出ている空の1つ目を実体にする
+                        if (d.labels.length < DV_MAX_LABELS) d.labels.push('');
+                        idx = d.labels.length - 1;
+                    });
+                    renderDividerLabelInputs(currentPanelDivider(), idx);
                 };
                 getEl('dv-panel-close').onclick = hideDividerPanel;
                 getEl('dv-reset-btn').onclick = () => applyDividerChange(dv => { delete dv.line; delete dv.width; delete dv.color; });
@@ -3675,7 +3833,7 @@
                     deleteDivider(id);
                 };
                 getEl('divider-style-panel').addEventListener('keydown', (e) => {
-                    if (e.target === label) return;
+                    if (e.target.classList && e.target.classList.contains('dv-label-input')) return;
                     if (e.key === 'Escape' && !e.isComposing) hideDividerPanel();
                 });
                 // パネルの外を押したら閉じる（別の発言を押した場合は、閉じてからその位置に新しい線が入る）
@@ -3694,6 +3852,7 @@
                 const el = document.querySelector('.scene-divider-row[data-div-id="' + id + '"]');
                 if (el) el.remove();
                 updateRowCounter();
+                onDividersChanged();
             }
 
             // 発言が削除されたとき、その発言の直前にあった線を「次に残っている発言」の直前へ付け替える（残りが無ければ末尾）
@@ -3714,9 +3873,13 @@
                 sceneDividers = sceneDividers.filter(dv => {
                     const prev = seen.get(dv.beforeId);
                     if (!prev) { seen.set(dv.beforeId, dv); return true; }
-                    if (!prev.label && dv.label) prev.label = dv.label;
+                    // 重なった線のラベルは、重複を除いて合流させる
+                    const merged = dvLabels(prev);
+                    dvLabels(dv).forEach(s => { if (!merged.includes(s) && merged.length < DV_MAX_LABELS) merged.push(s); });
+                    prev.labels = merged;
                     return false;
                 });
+                onDividersChanged();
             }
 
             // 保存データの読み込み時: 壊れた項目を除き、存在しない発言を指す線は末尾扱いにする
@@ -3731,7 +3894,7 @@
                     const item = {
                         id: dv.id,
                         beforeId: (typeof dv.beforeId === 'number' && ids.has(dv.beforeId)) ? dv.beforeId : null,
-                        label: typeof dv.label === 'string' ? dv.label : ''
+                        labels: dvLabels(dv).map(s => s.slice(0, DV_LABEL_MAX_LEN)).slice(0, DV_MAX_LABELS)
                     };
                     if (DV_TYPES.some(t => t[0] === dv.line)) item.line = dv.line;
                     if (typeof dv.width === 'number' && dv.width >= 1 && dv.width <= 10) item.width = Math.round(dv.width);
@@ -3739,6 +3902,119 @@
                     out.push(item);
                 });
                 return out;
+            }
+
+// パネルの外（暗い背景）を押して離したら閉じる共通処理。
+            // パネル内で押してから外へドラッグして離した場合は閉じない（mousedownもclickも背景上のときだけ）
+            function bindBackdropClose(modal, onClose) {
+                if (!modal) return;
+                let downOnBackdrop = false;
+                modal.addEventListener('mousedown', (e) => { downOnBackdrop = (e.target === modal); });
+                modal.addEventListener('click', (e) => {
+                    const ok = downOnBackdrop && e.target === modal;
+                    downOnBackdrop = false;
+                    if (ok) onClose();
+                });
+            }
+
+// ---- シーン一覧（ラベルから区切り線へジャンプ）----
+            function closeSceneList() {
+                const p = getEl('scene-list-panel');
+                if (p) p.classList.remove('open');
+                const b = getEl('scene-list-btn');
+                if (b) b.classList.remove('active');
+            }
+
+            // 区切り線を、並んでいる順（時系列）にそろえる。末尾の線は最後
+            function getOrderedDividers() {
+                const pos = new Map();
+                logData.forEach((d, i) => pos.set(d.id, i));
+                const key = (dv) => (dv.beforeId === null || !pos.has(dv.beforeId)) ? 1e12 : pos.get(dv.beforeId);
+                return sceneDividers.slice().sort((a, b) => key(a) - key(b));
+            }
+
+            function jumpToDivider(id, labelIdx) {
+                const el = getDividerEl(id);
+                if (!el) return;
+                const viewport = getEl('timeline-viewport');
+                const vr = viewport.getBoundingClientRect();
+                const er = el.getBoundingClientRect();
+                const header = getEl('sticky-header');
+                const headerH = header ? header.offsetHeight : 0;
+                viewport.scrollTo({ top: Math.max(0, viewport.scrollTop + (er.top - vr.top) - headerH - 16), behavior: 'smooth' });
+                el.classList.remove('dv-flash');
+                el.querySelectorAll('.dv-flash-pill').forEach(n => n.classList.remove('dv-flash-pill'));
+                void el.offsetWidth; // アニメーションをやり直すためのリフロー
+                el.classList.add('dv-flash');
+                const pill = (typeof labelIdx === 'number') ? el.querySelectorAll('.scene-divider-label')[labelIdx] : null;
+                if (pill) pill.classList.add('dv-flash-pill');
+                setTimeout(() => {
+                    el.classList.remove('dv-flash');
+                    if (pill) pill.classList.remove('dv-flash-pill');
+                }, 2800);
+                if (window.innerWidth < 640) closeSceneList(); // スマホでは一覧が画面を覆うので閉じる
+            }
+
+            function renderSceneList() {
+                const list = getEl('scene-list');
+                list.innerHTML = '';
+                const items = getOrderedDividers();
+                if (!items.length) {
+                    list.innerHTML = '<div class="scene-list-empty">区切り線がありません</div>';
+                    return;
+                }
+                items.forEach((dv, i) => {
+                    const item = document.createElement('div');
+                    item.className = 'scene-item';
+                    if (DV_COLOR_RE.test(dv.color || '')) item.style.borderLeftColor = dv.color;
+                    const num = document.createElement('span');
+                    num.className = 'scene-item-num';
+                    num.textContent = String(i + 1);
+                    const chips = document.createElement('span');
+                    chips.className = 'scene-chips';
+                    const labels = dvLabels(dv);
+                    (labels.length ? labels : ['（ラベルなし）']).forEach((text, li) => {
+                        const chip = document.createElement('button');
+                        chip.type = 'button';
+                        chip.className = 'scene-chip' + (labels.length ? '' : ' empty');
+                        chip.textContent = text;
+                        chip.title = text;
+                        chip.onclick = (e) => { e.stopPropagation(); jumpToDivider(dv.id, labels.length ? li : undefined); };
+                        chips.appendChild(chip);
+                    });
+                    item.appendChild(num);
+                    item.appendChild(chips);
+                    item.onclick = () => jumpToDivider(dv.id);
+                    list.appendChild(item);
+                });
+            }
+
+            // 区切り線が増減・変更したとき: 一覧ボタンの出し分けと、開いている一覧の更新
+            function onDividersChanged() {
+                const btn = getEl('scene-list-btn');
+                if (!btn) return;
+                btn.style.display = sceneDividers.length ? '' : 'none';
+                const panel = getEl('scene-list-panel');
+                if (!sceneDividers.length) closeSceneList();
+                else if (panel.classList.contains('open')) renderSceneList();
+            }
+
+            function initSceneList() {
+                getEl('scene-list-btn').onclick = (e) => {
+                    e.stopPropagation();
+                    const panel = getEl('scene-list-panel');
+                    const willOpen = !panel.classList.contains('open');
+                    // 栞パネルと同じ場所に出るので、どちらか一方だけ開く
+                    getEl('bookmark-panel').classList.remove('open');
+                    getEl('bookmark-toggle-btn').classList.remove('active');
+                    panel.classList.toggle('open', willOpen);
+                    getEl('scene-list-btn').classList.toggle('active', willOpen);
+                    if (willOpen) renderSceneList();
+                };
+                document.addEventListener('click', (e) => {
+                    const panel = getEl('scene-list-panel');
+                    if (panel.classList.contains('open') && !panel.contains(e.target) && !e.target.closest('#scene-list-btn')) closeSceneList();
+                });
             }
 
             function addColumn() {
@@ -4146,6 +4422,7 @@
                 allLocations   = JSON.parse(locRaw);
                 logData        = JSON.parse(logRaw);
                 sceneDividers  = sanitizeDividers(JSON.parse(doc.getElementById('scene-dividers-storage')?.textContent || '[]'));
+                hiddenChars.clear();
                 sourceFileName = JSON.parse(nameRaw);
                 charStyles     = JSON.parse(charStylesRaw);
                 charGroups     = JSON.parse(charGroupsRaw);
@@ -4370,6 +4647,7 @@
                 if (!isAppendLoad || logData.length === 0) {
                     logData = tempLogData;
                     sceneDividers = [];
+                    hiddenChars.clear();
                     characters.clear();
                     logData.forEach((d) => characters.add(d.char));
                     finishParsing(locSet);
@@ -4440,11 +4718,13 @@
                 sceneDividers.forEach((dv) => { if (dv.beforeId === null) rowBatchFragment.appendChild(createDividerEl(dv)); });
                 getEl('rows-container').appendChild(rowBatchFragment);
                 rowBatchFragment = null;
+                onDividersChanged();
             }
 
             function createRow(idx, loc, char, color, msg, style = {}, icon = null, time = null) {
                 const row = document.createElement('div');
                 row.className = 'timeline-row'; row.id = `row-${idx}`; row.setAttribute('data-char', char); row.setAttribute('data-loc', loc);
+                if (hiddenChars.has(char)) row.classList.add('hidden');
                 const safeCharClass = getSafeClassName(char);
 
                 const displayMsg = formatDiceLines(applyRubyMarkup(msg));
@@ -5129,7 +5409,7 @@
                 // イベント設定
                 container.querySelectorAll('.char-font-select').forEach(sel => {
                     sel.onchange = () => {
-                        const c = sel.dataset.char;
+                        const c = sel.dataset.char; charStylesDirty = true;
                         if (!charStyles[c]) charStyles[c] = {};
                         charStyles[c].font = sel.value;
                         // グループメンバーにも伝播
@@ -5138,7 +5418,7 @@
                 });
                 container.querySelectorAll('.char-bg-btn').forEach(btn => {
                     btn.onclick = () => {
-                        const c = btn.dataset.char;
+                        const c = btn.dataset.char; charStylesDirty = true;
                         if (!charStyles[c]) charStyles[c] = {};
                         charStyles[c].bg = btn.dataset.val;
                         if (charGroups[c]) charGroups[c].forEach(m => { if (!charStyles[m]) charStyles[m] = {}; charStyles[m].bg = btn.dataset.val; });
@@ -5147,7 +5427,7 @@
                 });
                 container.querySelectorAll('.char-bg-custom').forEach(inp => {
                     inp.oninput = () => {
-                        const c = inp.dataset.char;
+                        const c = inp.dataset.char; charStylesDirty = true;
                         if (!charStyles[c]) charStyles[c] = {};
                         charStyles[c].bg = inp.value;
                         if (charGroups[c]) charGroups[c].forEach(m => { if (!charStyles[m]) charStyles[m] = {}; charStyles[m].bg = inp.value; });
@@ -5155,7 +5435,7 @@
                 });
                 container.querySelectorAll('.char-bold-cb').forEach(cb => {
                     cb.onchange = () => {
-                        const c = cb.dataset.char;
+                        const c = cb.dataset.char; charStylesDirty = true;
                         if (!charStyles[c]) charStyles[c] = {};
                         charStyles[c].bold = cb.checked;
                         if (charGroups[c]) charGroups[c].forEach(m => { if (!charStyles[m]) charStyles[m] = {}; charStyles[m].bold = cb.checked; });
@@ -5164,6 +5444,7 @@
             }
 
             function applyCharStyles() {
+                charStylesDirty = false;
                 logData.forEach((d, i) => {
                     const leader = getGroupLeader(d.char);
                     const cs = charStyles[leader] || charStyles[d.char];
@@ -5182,8 +5463,12 @@
                 const container = getEl('char-checkbox-container'); container.innerHTML = '';
                 Array.from(characters).sort().forEach(name => {
                     const label = document.createElement('label'); label.className = 'flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-xl cursor-pointer text-sm font-medium';
-                    const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = true; cb.className = 'w-4 h-4 rounded text-blue-600';
-                    cb.onchange = () => { document.querySelectorAll(`.timeline-row[data-char="${name}"]`).forEach(r => r.classList.toggle('hidden', !cb.checked)); updateRowCounter(); };
+                    const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !hiddenChars.has(name); cb.className = 'w-4 h-4 rounded text-blue-600';
+                    cb.onchange = () => {
+                        if (cb.checked) hiddenChars.delete(name); else hiddenChars.add(name);
+                        document.querySelectorAll(`.timeline-row[data-char="${escapeAttrValue(name)}"]`).forEach(r => r.classList.toggle('hidden', !cb.checked));
+                        updateRowCounter();
+                    };
                     label.appendChild(cb); label.appendChild(document.createTextNode(name)); container.appendChild(label);
                 });
                 getEl('btn-all-select').onclick = () => container.querySelectorAll('input').forEach(c => { c.checked = true; c.dispatchEvent(new Event('change')); });
@@ -5509,8 +5794,9 @@
                     (printDivBefore.get(m.id) || []).forEach(dv => {
                         const dEl = document.createElement('div');
                         dEl.className = 'print-divider';
+                        const lbls = dvLabels(dv);
                         dEl.innerHTML = '<span class="print-divider-line">' + dividerLineSVG(dv, 'ppd-' + dv.id + '-a', 'print') + '</span>'
-                            + (dv.label ? '<span class="print-divider-label">' + escapeHtml(dv.label) + '</span><span class="print-divider-line">' + dividerLineSVG(dv, 'ppd-' + dv.id + '-b', 'print') + '</span>' : '');
+                            + (lbls.length ? '<span class="print-divider-labels">' + lbls.map(s => '<span class="print-divider-label">' + escapeHtml(s) + '</span>').join('') + '</span><span class="print-divider-line">' + dividerLineSVG(dv, 'ppd-' + dv.id + '-b', 'print') + '</span>' : '');
                         container.appendChild(dEl);
                     });
                     const isMain = mainLocs.includes(m.loc);
@@ -5712,7 +5998,7 @@
                     if (dv) pending.push(dv);
                     if (d.loc === loc) {
                         // このタブに発言が無い区間で線が連続した場合は、ラベル付きだけを残す（全部ラベル無しなら1本）
-                        const labeled = pending.filter(p => p.label);
+                        const labeled = pending.filter(p => dvLabels(p).length);
                         const toShow = labeled.length ? labeled : pending.slice(0, 1);
                         toShow.forEach(p => out.push(fmtDivider(p)));
                         pending = [];
@@ -5728,7 +6014,7 @@
                     const rows = exportRowsWithDividers(loc, (d) => {
                         const content = cleanText(d.msg || d.rawMsg);
                         return formatMultilineText(content, `${d.char}: `);
-                    }, (dv) => dv.label ? `━━━━ ${dv.label} ━━━━` : '━━━━━━━━━━━━');
+                    }, (dv) => dvLabels(dv).length ? `━━━━ ${dvLabels(dv).join(' / ')} ━━━━` : '━━━━━━━━━━━━');
                     return `== ${loc} ==\n\n${rows.join('\n\n')}`;
                 }).join('\n\n');
             }
@@ -5740,7 +6026,7 @@
                         const content = cleanText(d.msg || d.rawMsg);
                         const formatted = content.split('\n').map((line, index) => index === 0 ? line : `    ${line}`).join('  \n');
                         return `- **${d.char}**: ${formatted}`;
-                    }, (dv) => '\n---\n' + (dv.label ? `\n**▼ ${dv.label}**\n` : ''));
+                    }, (dv) => '\n---\n' + (dvLabels(dv).length ? `\n**▼ ${dvLabels(dv).join(' / ')}**\n` : ''));
                     return `## ${loc}\n\n${rows.join('\n')}`;
                 }).join('\n\n');
             }
@@ -5864,6 +6150,8 @@
                             // 栞パネルは閉じた状態で保存
                             const cloneBmPanel = clone.querySelector('#bookmark-panel');
                             if (cloneBmPanel) cloneBmPanel.classList.remove('open');
+                            const cloneScPanel = clone.querySelector('#scene-list-panel');
+                            if (cloneScPanel) cloneScPanel.classList.remove('open');
                             
                             // Remove loading overlay from the saved file
                             const cloneLoading = clone.querySelector('#loading-overlay');
