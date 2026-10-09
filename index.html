@@ -121,13 +121,12 @@
             gap: 10px;
             padding: 14px 12px;
         }
-        .scene-divider-line {
-            height: 0;
-            border-top: 2px solid rgba(255, 255, 255, 0.9);
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
-        }
+        .scene-divider-line { line-height: 0; min-width: 0; }
         .scene-divider-line-start { flex: 0 0 24px; }
-        .scene-divider-line-end { flex: 1 1 auto; }
+        .scene-divider-line-end { flex: 1 1 0%; }
+        .dv-svg { display: block; overflow: hidden; }
+        .dv-svg.dv-default { color: rgba(255, 255, 255, 0.92); filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.3)); }
+        .dv-svg.dv-print { color: #94a3b8; }
         .scene-divider-label {
             /* 横スクロールしても見える位置に貼り付ける（12px余白+24px線+10px間隔） */
             position: sticky;
@@ -164,22 +163,6 @@
             justify-content: center;
         }
         .scene-divider-del:hover { background: #fda4af; }
-        /* その場でラベル入力中 */
-        .scene-divider-row.editing .scene-divider-label { box-shadow: 0 0 0 2px #f43f5e; }
-        .scene-divider-row.no-label.editing .scene-divider-line-start { display: block; }
-        .scene-divider-row.no-label.editing .scene-divider-label { display: inline-flex; }
-        .scene-divider-label .sd-input {
-            border: none;
-            outline: none;
-            background: transparent;
-            font: inherit;
-            color: inherit;
-            width: 14em;
-            max-width: 60vw;
-            padding: 0;
-        }
-        @media (pointer: coarse) { .scene-divider-label .sd-input { font-size: 16px; } } /* iOSのフォーカス時ズーム対策 */
-        /* ラベルなしの線は、通常時は線だけ。区切り線モード中だけ掴めるように見せる */
         .scene-divider-row.no-label .scene-divider-line-start,
         .scene-divider-row.no-label .scene-divider-label { display: none; }
         body.divider-mode-active .scene-divider-row.no-label .scene-divider-line-start { display: block; }
@@ -192,7 +175,7 @@
         body.divider-mode-active .timeline-row .bubble { cursor: crosshair; }
         .timeline-row.divider-hover-top { box-shadow: 0 -2px 0 0 #f43f5e; }
         .timeline-row.divider-hover-bottom { box-shadow: 0 2px 0 0 #f43f5e; }
-        body.dark-mode .scene-divider-line { border-top-color: rgba(226, 232, 240, 0.45); box-shadow: none; }
+        body.dark-mode .dv-svg.dv-default { color: rgba(226, 232, 240, 0.45); filter: none; }
         body.dark-mode .scene-divider-label { background: var(--dm-panel); color: var(--dm-text); }
         /* PDF印刷用 */
         .print-divider {
@@ -204,7 +187,7 @@
             break-after: avoid;
             page-break-after: avoid;
         }
-        .print-divider-line { flex: 1; height: 0; border-top: 1.5px solid #94a3b8; }
+        .print-divider-line { flex: 1; min-width: 0; line-height: 0; }
         .print-divider-label {
             font-size: 8.5pt;
             font-weight: 700;
@@ -217,6 +200,58 @@
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
         }
+
+        /* 区切り線スタイルパネル（スタイル編集パネルと同じ見た目） */
+        #divider-style-panel {
+            position: fixed;
+            z-index: 200;
+            width: 264px;
+            max-width: calc(100vw - 16px);
+            background: white;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15);
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            animation: fadeIn 0.15s ease-out;
+            color: #334155;
+        }
+        .dv-panel-label { display: flex; justify-content: space-between; font-size: 10px; font-weight: 700; color: #94a3b8; margin-bottom: 4px; }
+        #dv-label-input {
+            width: 100%; border: 1px solid #e2e8f0; border-radius: 8px; padding: 6px 8px;
+            font-size: 13px; outline: none; background: #fff; color: #1e293b;
+        }
+        #dv-label-input:focus { border-color: #f43f5e; }
+        @media (pointer: coarse) { #dv-label-input { font-size: 16px; } } /* iOSのフォーカス時ズーム対策 */
+        .dv-type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+        .dv-type-btn {
+            display: flex; flex-direction: column; gap: 3px; padding: 6px 4px 4px;
+            border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; cursor: pointer;
+            font-size: 11px; font-weight: 600; color: #64748b; text-align: center; transition: all 0.1s;
+        }
+        .dv-type-btn:hover { background: #f8fafc; }
+        .dv-type-btn.active { background: #fff1f2; border-color: #f43f5e; color: #e11d48; }
+        .dv-type-btn .dv-svg { color: #64748b; }
+        .dv-type-btn.active .dv-svg { color: #e11d48; }
+        #dv-width-range { width: 100%; accent-color: #f43f5e; }
+        .dv-color-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; justify-items: start; }
+        .dv-color-btn {
+            width: 24px; height: 24px; border-radius: 6px; cursor: pointer;
+            border: 1px solid rgba(0,0,0,0.12); position: relative; overflow: hidden; transition: transform 0.1s;
+        }
+        .dv-color-btn:hover { transform: scale(1.15); }
+        .dv-color-btn.selected { outline: 2px solid #3b82f6; outline-offset: 1px; }
+        .dv-panel-foot { display: flex; justify-content: space-between; padding-top: 4px; border-top: 1px solid #e2e8f0; }
+        .dv-panel-foot button { font-size: 12px; color: #94a3b8; padding: 4px 6px; }
+        #dv-reset-btn:hover { color: #475569; }
+        #dv-delete-btn:hover { color: #ef4444; }
+        body.dark-mode #divider-style-panel { background: var(--dm-panel); border-color: var(--dm-border); color: var(--dm-text); }
+        body.dark-mode #dv-label-input { background: var(--dm-panel-soft); border-color: var(--dm-border); color: var(--dm-text); }
+        body.dark-mode .dv-type-btn { background: var(--dm-panel-soft); border-color: var(--dm-border); }
+        body.dark-mode .dv-type-btn.active { background: #4c0519; border-color: #f43f5e; }
+        body.dark-mode .dv-panel-foot { border-color: var(--dm-border); }
 
         /* Highlight Animation */
         @keyframes pulse-yellow {
@@ -800,7 +835,7 @@
             .header-nav, #filter-container, #jump-controls,
             #settings-panel, #row-counter, .mobile-nav,
             #setup-screen, #home-view, #char-modal, #crop-modal,
-            #pdf-modal, #loading-overlay, #style-context-menu { display: none !important; }
+            #pdf-modal, #loading-overlay, #style-context-menu, #divider-style-panel { display: none !important; }
 
             body, html {
                 overflow: visible !important;
@@ -1795,7 +1830,7 @@
     // ↓公開リリースノートはここだよ。更新しようね。
     const APP_VERSION = '1.9.9';
     const RELEASE_NOTES = [
-        { version: '1.9.9', description: 'シーンの切れ目に、ラベル付きの区切り線を入れられる「区切り線モード」を追加しました。編集ボタン内の区切り線ボタンを押し、線を入れたい位置の発言をクリックすると、その場でラベルを入力できます。保存したHTML・PDF・テキスト/Markdown出力にも反映されます。' },
+        { version: '1.9.9', description: 'シーンの切れ目に、ラベル付きの区切り線を入れられる「区切り線モード」を追加しました。編集ボタン内の区切り線ボタンを押し、線を入れたい位置の発言をクリックすると出るパネルで、ラベル・線の種類（線／破線／点線／波線／二重線／ジグザグ線）・太さ・色を設定できます。保存したHTML・PDF・テキスト/Markdown出力にも反映されます。' },
         { version: '1.9.8', description: 'ルビ振りに対応しました。文字編集モードで「｜文字《ルビ》」と入力するか、文字を選択して「文字《ルビ》」ボタンを押すとルビを振れます。' },
         { version: '1.9.7', description: '複数セッションのログを1つに結合できる「追加読み込み」機能を追加しました。末尾と先頭が重なっている場合は自動で重複を除いて繋げ、結果を画面上部のテロップでお知らせします（ヘッダーの＋アイコンから）。' },
         { version: '1.9.6', description: 'ログ編集画面にダークモードを追加しました。設定パネルのスイッチでいつでも切り替えられます。' },
@@ -1883,7 +1918,7 @@
         { category: '🖥️ 表示・レイアウト', title: 'UI/ナビゲーション', description: 'スクロールカウンター、タブナビ、スティッキーなヘッダー、モバイル対応ボタンなどを実装しています。' },
         { category: '✏️ 編集機能', title: '編集機能', description: '発言の直接編集、削除、マーカー装飾、タブ間移動、コンテキストメニューでのスタイル適用が可能です。' },
         { category: '✏️ 編集機能', title: 'Undo / 巻き戻し', description: '最大10件のUndo履歴を保存し、削除・移動・編集を元に戻せるようにしました。' },
-        { category: '✏️ 編集機能', title: 'シーン区切り線', description: '区切り線モードで発言の間をクリックすると、ラベル付きの区切り線を入れられます。保存HTML・PDF・テキスト/Markdown出力にも反映されます。' },
+        { category: '✏️ 編集機能', title: 'シーン区切り線', description: '区切り線モードで発言の間をクリックすると区切り線を入れられます。ラベルのほか、線の種類（線・破線・点線・波線・二重線・ジグザグ線）・太さ・色をパネルで変更できます。保存HTML・PDF・テキスト/Markdown出力にも反映されます。' },
         { category: '✏️ 編集機能', title: 'ルビ振り', description: '文字編集モードで「｜文字《ルビ》」と入力するか、文字を選択してボタンを押すとルビを振れます。' },
         { category: '✏️ 編集機能', title: 'キャラクタースタイル', description: 'キャラクターごとにフォント、背景色、太字を設定し、スタイルのグループ共有や統合も可能です。' },
         { category: '🔍 検索・目印', title: '検索', description: 'キーワード検索で該当発言へジャンプでき、PC・モバイル両方の画面で使えます。' },
@@ -2123,6 +2158,33 @@
             </div>
             <div class="pt-1 border-t mt-2">
                 <button id="ctx-reset-btn" class="w-full text-xs text-slate-400 hover:text-red-500 py-1">リセット</button>
+            </div>
+        </div>
+
+        <div id="divider-style-panel">
+            <div class="flex justify-between items-center border-b pb-2 mb-2">
+                <span class="text-xs font-bold text-slate-500">区切り線の編集</span>
+                <button id="dv-panel-close" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" size="14"></i></button>
+            </div>
+            <div>
+                <span class="dv-panel-label">ラベル</span>
+                <input id="dv-label-input" type="text" maxlength="60" placeholder="例）シーン2 ／ 翌日（空でもOK）" autocomplete="off">
+            </div>
+            <div>
+                <span class="dv-panel-label">線の種類</span>
+                <div id="dv-type-grid" class="dv-type-grid"></div>
+            </div>
+            <div>
+                <span class="dv-panel-label"><span>太さ</span><span id="dv-width-val">2px</span></span>
+                <input id="dv-width-range" type="range" min="1" max="10" step="1" value="2">
+            </div>
+            <div>
+                <span class="dv-panel-label">色</span>
+                <div id="dv-colors" class="dv-color-grid"></div>
+            </div>
+            <div class="dv-panel-foot">
+                <button id="dv-reset-btn" type="button">見た目をリセット</button>
+                <button id="dv-delete-btn" type="button">この線を削除</button>
             </div>
         </div>
 
@@ -2571,6 +2633,7 @@
                 const snapshot = undoStack.pop();
                 logData = snapshot.logData;
                 sceneDividers = snapshot.sceneDividers || [];
+                hideDividerPanel();
                 allLocations = snapshot.allLocations;
                 characters.clear();
                 logData.forEach(d => characters.add(d.char));
@@ -2948,6 +3011,7 @@
                 getEl('undo-btn').onclick = undo;
                 getEl('move-mode-btn').onclick = toggleMoveMode;
                 getEl('divider-mode-btn').onclick = toggleDividerMode;
+                initDividerPanel();
                 (function () {
                     const rc = getEl('rows-container');
                     rc.addEventListener('mousemove', onDividerHover);
@@ -3300,9 +3364,10 @@
                 getEl('divider-mode-btn').classList.toggle('active', isDividerMode);
                 document.body.classList.toggle('divider-mode-active', isDividerMode);
                 if (isDividerMode) {
-                    showAppToast('➖ 線を入れたい位置の発言をクリック（上半分＝その上／下半分＝その下）。ラベルはその場で入力、Enterで確定', 5000);
+                    showAppToast('➖ 線を入れたい位置の発言をクリック（上半分＝その上／下半分＝その下）。ラベルや見た目は出てくるパネルで編集できます', 5000);
                 } else {
                     clearDividerHover();
+                    hideDividerPanel();
                 }
             }
 
@@ -3350,31 +3415,94 @@
                 return sceneDividers.length ? Math.max(...sceneDividers.map(d => d.id)) + 1 : 1;
             }
 
+            // ---- 区切り線の描画（SVG）----
+            const DV_TYPES = [['solid', '線'], ['dashed', '破線'], ['dotted', '点線'], ['wavy', '波線'], ['double', '二重線'], ['zigzag', 'ジグザグ線']];
+            const DV_COLOR_PALETTE = ['', '#1e293b', '#ef4444', '#f97316', '#facc15', '#22c55e', '#3b82f6', '#a855f7', '#ec4899'];
+            const DV_COLOR_RE = /^#[0-9a-fA-F]{3,8}$/;
+
+            // mode: 'screen'(既定色=白+影) / 'print'(既定色=グレー) / 'preview'(パネルのボタン用。色はCSSで決める)
+            function dividerLineSVG(dv, uid, mode) {
+                const type = DV_TYPES.some(t => t[0] === dv.line) ? dv.line : 'solid';
+                const w = Math.max(1, Math.min(10, Math.round(Number(dv.width)) || 2));
+                const color = DV_COLOR_RE.test(dv.color || '') ? dv.color : '';
+                const A = 2 + w * 0.8; // 波・ジグザグの振れ幅
+                const f = (n) => Math.round(n * 100) / 100;
+                const mod2 = (k) => ((k % 2) + 2) % 2;
+                let H, inner;
+                if (type === 'wavy') {
+                    const P = f(A * 4 + 4); H = f(A * 2 + w + 4); const mid = f(H / 2);
+                    let d = 'M ' + f(-P / 2) + ' ' + mid;
+                    for (let k = -1; k <= 2; k++) {
+                        const s = mod2(k) === 0 ? -1 : 1;
+                        d += ' Q ' + f(k * P / 2 + P / 4) + ' ' + f(mid + s * 2 * A) + ' ' + f(k * P / 2 + P / 2) + ' ' + mid;
+                    }
+                    inner = '<defs><pattern id="' + uid + '" patternUnits="userSpaceOnUse" width="' + P + '" height="' + H + '"><path d="' + d + '" fill="none" stroke="currentColor" stroke-width="' + w + '"/></pattern></defs>'
+                        + '<rect x="0" y="0" width="100%" height="' + H + '" fill="url(#' + uid + ')"/>';
+                } else if (type === 'zigzag') {
+                    const P = f(A * 4); H = f(A * 2 + w * 2 + 4); const mid = f(H / 2);
+                    const pts = [];
+                    for (let k = -1; k <= 3; k++) pts.push(f(k * P / 2) + ',' + f(mid + (mod2(k) === 0 ? A : -A)));
+                    inner = '<defs><pattern id="' + uid + '" patternUnits="userSpaceOnUse" width="' + P + '" height="' + H + '"><polyline points="' + pts.join(' ') + '" fill="none" stroke="currentColor" stroke-width="' + w + '" stroke-linejoin="miter" stroke-miterlimit="10"/></pattern></defs>'
+                        + '<rect x="0" y="0" width="100%" height="' + H + '" fill="url(#' + uid + ')"/>';
+                } else if (type === 'double') {
+                    const gap = f(w * 1.6 + 1.5); H = f(w * 2 + gap + 4);
+                    const y1 = f(H / 2 - gap / 2), y2 = f(H / 2 + gap / 2);
+                    inner = '<line x1="0" y1="' + y1 + '" x2="100%" y2="' + y1 + '" stroke="currentColor" stroke-width="' + w + '"/>'
+                        + '<line x1="0" y1="' + y2 + '" x2="100%" y2="' + y2 + '" stroke="currentColor" stroke-width="' + w + '"/>';
+                } else {
+                    H = w + 4; const y = f(H / 2);
+                    let extra = '', x1 = 0;
+                    if (type === 'dashed') extra = ' stroke-dasharray="' + f(w * 4) + ' ' + f(w * 2.5) + '"';
+                    if (type === 'dotted') { extra = ' stroke-linecap="round" stroke-dasharray="0.01 ' + f(w * 2 + 2) + '"'; x1 = f(w / 2); }
+                    inner = '<line x1="' + x1 + '" y1="' + y + '" x2="100%" y2="' + y + '" stroke="currentColor" stroke-width="' + w + '"' + extra + '/>';
+                }
+                const cls = 'dv-svg' + (color ? '' : (mode === 'print' ? ' dv-print' : (mode === 'preview' ? '' : ' dv-default')));
+                return '<svg class="' + cls + '" xmlns="http://www.w3.org/2000/svg" width="100%" height="' + H + '"'
+                    + (color && mode !== 'preview' ? ' style="color:' + color + '"' : '') + ' aria-hidden="true" focusable="false">' + inner + '</svg>';
+            }
+
+            function renderDividerLines(el, dv) {
+                el.querySelector('.scene-divider-line-start').innerHTML = dividerLineSVG(dv, 'dvp-' + dv.id + '-s', 'screen');
+                el.querySelector('.scene-divider-line-end').innerHTML = dividerLineSVG(dv, 'dvp-' + dv.id + '-e', 'screen');
+            }
+
+            function refreshDividerLabel(el, dv) {
+                el.querySelector('.sd-text').textContent = dv.label || '';
+                el.classList.toggle('no-label', !dv.label);
+            }
+
+            function getDividerEl(id) {
+                return document.querySelector('.scene-divider-row[data-div-id="' + id + '"]');
+            }
+
             function createDividerEl(dv) {
                 const el = document.createElement('div');
                 el.className = 'scene-divider-row' + (dv.label ? '' : ' no-label');
                 el.dataset.divId = dv.id;
                 el.innerHTML = '<span class="scene-divider-line scene-divider-line-start"></span>'
-                    + '<span class="scene-divider-label"><span class="sd-text">' + escapeHtml(dv.label || '') + '</span>'
+                    + '<span class="scene-divider-label"><span class="sd-text"></span>'
                     + '<button type="button" class="scene-divider-del" title="この区切り線を削除">×</button></span>'
                     + '<span class="scene-divider-line scene-divider-line-end"></span>';
-                el.querySelector('.sd-text').onclick = (e) => {
-                    if (!isDividerMode) return;
-                    e.stopPropagation();
-                    editDividerLabel(dv.id);
-                };
+                el.querySelector('.sd-text').textContent = dv.label || '';
+                renderDividerLines(el, dv);
                 el.querySelector('.scene-divider-del').onclick = (e) => {
                     e.stopPropagation();
+                    if (dvPanelId === dv.id) hideDividerPanel();
                     deleteDivider(dv.id);
                 };
+                // 区切り線モード中は、線やラベルをクリックでスタイル編集パネルを開く
+                el.addEventListener('click', (e) => {
+                    if (!isDividerMode) return;
+                    if (e.target.closest('.scene-divider-del')) return;
+                    e.stopPropagation();
+                    openDividerPanel(dv.id, false);
+                });
                 return el;
             }
 
             function addDividerAt(beforeId) {
-                if (sceneDividers.some(d => d.beforeId === beforeId)) {
-                    showAppToast('➖ そこにはすでに区切り線があります（ラベルをクリックで編集できます）');
-                    return;
-                }
+                const existing = sceneDividers.find(d => d.beforeId === beforeId);
+                if (existing) { openDividerPanel(existing.id, false); return; }
                 pushUndo();
                 const dv = { id: nextDividerId(), beforeId: beforeId, label: '' };
                 sceneDividers.push(dv);
@@ -3382,60 +3510,182 @@
                 const ref = beforeId === null ? null : getEl('row-' + beforeId);
                 container.insertBefore(createDividerEl(dv), ref);
                 updateRowCounter();
-                startDividerInlineEdit(dv.id, true); // 線を入れた直後に、その場でラベルを入力できる
+                openDividerPanel(dv.id, true); // 線を入れた直後に、スタイル編集パネルを開く（ラベルにフォーカス）
             }
 
-            function editDividerLabel(id) {
-                startDividerInlineEdit(id, false);
+            // ---- 区切り線スタイル編集パネル ----
+            let dvPanelId = null;        // 編集中の線のid
+            let dvPanelIsNew = false;    // 追加した直後か
+            let dvPanelUndoPushed = false; // このパネル操作ぶんのUndoを積んだか（1回の編集セッションで1件にまとめる）
+            let dvPanelTouched = false;  // 何か変更したか
+
+            function currentPanelDivider() {
+                return dvPanelId === null ? null : (sceneDividers.find(d => d.id === dvPanelId) || null);
             }
 
-            // 区切り線のラベルをその場で入力する（Enter=確定 / Esc=キャンセル / フォーカスが外れたら確定）。
-            // 日本語入力の変換中のEnter(isComposing)では確定しない。
-            // isNew=true は「線を追加した直後」: Escなら線ごと取り消し（追加時に積んだUndoも戻す）
-            function startDividerInlineEdit(id, isNew) {
-                const el = document.querySelector('.scene-divider-row[data-div-id="' + id + '"]');
+            function ensureDividerUndo() {
+                if (!dvPanelUndoPushed) { pushUndo(); dvPanelUndoPushed = true; }
+                dvPanelTouched = true;
+            }
+
+            function syncDividerPanel(dv) {
+                getEl('dv-label-input').value = dv.label || '';
+                const type = DV_TYPES.some(t => t[0] === dv.line) ? dv.line : 'solid';
+                document.querySelectorAll('.dv-type-btn').forEach(b => b.classList.toggle('active', b.dataset.type === type));
+                const w = Math.max(1, Math.min(10, Math.round(Number(dv.width)) || 2));
+                getEl('dv-width-range').value = w;
+                getEl('dv-width-val').textContent = w + 'px';
+                const col = DV_COLOR_RE.test(dv.color || '') ? dv.color.toLowerCase() : '';
+                document.querySelectorAll('.dv-color-btn[data-val]').forEach(b => b.classList.toggle('selected', b.dataset.val === col));
+                const custom = getEl('dv-custom-color');
+                if (custom && /^#[0-9a-f]{6}$/.test(col)) custom.value = col;
+            }
+
+            function positionDividerPanel(el) {
+                const panel = getEl('divider-style-panel');
+                const anchor = el.querySelector('.scene-divider-label') || el;
+                const rect = anchor.getBoundingClientRect();
+                const pw = panel.offsetWidth, ph = panel.offsetHeight;
+                let left = rect.left;
+                if (left + pw > window.innerWidth - 8) left = window.innerWidth - pw - 8;
+                if (window.innerWidth < 640) left = Math.max(8, (window.innerWidth - pw) / 2);
+                let top = rect.bottom + 8;
+                if (top + ph > window.innerHeight - 8) top = rect.top - ph - 8;
+                top = Math.max(8, Math.min(top, window.innerHeight - ph - 8));
+                panel.style.left = Math.max(8, left) + 'px';
+                panel.style.top = top + 'px';
+            }
+
+            function openDividerPanel(id, isNew) {
                 const dv = sceneDividers.find(d => d.id === id);
-                if (!el || !dv || el.classList.contains('editing')) return;
-                el.classList.add('editing');
-                const text = el.querySelector('.sd-text');
-                const input = document.createElement('input');
-                input.type = 'text';
-                input.className = 'sd-input';
-                input.value = dv.label || '';
-                input.placeholder = 'ラベル（空でもOK）';
-                input.maxLength = 60;
-                text.style.display = 'none';
-                text.after(input);
+                const el = getDividerEl(id);
+                if (!dv || !el) return;
+                if (dvPanelId !== null && dvPanelId !== id) hideDividerPanel();
+                dvPanelId = id;
+                dvPanelIsNew = !!isNew;
+                dvPanelUndoPushed = !!isNew; // 追加直後は、追加時に積んだUndoがすでにある
+                dvPanelTouched = false;
+                syncDividerPanel(dv);
+                const panel = getEl('divider-style-panel');
+                panel.style.display = 'flex';
+                positionDividerPanel(el);
+                const input = getEl('dv-label-input');
                 input.focus();
                 input.select();
-                let done = false;
-                const finish = (commit) => {
-                    if (done) return;
-                    done = true;
-                    if (commit) {
-                        const val = input.value.trim();
-                        if (val !== (dv.label || '')) {
-                            if (!isNew) pushUndo();
-                            dv.label = val;
-                        }
-                    } else if (isNew) {
-                        undoStack.pop();
-                        updateUndoBtn();
-                        sceneDividers = sceneDividers.filter(d => d.id !== id);
-                        el.remove();
-                        updateRowCounter();
-                        return;
-                    }
-                    el.replaceWith(createDividerEl(dv));
-                };
-                input.addEventListener('keydown', (e) => {
-                    e.stopPropagation();
-                    if (e.isComposing || e.keyCode === 229) return;
-                    if (e.key === 'Enter') { e.preventDefault(); finish(true); }
-                    else if (e.key === 'Escape') { e.preventDefault(); finish(false); }
+            }
+
+            // パネルを閉じる。ラベルの前後の空白は閉じるときに整える
+            function hideDividerPanel() {
+                if (dvPanelId === null) return;
+                const dv = currentPanelDivider();
+                const el = getDividerEl(dvPanelId);
+                if (dv) {
+                    const trimmed = (dv.label || '').trim();
+                    if (trimmed !== dv.label) { dv.label = trimmed; if (el) refreshDividerLabel(el, dv); }
+                }
+                getEl('divider-style-panel').style.display = 'none';
+                dvPanelId = null;
+            }
+
+            // 追加した直後で、まだ何も触っていない線をEscで取り消す（追加時に積んだUndoも戻す）
+            function cancelNewDivider() {
+                const id = dvPanelId;
+                const el = getDividerEl(id);
+                getEl('divider-style-panel').style.display = 'none';
+                dvPanelId = null;
+                undoStack.pop();
+                updateUndoBtn();
+                sceneDividers = sceneDividers.filter(d => d.id !== id);
+                if (el) el.remove();
+                updateRowCounter();
+            }
+
+            function applyDividerChange(mutator) {
+                const dv = currentPanelDivider();
+                const el = dv ? getDividerEl(dv.id) : null;
+                if (!dv || !el) return;
+                ensureDividerUndo();
+                mutator(dv);
+                renderDividerLines(el, dv);
+                refreshDividerLabel(el, dv);
+                syncDividerPanelKeepInput(dv);
+            }
+
+            // ラベル入力中に自分で value を書き戻さない（カーソル位置が飛ぶのを防ぐ）
+            function syncDividerPanelKeepInput(dv) {
+                const input = getEl('dv-label-input');
+                const keep = input.value;
+                syncDividerPanel(dv);
+                input.value = keep;
+            }
+
+            function initDividerPanel() {
+                const grid = getEl('dv-type-grid');
+                grid.innerHTML = '';
+                DV_TYPES.forEach(([type, name]) => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'dv-type-btn';
+                    btn.dataset.type = type;
+                    btn.innerHTML = dividerLineSVG({ line: type, width: 2 }, 'dvpv-' + type, 'preview') + '<span>' + name + '</span>';
+                    btn.onclick = () => applyDividerChange(dv => { dv.line = type; });
+                    grid.appendChild(btn);
                 });
-                input.addEventListener('click', (e) => e.stopPropagation());
-                input.addEventListener('blur', () => finish(true));
+
+                const colors = getEl('dv-colors');
+                colors.innerHTML = '';
+                DV_COLOR_PALETTE.forEach((val) => {
+                    const b = document.createElement('div');
+                    b.className = 'dv-color-btn';
+                    b.dataset.val = val;
+                    b.title = val === '' ? '標準（白）' : val;
+                    b.style.background = val === '' ? '#ffffff' : val;
+                    b.onclick = () => applyDividerChange(dv => { if (val === '') delete dv.color; else dv.color = val; });
+                    colors.appendChild(b);
+                });
+                const custom = document.createElement('div');
+                custom.className = 'dv-color-btn';
+                custom.title = 'カスタムカラー';
+                custom.style.background = 'conic-gradient(red,yellow,lime,cyan,blue,magenta,red)';
+                custom.innerHTML = '<input type="color" id="dv-custom-color" value="#3b82f6" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;" title="カスタムカラーを選択">';
+                colors.appendChild(custom);
+                getEl('dv-custom-color').oninput = (e) => applyDividerChange(dv => { dv.color = e.target.value; });
+
+                getEl('dv-width-range').oninput = (e) => {
+                    const w = parseInt(e.target.value, 10);
+                    applyDividerChange(dv => { dv.width = w; });
+                };
+                const label = getEl('dv-label-input');
+                label.oninput = () => applyDividerChange(dv => { dv.label = label.value; });
+                label.onkeydown = (e) => {
+                    e.stopPropagation();
+                    if (e.isComposing || e.keyCode === 229) return; // 日本語入力の変換中は無視
+                    if (e.key === 'Enter') { e.preventDefault(); hideDividerPanel(); }
+                    else if (e.key === 'Escape') {
+                        e.preventDefault();
+                        if (dvPanelIsNew && !dvPanelTouched) cancelNewDivider(); else hideDividerPanel();
+                    }
+                };
+                getEl('dv-panel-close').onclick = hideDividerPanel;
+                getEl('dv-reset-btn').onclick = () => applyDividerChange(dv => { delete dv.line; delete dv.width; delete dv.color; });
+                getEl('dv-delete-btn').onclick = () => {
+                    const id = dvPanelId;
+                    if (id === null) return;
+                    hideDividerPanel();
+                    deleteDivider(id);
+                };
+                getEl('divider-style-panel').addEventListener('keydown', (e) => {
+                    if (e.target === label) return;
+                    if (e.key === 'Escape' && !e.isComposing) hideDividerPanel();
+                });
+                // パネルの外を押したら閉じる（別の発言を押した場合は、閉じてからその位置に新しい線が入る）
+                document.addEventListener('mousedown', (e) => {
+                    if (dvPanelId === null) return;
+                    if (e.target.closest('#divider-style-panel')) return;
+                    const row = e.target.closest('.scene-divider-row');
+                    if (row && row.dataset.divId === String(dvPanelId)) return;
+                    hideDividerPanel();
+                }, true);
             }
 
             function deleteDivider(id) {
@@ -3478,11 +3728,15 @@
                 arr.forEach(dv => {
                     if (!dv || typeof dv.id !== 'number' || seen.has(dv.id)) return;
                     seen.add(dv.id);
-                    out.push({
+                    const item = {
                         id: dv.id,
                         beforeId: (typeof dv.beforeId === 'number' && ids.has(dv.beforeId)) ? dv.beforeId : null,
                         label: typeof dv.label === 'string' ? dv.label : ''
-                    });
+                    };
+                    if (DV_TYPES.some(t => t[0] === dv.line)) item.line = dv.line;
+                    if (typeof dv.width === 'number' && dv.width >= 1 && dv.width <= 10) item.width = Math.round(dv.width);
+                    if (typeof dv.color === 'string' && DV_COLOR_RE.test(dv.color)) item.color = dv.color;
+                    out.push(item);
                 });
                 return out;
             }
@@ -3714,7 +3968,7 @@
                 { selector: '#text-edit-mode-btn', text: '「文字編集モード」。クリックした発言をその場で修正できます。' },
                 { selector: '#edit-mode-toggle-btn', text: '「削除モード」。不要な発言やタブをまとめて削除できます。' },
                 { selector: '#move-mode-btn', text: '「構造編集モード」。タブの追加・並び替え・発言の移動ができます。' },
-                { selector: '#divider-mode-btn', text: '「区切り線モード」。シーンの切れ目をクリックして、ラベル付きの線を入れられます。' },
+                { selector: '#divider-mode-btn', text: '「区切り線モード」。シーンの切れ目をクリックして、ラベル・線の種類・太さ・色を選んだ線を入れられます。' },
                 { selector: '#marker-toggle-btn', text: '「マーカーモード」。発言の背景色や文字装飾を変更できます。' },
                 { selector: '#bookmark-toggle-btn', text: '気になる発言に栞を付けておくと、あとからワンタップでその場所に戻れます。' },
                 { selector: () => (document.getElementById('search-input-mobile') && document.getElementById('search-input-mobile').offsetParent !== null) ? '#search-input-mobile' : '#search-input', text: 'ここからログ内を検索できます。見たい発言がすぐ見つかります。' },
@@ -5255,8 +5509,8 @@
                     (printDivBefore.get(m.id) || []).forEach(dv => {
                         const dEl = document.createElement('div');
                         dEl.className = 'print-divider';
-                        dEl.innerHTML = '<span class="print-divider-line"></span>'
-                            + (dv.label ? '<span class="print-divider-label">' + escapeHtml(dv.label) + '</span><span class="print-divider-line"></span>' : '');
+                        dEl.innerHTML = '<span class="print-divider-line">' + dividerLineSVG(dv, 'ppd-' + dv.id + '-a', 'print') + '</span>'
+                            + (dv.label ? '<span class="print-divider-label">' + escapeHtml(dv.label) + '</span><span class="print-divider-line">' + dividerLineSVG(dv, 'ppd-' + dv.id + '-b', 'print') + '</span>' : '');
                         container.appendChild(dEl);
                     });
                     const isMain = mainLocs.includes(m.loc);
@@ -5585,6 +5839,7 @@
                             getEl('scene-dividers-storage').textContent = JSON.stringify(sceneDividers).replace(/</g, '\\u003c');
                             getEl('char-groups-storage').textContent = JSON.stringify(charGroups);
                             
+                            hideDividerPanel();
                             const clone = document.documentElement.cloneNode(true);
                             // 書き出しHTMLは単体で開かれる想定なので、favicon参照をBase64埋め込みに差し替える
                             const cloneFavicon = clone.querySelector('#favicon-link');
