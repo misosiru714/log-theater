@@ -272,9 +272,10 @@
         .scene-divider-label.dv-flash-pill { box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.95); }
         #scene-list-panel {
             position: fixed;
-            bottom: 80px;
-            right: 80px;
+            top: 64px;
+            left: 16px;
             width: 300px;
+            max-width: calc(100vw - 16px);
             background: white;
             border: 1px solid #e2e8f0;
             border-radius: 16px;
@@ -294,7 +295,7 @@
             font-weight: 700;
             color: #9f1239;
         }
-        #scene-list { max-height: 320px; overflow-y: auto; padding: 6px; display: flex; flex-direction: column; gap: 4px; }
+        #scene-list { max-height: min(320px, calc(100vh - 160px)); overflow-y: auto; padding: 6px; display: flex; flex-direction: column; gap: 4px; }
         .scene-item {
             display: flex; align-items: flex-start; gap: 8px; padding: 8px 10px;
             border-radius: 10px; border: 1px solid #f1f5f9; border-left: 4px solid #fda4af;
@@ -311,7 +312,15 @@
         .scene-chip:hover { background: #ffe4e6; }
         .scene-chip.empty { color: #94a3b8; border-style: dashed; font-weight: 400; }
         .scene-list-empty { text-align: center; color: #94a3b8; font-size: 11px; padding: 20px 0; }
-        @media (max-width: 640px) { #scene-list-panel { right: 16px; left: 16px; width: auto; bottom: 90px; } }
+        /* ボタンは区切り線が1本以上あるときだけ表示。PC用(検索バーの右)とスマホ用(検索バーの隣)を幅で出し分ける */
+        .scene-list-trigger { display: none !important; }
+        body.has-scene-dividers #scene-list-btn { display: flex !important; }
+        @media (max-width: 639px) {
+            body.has-scene-dividers #scene-list-btn { display: none !important; }
+            body.has-scene-dividers #scene-list-btn-mobile { display: flex !important; }
+        }
+        .scene-list-trigger.active { background: #fff1f2; border-color: #fda4af; color: #e11d48; }
+        body.dark-mode .scene-list-trigger.active { background: #4c0519; border-color: #be123c; color: #fecdd3; }
         body.dark-mode #scene-list-panel { background: var(--dm-panel); border-color: var(--dm-border); }
         body.dark-mode .scene-list-header { background: #4c0519; border-color: #881337; color: #fecdd3; }
         body.dark-mode .scene-item { border-color: var(--dm-border); }
@@ -1895,7 +1904,7 @@
     // ↓公開リリースノートはここだよ。更新しようね。
     const APP_VERSION = '1.9.9';
     const RELEASE_NOTES = [
-        { version: '1.9.9', description: 'シーンの切れ目に、ラベル付きの区切り線を入れられる「区切り線モード」を追加しました。編集ボタン内の区切り線ボタンを押し、線を入れたい位置の発言をクリックすると出るパネルで、ラベル（1本の線に複数つけられます）・線の種類（線／破線／点線／波線／二重線／ジグザグ線）・太さ・色を設定できます。区切り線がある場合は「シーン一覧」ボタンから、ラベルを押してその区切り線へジャンプできます。保存したHTML・PDF・テキスト/Markdown出力にも反映されます。' },
+        { version: '1.9.9', description: 'シーンの切れ目に、ラベル付きの区切り線を入れられる「区切り線モード」を追加しました。編集ボタン内の区切り線ボタンを押し、線を入れたい位置の発言をクリックすると出るパネルで、ラベル（1本の線に複数つけられます）・線の種類（線／破線／点線／波線／二重線／ジグザグ線）・太さ・色を設定できます。区切り線がある場合は、検索バー右の「シーン一覧」ボタンから、ラベルを押してその区切り線へジャンプできます。保存したHTML・PDF・テキスト/Markdown出力にも反映されます。' },
         { version: '1.9.8', description: 'ルビ振りに対応しました。文字編集モードで「｜文字《ルビ》」と入力するか、文字を選択して「文字《ルビ》」ボタンを押すとルビを振れます。' },
         { version: '1.9.7', description: '複数セッションのログを1つに結合できる「追加読み込み」機能を追加しました。末尾と先頭が重なっている場合は自動で重複を除いて繋げ、結果を画面上部のテロップでお知らせします（ヘッダーの＋アイコンから）。' },
         { version: '1.9.6', description: 'ログ編集画面にダークモードを追加しました。設定パネルのスイッチでいつでも切り替えられます。' },
@@ -1930,6 +1939,7 @@
     // 新しいものを配列の先頭に追加する形でずっと積み上げていくこと。
     // ============================================================
     const HIDDEN_CHANGELOG = [
+        { version: '1.9.9.1', note: '立ち絵(Base64画像)が発言の行ごとに重複して持たれていたのを解消し、保存HTMLのファイルサイズとメモリ使用量を削減。①refreshIcons/createRow/印刷/キャラ設定プレビューが、行ごとにdata URLをインラインで貼っていたのをやめ、画像ごとにBlob URLを1回だけ作って全発言で共有(iconUrl)。②保存HTMLに描画済みの発言行(#rows-container)を含めないようにした(Blob URLは保存先では無効なので。読み込み時にrestore()が行を作り直す)。③log-data-storageでは発言ごとのiconを、重複を除いた画像リスト(icon-pool-storage)への番号iconRefに置換(packLogIcons/expandLogIcons。iconRefなしの古い保存ファイルもそのまま読める)。④Undoの控えをJSONの丸ごとコピーからsnapshotLogData(文字列は共有、入れ子のstyleだけ複製)に変更し、立ち絵の複製を防いだ。別ログ読み込み時はclearIconUrlCacheで共有URLを破棄。' },
         { version: '1.9.8.8', note: 'ランディングページの「機能一覧を見る」モーダルを、ジャンル分けした表示に変更。FEATURE_LISTの各項目にcategoryを追加し(📥読み込み・データ管理/🖥️表示・レイアウト/✏️編集機能/🔍検索・目印/🎲TRPG特化機能/📤書き出し・共有の6ジャンル)、見出し付きでグループ表示するようにした。' },
         { version: '1.9.8.7', note: 'ダイスのみバブルの左の帯(border-left)が、border-radiusとの併用で角の部分が不自然な形に見えるバグを修正。border-leftをやめて::before疑似要素で帯を描く方式にし、帯の太さも3px→6pxに。帯自体の左側だけ吹き出しと同じ角丸(14px)を付けて馴染ませ、削除ボタン(吹き出しの外に少しはみ出す表示)を隠さないようoverflow:hiddenは使わずに対応した。' },
         { version: '1.9.8.6', note: 'ダイスのみバブルの背景が白い吹き出しとほぼ見分けがつかない(#eef1f5が白に近すぎる)との指摘を受け、固定の灰色をやめてテーマカラー(青・赤・緑・紫・モノトーン)それぞれの薄色/濃色(diceBg/diceBgDark)に変更。setTheme()で--dice-bubble-bgというCSS変数を更新し、ダークモード切替時も自動で濃淡が切り替わるようにした。' },
@@ -2171,7 +2181,6 @@
                 <button id="undo-btn" class="jump-btn" title="元に戻す（履歴なし）" disabled style="opacity:0.35"><i data-lucide="undo-2" size="20"></i></button>
                 <div class="w-full h-[1px] bg-slate-200 my-1"></div>
             </div>
-            <button id="scene-list-btn" class="jump-btn" title="シーン一覧（区切り線のラベルへジャンプ）" style="display:none"><i data-lucide="list" size="20"></i></button>
             <button id="bookmark-toggle-btn" class="jump-btn" title="栞リスト"><i data-lucide="bookmark" size="20"></i></button>
             <!-- 語録メーカー: 一旦無効化中。ボタンをコメントアウトしているだけで、
                  モーダルのHTMLとJS(extractFrequentPhrases/renderWordCloud等)はそのまま残してあるので、
@@ -2448,6 +2457,7 @@
                     <input type="text" id="search-input" placeholder="ログを検索..." class="bg-slate-100 border-none rounded-xl pl-9 pr-4 py-2 text-xs w-64 focus:ring-2 focus:ring-blue-500 transition-all outline-none">
                     <div id="search-results" class="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-200 shadow-2xl rounded-xl hidden z-[60] max-h-96 overflow-y-auto"></div>
                 </div>
+                <button id="scene-list-btn" class="btn-secondary scene-list-trigger" title="シーン一覧（区切り線のラベルへジャンプ）"><i data-lucide="list" size="14"></i> シーン一覧</button>
             </div>
             <div id="header-right-pc" class="flex items-center gap-2">
                 <button id="pc-open-help-modal-btn" class="btn-secondary px-3" title="操作ボタンの説明"><i data-lucide="circle-help" size="14"></i></button>
@@ -2459,10 +2469,13 @@
         </header>
 
         <div class="sm:hidden px-3 pt-4 pb-2 bg-white border-b border-slate-100">
-            <div class="relative w-full">
+            <div class="flex items-center gap-2">
+            <div class="relative flex-1 min-w-0">
                 <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size="14"></i>
                 <input type="text" id="search-input-mobile" placeholder="ログを検索..." class="bg-slate-100 border-none rounded-xl pl-9 pr-4 py-2 text-xs w-full focus:ring-2 focus:ring-blue-500 transition-all outline-none">
                 <div id="search-results-mobile" class="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-200 shadow-2xl rounded-xl hidden z-[60] max-h-64 overflow-y-auto"></div>
+            </div>
+            <button id="scene-list-btn-mobile" class="btn-secondary px-3 scene-list-trigger" title="シーン一覧（区切り線のラベルへジャンプ）"><i data-lucide="list" size="14"></i></button>
             </div>
         </div>
 
@@ -2574,6 +2587,7 @@
     <script id="char-styles-storage" type="application/json">{}</script>
     <script id="bookmarks-storage" type="application/json">[]</script>
     <script id="scene-dividers-storage" type="application/json">[]</script>
+    <script id="icon-pool-storage" type="application/json">[]</script>
     <script id="char-groups-storage" type="application/json">{}</script>
 
     <script>
@@ -2581,6 +2595,7 @@
             // 書き出しHTML用のファビコン(icon.pngをBase64化したもの)。単一ファイルで配布できるよう、保存時のみこちらに差し替える。
             const FAVICON_BASE64 = 'iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAABZklEQVR4AeyYUY7DIAxEM3v/O3cZVUgQwNhyCKASxWpK8HiezVf+rs2v3wL4vHRZDoV6AvRuEfbstdRSAVgEPcbTXG3NLoAkBOAC8khNeJ+l2lFbBJAEAASNTxEA18PyQ7fkgSWaAL1EJr8VkpcqgJTwlul7nZanAqC18S4443/NWwZQ2zDDqFTz7jEDkBJXfXcAZk/mTOBMwNmBc4ScDXSnnwm4W+gUMEzAWWlQ+gEY1Fi17JmAulWDNp4JDGqsWnbIBAAUn1uA/pradbJxAED5qeW6dGsAEmu6xwwA4dKlrbMrA6CtwGBvAxMnRQFAHztBVAF2gmgC9CDC95mwhaftufhqBlnDLQJQRzpOLPhksJ41ugAUlCD4fmaoAGhwVQg1QIQgyKhgDWuYAKzi1v2xMZa8pQCicYLE597vkgA0rYUYA0AHDwQhGJLU0gDRuASxBQBBWhDbALQgtgKoQWwHQIg0/gEAAP//3wriSwAAAAZJREFUAwBEdf5hQKSTQgAAAABJRU5ErkJggg==';
             let charIcons = {};
+            const iconUrlCache = new Map(); // 立ち絵のBase64データ → 共有用のBlob URL（同じ画像は1つのURLを全発言で使い回す）
             let logData = [];
             let isAppendLoad = false; // trueの間は、パース結果を既存ログの続きとしてマージする（複数ログの結合用）
             let allLocations = [];
@@ -2696,7 +2711,7 @@
 
             function pushUndo() {
                 undoStack.push({
-                    logData: JSON.parse(JSON.stringify(logData)),
+                    logData: snapshotLogData(),
                     sceneDividers: JSON.parse(JSON.stringify(sceneDividers)),
                     allLocations: [...allLocations]
                 });
@@ -3293,7 +3308,6 @@
                 // 栞ボタン
                 getEl('bookmark-toggle-btn').onclick = (e) => {
                     e.stopPropagation();
-                    closeSceneList();
                     const panel = getEl('bookmark-panel');
                     panel.classList.toggle('open');
                     const isOpen = panel.classList.contains('open');
@@ -3921,8 +3935,7 @@
             function closeSceneList() {
                 const p = getEl('scene-list-panel');
                 if (p) p.classList.remove('open');
-                const b = getEl('scene-list-btn');
-                if (b) b.classList.remove('active');
+                document.querySelectorAll('.scene-list-trigger').forEach(b => b.classList.remove('active'));
             }
 
             // 区切り線を、並んでいる順（時系列）にそろえる。末尾の線は最後
@@ -3991,29 +4004,135 @@
 
             // 区切り線が増減・変更したとき: 一覧ボタンの出し分けと、開いている一覧の更新
             function onDividersChanged() {
-                const btn = getEl('scene-list-btn');
-                if (!btn) return;
-                btn.style.display = sceneDividers.length ? '' : 'none';
+                const triggers = document.querySelectorAll('.scene-list-trigger');
+                if (!triggers.length) return;
+                document.body.classList.toggle('has-scene-dividers', sceneDividers.length > 0);
                 const panel = getEl('scene-list-panel');
                 if (!sceneDividers.length) closeSceneList();
                 else if (panel.classList.contains('open')) renderSceneList();
             }
 
+            // 一覧は、押したボタン（検索バーの右）の真下に開く
+            function positionSceneList(trigger) {
+                const panel = getEl('scene-list-panel');
+                const r = trigger.getBoundingClientRect();
+                if (window.innerWidth < 640) {
+                    panel.style.left = '8px';
+                    panel.style.right = '8px';
+                    panel.style.width = 'auto';
+                } else {
+                    panel.style.right = 'auto';
+                    panel.style.width = '';
+                    const pw = panel.offsetWidth;
+                    panel.style.left = Math.max(8, Math.min(r.left, window.innerWidth - pw - 8)) + 'px';
+                }
+                panel.style.top = (r.bottom + 8) + 'px';
+            }
+
             function initSceneList() {
-                getEl('scene-list-btn').onclick = (e) => {
-                    e.stopPropagation();
-                    const panel = getEl('scene-list-panel');
-                    const willOpen = !panel.classList.contains('open');
-                    // 栞パネルと同じ場所に出るので、どちらか一方だけ開く
-                    getEl('bookmark-panel').classList.remove('open');
-                    getEl('bookmark-toggle-btn').classList.remove('active');
-                    panel.classList.toggle('open', willOpen);
-                    getEl('scene-list-btn').classList.toggle('active', willOpen);
-                    if (willOpen) renderSceneList();
-                };
+                document.querySelectorAll('.scene-list-trigger').forEach((btn) => {
+                    btn.onclick = (e) => {
+                        e.stopPropagation();
+                        const panel = getEl('scene-list-panel');
+                        const willOpen = !panel.classList.contains('open');
+                        panel.classList.toggle('open', willOpen);
+                        document.querySelectorAll('.scene-list-trigger').forEach(b => b.classList.toggle('active', willOpen && b === btn));
+                        if (willOpen) {
+                            renderSceneList();
+                            positionSceneList(btn);
+                        }
+                    };
+                });
                 document.addEventListener('click', (e) => {
                     const panel = getEl('scene-list-panel');
-                    if (panel.classList.contains('open') && !panel.contains(e.target) && !e.target.closest('#scene-list-btn')) closeSceneList();
+                    if (panel.classList.contains('open') && !panel.contains(e.target) && !e.target.closest('.scene-list-trigger')) closeSceneList();
+                });
+                window.addEventListener('resize', () => {
+                    const panel = getEl('scene-list-panel');
+                    const active = document.querySelector('.scene-list-trigger.active');
+                    if (panel.classList.contains('open') && active) positionSceneList(active);
+                });
+            }
+
+// ---- 立ち絵画像の共有URL ----
+            // Base64の画像データを発言の行ごとにインラインで貼ると、同じ立ち絵が発言数ぶん重複してメモリも保存HTMLも膨らむ。
+            // 画像ごとにBlob URLを1回だけ作り、全発言からそのURLを参照する。
+            // Blob URLはそのブラウザの表示中だけ有効なので、保存HTMLには描画済みの行を入れない（読み込み時に作り直す）
+            function dataUrlToBlob(dataUrl) {
+                const m = /^data:([^;,]*)(;base64)?,([\s\S]*)$/.exec(dataUrl);
+                if (!m) return null;
+                const mime = m[1] || 'application/octet-stream';
+                let bytes;
+                if (m[2]) {
+                    const bin = atob(m[3]);
+                    bytes = new Uint8Array(bin.length);
+                    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+                } else {
+                    bytes = new TextEncoder().encode(decodeURIComponent(m[3])); // SVGなどbase64でない形式
+                }
+                return new Blob([bytes], { type: mime });
+            }
+
+            function iconUrl(src) {
+                if (!src || typeof src !== 'string' || !src.startsWith('data:')) return src; // すでにURLならそのまま
+                let u = iconUrlCache.get(src);
+                if (!u) {
+                    try {
+                        const blob = dataUrlToBlob(src);
+                        u = blob ? URL.createObjectURL(blob) : src;
+                    } catch (e) {
+                        u = src; // 失敗したときは従来どおりデータ自体を使う
+                    }
+                    iconUrlCache.set(src, u);
+                }
+                return u;
+            }
+
+            // 別のログを読み込むとき: 古い共有URLを破棄する（直後に行は描画し直される）
+            function clearIconUrlCache() {
+                iconUrlCache.forEach((u) => { if (typeof u === 'string' && u.startsWith('blob:')) { try { URL.revokeObjectURL(u); } catch (e) {} } });
+                iconUrlCache.clear();
+            }
+
+            // 保存用: 発言ごとの立ち絵(icon)を、重複を除いた画像リスト(pool)への番号(iconRef)に置き換える
+            function packLogIcons() {
+                const pool = [];
+                const indexOf = new Map();
+                const items = logData.map((m) => {
+                    if (!m.icon) return m;
+                    let i = indexOf.get(m.icon);
+                    if (i === undefined) { i = pool.length; pool.push(m.icon); indexOf.set(m.icon, i); }
+                    const copy = Object.assign({}, m);
+                    delete copy.icon;
+                    copy.iconRef = i;
+                    return copy;
+                });
+                return { log: JSON.stringify(items), pool: JSON.stringify(pool) };
+            }
+
+            // 読み込み用: iconRef を画像データに戻す。同じ画像は同じ文字列を共有する（古い形式のファイルはそのまま）
+            function expandLogIcons(items, pool) {
+                if (!Array.isArray(items)) return [];
+                if (!Array.isArray(pool) || !pool.length) return items;
+                items.forEach((m) => {
+                    if (typeof m.iconRef === 'number') {
+                        if (typeof pool[m.iconRef] === 'string') m.icon = pool[m.iconRef];
+                        delete m.iconRef;
+                    }
+                });
+                return items;
+            }
+
+            // Undo用の発言データの控え。立ち絵などの文字列は共有し、入れ子のオブジェクト(style等)だけ複製する
+            // （JSONの丸ごとコピーだと、画像データが発言数ぶん複製されてしまうため）
+            function snapshotLogData() {
+                return logData.map((d) => {
+                    const c = {};
+                    for (const k in d) {
+                        const v = d[k];
+                        c[k] = (v && typeof v === 'object') ? JSON.parse(JSON.stringify(v)) : v;
+                    }
+                    return c;
                 });
             }
 
@@ -4420,9 +4539,10 @@
 
                 charIcons      = JSON.parse(iconRaw);
                 allLocations   = JSON.parse(locRaw);
-                logData        = JSON.parse(logRaw);
+                logData        = expandLogIcons(JSON.parse(logRaw), JSON.parse(doc.getElementById('icon-pool-storage')?.textContent || '[]'));
                 sceneDividers  = sanitizeDividers(JSON.parse(doc.getElementById('scene-dividers-storage')?.textContent || '[]'));
                 hiddenChars.clear();
+                clearIconUrlCache();
                 sourceFileName = JSON.parse(nameRaw);
                 charStyles     = JSON.parse(charStylesRaw);
                 charGroups     = JSON.parse(charGroupsRaw);
@@ -4648,6 +4768,7 @@
                     logData = tempLogData;
                     sceneDividers = [];
                     hiddenChars.clear();
+                    clearIconUrlCache();
                     characters.clear();
                     logData.forEach((d) => characters.add(d.char));
                     finishParsing(locSet);
@@ -4767,7 +4888,7 @@
                             const portraitEl = cell.querySelector('.char-portrait');
                             if (portraitEl) {
                                 portraitEl.dataset.ownIcon = '1';
-                                portraitEl.style.backgroundImage = `url(${icon})`;
+                                portraitEl.style.backgroundImage = `url("${iconUrl(icon)}")`;
                                 portraitEl.style.display = showPortraits ? 'block' : 'none';
                             }
                         }
@@ -5526,7 +5647,7 @@
                     const iconData = charIcons[leader];
 
                     const row = document.createElement('div'); row.className = 'group flex items-center gap-4 p-4 border border-slate-200 rounded-2xl bg-white hover:border-blue-400 transition-all shadow-sm';
-                    row.innerHTML = `<div class="portrait-preview-slot" style="${iconData ? `background-image:url(${iconData})` : ''}"></div><div class="flex-1 text-sm font-bold text-slate-700">${displayName}${members.length > 0 ? `<span class="char-group-badge ml-1">${members.length + 1}人</span>` : ''}</div><div class="flex items-center gap-2"><span class="text-[10px] text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:inline">画像をD&D</span>${iconData ? `<button class="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-colors"><i data-lucide="trash-2" size="16"></i></button>` : ''}</div>`;
+                    row.innerHTML = `<div class="portrait-preview-slot" style="${iconData ? `background-image:url('${iconUrl(iconData)}')` : ''}"></div><div class="flex-1 text-sm font-bold text-slate-700">${displayName}${members.length > 0 ? `<span class="char-group-badge ml-1">${members.length + 1}人</span>` : ''}</div><div class="flex items-center gap-2"><span class="text-[10px] text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:inline">画像をD&D</span>${iconData ? `<button class="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-colors"><i data-lucide="trash-2" size="16"></i></button>` : ''}</div>`;
                     const delBtn = row.querySelector('button');
                     if (delBtn) delBtn.onclick = (e) => {
                         e.stopPropagation();
@@ -5600,7 +5721,7 @@
                             p.style.display = showPortraits ? 'block' : 'none';
                             return;
                         }
-                        if (data && showPortraits) { p.style.backgroundImage = `url(${data})`; p.style.display = 'block'; }
+                        if (data && showPortraits) { p.style.backgroundImage = `url("${iconUrl(data)}")`; p.style.display = 'block'; }
                         else { p.style.display = 'none'; }
                     });
                 });
@@ -5631,7 +5752,7 @@
 
                     charIcons      = JSON.parse(iconRaw || '{}');
                     allLocations   = JSON.parse(locRaw  || '[]');
-                    logData        = JSON.parse(logRaw  || '[]');
+                    logData        = expandLogIcons(JSON.parse(logRaw  || '[]'), JSON.parse((getEl('icon-pool-storage')?.textContent) || '[]'));
                     sceneDividers  = sanitizeDividers(JSON.parse((getEl('scene-dividers-storage')?.textContent) || '[]'));
                     sourceFileName = JSON.parse(nameRaw || '"log"');
                     charStyles     = JSON.parse(charStylesRaw || '{}');
@@ -5839,7 +5960,7 @@
                         if (iconData) {
                             const portrait = document.createElement('div');
                             portrait.className = 'print-portrait';
-                            portrait.style.backgroundImage = `url(${iconData})`;
+                            portrait.style.backgroundImage = `url("${iconUrl(iconData)}")`;
                             portrait.style.backgroundColor = 'transparent';
                             portrait.style.width = portraitSize;
                             portrait.style.height = portraitSize;
@@ -6118,7 +6239,7 @@
                         let blob;
 
                         if (format === 'html') {
-                            getEl('icon-data-storage').textContent = JSON.stringify(charIcons); getEl('loc-data-storage').textContent = JSON.stringify(allLocations); getEl('log-data-storage').textContent = JSON.stringify(logData); getEl('source-filename-storage').textContent = JSON.stringify(sourceFileName);
+                            getEl('icon-data-storage').textContent = JSON.stringify(charIcons); getEl('loc-data-storage').textContent = JSON.stringify(allLocations); { const packed = packLogIcons(); getEl('log-data-storage').textContent = packed.log; getEl('icon-pool-storage').textContent = packed.pool; } getEl('source-filename-storage').textContent = JSON.stringify(sourceFileName);
                             getEl('style-data-storage').textContent = JSON.stringify({ col: getComputedStyle(document.documentElement).getPropertyValue('--column-width').trim(), font: getComputedStyle(document.documentElement).getPropertyValue('--base-font-size').trim(), port: getComputedStyle(document.documentElement).getPropertyValue('--portrait-size').trim(), theme: currentTheme, colInd: showColIndicator, ts: showTimestamps });
                             getEl('char-styles-storage').textContent = JSON.stringify(charStyles);
                             getEl('bookmarks-storage').textContent = JSON.stringify(bookmarks);
@@ -6137,6 +6258,11 @@
                             clone.querySelector('#setup-screen').classList.add('hidden'); clone.querySelector('#exit-demo-btn').style.display = 'none';
                             clone.querySelector('#home-view').classList.add('hidden'); clone.querySelector('#app-view').classList.remove('hidden');
                             
+                            // 描画済みの発言行は保存しない（読み込み時にlog-data-storageから作り直す）。
+                            // 行ごとにインラインで入る立ち絵の画像データの重複を避け、ファイルサイズを大きく減らす
+                            const cloneRows = clone.querySelector('#rows-container'); if (cloneRows) cloneRows.innerHTML = '';
+                            const cloneIconList = clone.querySelector('#icon-upload-container'); if (cloneIconList) cloneIconList.innerHTML = '';
+
                             // Clean states
                             clone.querySelector('body').classList.remove('marker-mode-active', 'edit-mode-active', 'text-edit-mode-active', 'move-mode-active', 'divider-mode-active');
                             // 保存HTMLでは編集ボタンをデフォルト非表示
