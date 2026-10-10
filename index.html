@@ -1904,7 +1904,7 @@
     // ↓公開リリースノートはここだよ。更新しようね。
     const APP_VERSION = '1.9.9';
     const RELEASE_NOTES = [
-        { version: '1.9.9', description: 'シーンの切れ目に、ラベル付きの区切り線を入れられる「区切り線モード」を追加しました。編集ボタン内の区切り線ボタンを押し、線を入れたい位置の発言をクリックすると出るパネルで、ラベル（1本の線に複数つけられます）・線の種類（線／破線／点線／波線／二重線／ジグザグ線）・太さ・色を設定できます。区切り線がある場合は、検索バー右の「シーン一覧」ボタンから、ラベルを押してその区切り線へジャンプできます。保存したHTML・PDF・テキスト/Markdown出力にも反映されます。' },
+        { version: '1.9.9', description: 'シーンの切れ目に、ラベル付きの区切り線を入れられる「区切り線モード」を追加しました。編集ボタン内の区切り線ボタンを押し、線を入れたい位置の発言をクリックすると出るパネルで、ラベル（1本の線に複数つけられます）・線の種類（線／破線／点線／波線／二重線／ジグザグ線）・太さ・色を設定できます。区切り線がある場合は、検索バー右の「シーン一覧」ボタンから、ラベルを押してその区切り線へジャンプできます。保存したHTML・PDF・テキスト/Markdown出力にも反映されます。書き出し形式に、配布向けの「閲覧専用HTML」も追加しました。' },
         { version: '1.9.8', description: 'ルビ振りに対応しました。文字編集モードで「｜文字《ルビ》」と入力するか、文字を選択して「文字《ルビ》」ボタンを押すとルビを振れます。' },
         { version: '1.9.7', description: '複数セッションのログを1つに結合できる「追加読み込み」機能を追加しました。末尾と先頭が重なっている場合は自動で重複を除いて繋げ、結果を画面上部のテロップでお知らせします（ヘッダーの＋アイコンから）。' },
         { version: '1.9.6', description: 'ログ編集画面にダークモードを追加しました。設定パネルのスイッチでいつでも切り替えられます。' },
@@ -1939,6 +1939,7 @@
     // 新しいものを配列の先頭に追加する形でずっと積み上げていくこと。
     // ============================================================
     const HIDDEN_CHANGELOG = [
+        { version: '1.9.9.2', note: '書き出し形式に閲覧専用HTML(value=viewer)を追加。通常のHTML保存と同じ複製処理に、stripForViewer(clone)で編集・読み込み・LP・PDF・語録メーカー・トリミング等の画面部品を取り除く処理を足した。bodyにdata-viewer=1を付け、メインスクリプト側はIS_VIEWERで判定(getElが無い部品にはダミーを返す/タイトル編集を無効化/コンソールとHTMLコメントにクレジット/アナリティクスのsourceはviewer)。JSコード自体は残る(画面部品のみ除去)。ヘルプは閲覧用の説明に差し替え。書き出しボタンのラベルにxlsx用の表記も追加。新しい画面部品を足したときは、閲覧専用で要るか要らないかを、stripForViewerの除去リストで判断すること。' },
         { version: '1.9.9.1', note: '立ち絵(Base64画像)が発言の行ごとに重複して持たれていたのを解消し、保存HTMLのファイルサイズとメモリ使用量を削減。①refreshIcons/createRow/印刷/キャラ設定プレビューが、行ごとにdata URLをインラインで貼っていたのをやめ、画像ごとにBlob URLを1回だけ作って全発言で共有(iconUrl)。②保存HTMLに描画済みの発言行(#rows-container)を含めないようにした(Blob URLは保存先では無効なので。読み込み時にrestore()が行を作り直す)。③log-data-storageでは発言ごとのiconを、重複を除いた画像リスト(icon-pool-storage)への番号iconRefに置換(packLogIcons/expandLogIcons。iconRefなしの古い保存ファイルもそのまま読める)。④Undoの控えをJSONの丸ごとコピーからsnapshotLogData(文字列は共有、入れ子のstyleだけ複製)に変更し、立ち絵の複製を防いだ。別ログ読み込み時はclearIconUrlCacheで共有URLを破棄。' },
         { version: '1.9.8.8', note: 'ランディングページの「機能一覧を見る」モーダルを、ジャンル分けした表示に変更。FEATURE_LISTの各項目にcategoryを追加し(📥読み込み・データ管理/🖥️表示・レイアウト/✏️編集機能/🔍検索・目印/🎲TRPG特化機能/📤書き出し・共有の6ジャンル)、見出し付きでグループ表示するようにした。' },
         { version: '1.9.8.7', note: 'ダイスのみバブルの左の帯(border-left)が、border-radiusとの併用で角の部分が不自然な形に見えるバグを修正。border-leftをやめて::before疑似要素で帯を描く方式にし、帯の太さも3px→6pxに。帯自体の左側だけ吹き出しと同じ角丸(14px)を付けて馴染ませ、削除ボタン(吹き出しの外に少しはみ出す表示)を隠さないようoverflow:hiddenは使わずに対応した。' },
@@ -2000,6 +2001,7 @@
         { category: '🔍 検索・目印', title: 'シーン一覧ジャンプ', description: '区切り線につけたラベルを一覧にして、押すとその区切り線へジャンプできます。保存したHTMLでも使えるので、長いログの目次として便利です。' },
         { category: '🔍 検索・目印', title: '栞機能', description: '栞を追加して好きな場所に目印をつけ、クリックでその位置へ瞬時にジャンプできます。' },
         { category: '🎲 TRPG特化機能', title: 'ダイス強調', description: 'BCDiceのロール結果を自動検出し、成功・失敗・クリティカル・ファンブルを色付きで強調します。' },
+        { category: '📤 書き出し・共有', title: '閲覧専用HTML', description: '書き出し形式に「閲覧専用HTML」を追加。編集・読み込みなどの画面を取り除き、検索・タブ切替・シーン一覧・栞・表示設定・キャラの表示切替だけを残した、配布向けのHTMLを出力できます。' },
         { category: '📤 書き出し・共有', title: 'PDF出力', description: 'タブ別の出力設定、立ち絵・アイコン付きPDF、テーマカラー反映に対応しています。' },
         { category: '📤 書き出し・共有', title: '書き出し形式の選択', description: 'HTML・Markdown・テキスト・スプレッドシート（xlsx）形式の出力に対応。xlsxはタブごとに列が分かれたセル結合レイアウトで出力されます。' }
     ];
@@ -2560,6 +2562,7 @@
                     <label for="export-format-select" class="text-xs font-bold text-slate-700">書き出し形式</label>
                     <select id="export-format-select" class="w-full rounded-xl border border-slate-200 bg-white py-2 px-3 text-sm text-slate-700 shadow-sm focus:border-blue-400 focus:outline-none">
                         <option value="html">HTML</option>
+                        <option value="viewer">閲覧専用HTML（配布用）</option>
                         <option value="markdown">Markdown</option>
                         <option value="text">テキスト</option>
                         <option value="xlsx">スプレッドシート（xlsx）</option>
@@ -2637,7 +2640,13 @@
                 mono:   { accent: '#64748b', bg: '#94a3b8', bgDark: '#1e293b', diceBg: '#e2e8f0', diceBgDark: '#334155' }
             };
 
-            const getEl = (id) => document.getElementById(id);
+            // 閲覧専用HTML(書き出し形式「閲覧専用HTML」)では、編集・読み込みなどの画面部品を保存時に取り除いている。
+            // 取り除いた部品を参照するコードが落ちないよう、閲覧専用のときだけ「何もしないダミー」を返す
+            const IS_VIEWER = !!document.body && document.body.getAttribute('data-viewer') === '1';
+            const getEl = (id) => document.getElementById(id) || (IS_VIEWER ? document.createElement('div') : null);
+            if (IS_VIEWER) {
+                try { console.info('%c閲覧専用HTML%c このログは「ろぐしあたー」で整形・出力されました。', 'font-weight:bold;color:#e11d48', ''); } catch (e) {}
+            }
 
             function init() {
                 lucide.createIcons();
@@ -2974,6 +2983,7 @@
 
             // ヘッダーのタイトルをその場で編集できるようにする
             function startEditingTitle(e) {
+                if (IS_VIEWER) return; // 閲覧専用ではタイトルを編集できない
                 if (e) e.stopPropagation();
                 const titleEl = getEl('app-title');
                 if (titleEl.getAttribute('contenteditable') === 'true') return;
@@ -3265,8 +3275,10 @@
                 const exportFormatSelect = getEl('export-format-select');
                 const exportFormatLabels = {
                     html: 'HTMLとして保存',
+                    viewer: '閲覧専用HTMLとして保存',
                     markdown: 'Markdownとして保存',
-                    text: 'テキストとして保存'
+                    text: 'テキストとして保存',
+                    xlsx: 'スプレッドシートとして保存'
                 };
                 const updateExportButtonLabel = () => {
                     if (!exportFormatSelect) return;
@@ -5773,7 +5785,7 @@
                             updateRowCounter();
                             restoreBookmarks(JSON.parse(bookmarksRaw || '[]'));
                         }, 300);
-                        trackLoadEvent('restored');
+                        trackLoadEvent(IS_VIEWER ? 'viewer' : 'restored'); // 閲覧専用HTMLは、アナリティクス上でも区別できるようにする
                     }
                 } catch(e) { console.error("Restore failed", e); }
             }
@@ -6225,10 +6237,71 @@
                 } catch (e) {}
             }
 
+// 閲覧専用HTML用: 保存用の複製から、編集・読み込み・ランディングなどの画面部品を取り除く。
+            // 残すのは、検索・タブ切替・シーン一覧・栞・表示設定・キャラの表示切替・ヘルプ（閲覧用の説明に差し替え）。
+            // ※ JSのコードそのものは残る（取り除くのは画面部品。コード側はIS_VIEWERで、無い部品に触れても落ちないようにしている）
+            function stripForViewer(clone) {
+                const rm = (sel) => clone.querySelectorAll(sel).forEach(n => n.remove());
+
+                // 編集・読み込み・ランディング・PDF・語録メーカー・トリミングなどの部品
+                ['#home-view', '#setup-screen', '#move-menu', '#style-context-menu', '#divider-style-panel',
+                 '#pdf-modal', '#word-cloud-modal', '#crop-modal',
+                 '#exit-demo-btn', '#title-edit-btn', '#append-log-btn', '#append-log-input', '#edit-btn-group'].forEach(rm);
+
+                // ランディングページ用のスクリプト（リリースノート・機能一覧）。メインのスクリプトとは別物
+                Array.from(clone.querySelectorAll('script')).forEach((s) => {
+                    if (!s.src && !s.type && s.textContent.includes('const APP_VERSION') && s.textContent.length < 100000) s.remove();
+                });
+
+                // 表示設定の下半分（編集ボタンを表示・書き出し形式・保存・PDF・リセット）
+                const editToggle = clone.querySelector('#edit-btn-toggle');
+                const lowerSection = editToggle && editToggle.closest('#settings-panel > div');
+                if (lowerSection) lowerSection.remove();
+
+                // キャラクター設定は「表示切替」だけ残す
+                ['#tab-icons', '#tab-char-style', '#icon-list-view', '#char-style-view'].forEach(rm);
+                const tabVisibility = clone.querySelector('#tab-visibility');
+                if (tabVisibility && tabVisibility.parentElement.children.length === 1) tabVisibility.parentElement.remove();
+                const closeCharBtn = clone.querySelector('#close-char-modal-btn');
+                if (closeCharBtn) closeCharBtn.textContent = '閉じる';
+
+                // ヘルプは、編集モードの説明を閲覧用の説明に差し替える
+                const helpBody = clone.querySelector('#help-modal .overflow-y-auto');
+                if (helpBody && helpBody.firstElementChild) {
+                    const item = (color, icon, title, desc) =>
+                        '<div class="flex items-start gap-3 bg-white p-3 rounded-xl border border-slate-100">'
+                        + '<div class="w-9 h-9 flex-shrink-0 rounded-lg bg-' + color + '-50 text-' + color + '-600 flex items-center justify-center"><i data-lucide="' + icon + '" size="16"></i></div>'
+                        + '<div><p class="font-bold text-sm text-slate-800">' + title + '</p><p class="text-xs text-slate-500 leading-relaxed mt-0.5">' + desc + '</p></div></div>';
+                    helpBody.firstElementChild.innerHTML =
+                        '<p class="text-[11px] font-bold text-slate-400 uppercase tracking-wide mb-2">見る・探す</p><div class="space-y-3">'
+                        + item('sky', 'search', '検索', '上の検索欄から発言を探して、その場所へジャンプできます。')
+                        + item('violet', 'columns', 'タブの切り替え', 'タブ名を押すと、タブごとに表示・非表示を切り替えられます。')
+                        + item('amber', 'list', 'シーン一覧', '区切り線につけられたラベルの一覧が開き、押すとそのシーンへジャンプできます（区切り線があるときだけ表示されます）。')
+                        + item('blue', 'users', 'キャラ設定', 'キャラごとに発言の表示・非表示を切り替えられます。')
+                        + item('slate', 'sliders-horizontal', '表示設定', 'ダークモード・テーマカラー・文字サイズ・立ち絵の大きさや表示などを変えられます。')
+                        + '</div>';
+                }
+
+                // タイトルは表示のみ（ダブルクリック編集の案内を消し、ブラウザのタブ名もログのタイトルにする）
+                const appTitle = clone.querySelector('#app-title');
+                if (appTitle) appTitle.removeAttribute('title');
+                const titleText = appTitle ? appTitle.textContent.trim() : '';
+                const docTitle = clone.querySelector('title');
+                if (docTitle && titleText) docTitle.textContent = titleText;
+
+                // ツール自体の宣伝・検索用の情報は、配布するログには不要
+                clone.querySelectorAll('meta[name="google-site-verification"], meta[name="description"], meta[property^="og:"], meta[name^="twitter:"], link[rel="canonical"], script[type="application/ld+json"]').forEach(n => n.remove());
+
+                // 閲覧専用の目印（IS_VIEWER）と、コード内のクレジット
+                clone.querySelector('body').setAttribute('data-viewer', '1');
+                clone.insertBefore(document.createComment(' このファイルは「ろぐしあたー」で整形・出力した閲覧専用HTMLです。 '), clone.firstChild);
+            }
+
             function downloadHTML() {
 
+                // 読み込み中オーバーレイ。以前の保存HTMLにはこの要素が無いので、無くても動くようにする
                 const loading = getEl('loading-overlay');
-                loading.classList.remove('hidden'); loading.classList.add('flex');
+                if (loading) { loading.classList.remove('hidden'); loading.classList.add('flex'); }
 
                 setTimeout(() => {
                     try {
@@ -6238,7 +6311,7 @@
                         let fileName = `${sourceFileName}_formatted_${safeDateStr}`;
                         let blob;
 
-                        if (format === 'html') {
+                        if (format === 'html' || format === 'viewer') {
                             getEl('icon-data-storage').textContent = JSON.stringify(charIcons); getEl('loc-data-storage').textContent = JSON.stringify(allLocations); { const packed = packLogIcons(); getEl('log-data-storage').textContent = packed.log; getEl('icon-pool-storage').textContent = packed.pool; } getEl('source-filename-storage').textContent = JSON.stringify(sourceFileName);
                             getEl('style-data-storage').textContent = JSON.stringify({ col: getComputedStyle(document.documentElement).getPropertyValue('--column-width').trim(), font: getComputedStyle(document.documentElement).getPropertyValue('--base-font-size').trim(), port: getComputedStyle(document.documentElement).getPropertyValue('--portrait-size').trim(), theme: currentTheme, colInd: showColIndicator, ts: showTimestamps });
                             getEl('char-styles-storage').textContent = JSON.stringify(charStyles);
@@ -6279,10 +6352,14 @@
                             const cloneScPanel = clone.querySelector('#scene-list-panel');
                             if (cloneScPanel) cloneScPanel.classList.remove('open');
                             
-                            // Remove loading overlay from the saved file
+                            // 保存中は表示状態なので、保存HTMLでは非表示に戻す（要素は残す。消すと、保存HTMLからの再保存・書き出しが失敗する）
                             const cloneLoading = clone.querySelector('#loading-overlay');
-                            if(cloneLoading) cloneLoading.remove();
+                            if (cloneLoading) { cloneLoading.classList.add('hidden'); cloneLoading.classList.remove('flex'); }
                             
+                            if (format === 'viewer') {
+                                stripForViewer(clone);
+                                fileName = fileName.replace('_formatted_', '_viewer_');
+                            }
                             fileName += '.html';
                             blob = new Blob(['<!DOCTYPE html>' + clone.outerHTML], { type: 'text/html' });
                         } else if (format === 'markdown') {
@@ -6304,7 +6381,7 @@
                         console.error("Save error:", e);
                         alert("保存中にエラーが発生しました。\nログサイズが大きすぎる可能性があります。");
                     } finally {
-                        loading.classList.add('hidden'); loading.classList.remove('flex');
+                        if (loading) { loading.classList.add('hidden'); loading.classList.remove('flex'); }
                     }
                 }, 100);
             }
