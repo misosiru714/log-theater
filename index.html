@@ -383,6 +383,26 @@
             border: 2px solid transparent;
         }
         
+        /* ===== 情報カードモード（マーカーモードで発言ごとに選ぶ枠の見た目 A〜D） =====
+           色は(0,3,0)の詳細度で、ダークモードの .bubble より優先させる。ユーザーが選んだ書体は、C・Dの既定書体より優先する(data-cfont) */
+        .bubble.info-card:not(.dice-only-bubble)::before { display: block; font-size: 11px; font-weight: 700; line-height: 1.5; margin-bottom: 4px; letter-spacing: 0.08em; }
+        .bubble.info-card.info-a { background-color: #f8fafc; color: #1e293b; border: 1px solid #cbd5e1; border-left: 4px solid #0ea5e9; border-radius: 0; border-top-left-radius: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .bubble.info-card.info-a:not(.dice-only-bubble)::before { content: '情報'; display: inline-block; color: #075985; background: #e0f2fe; padding: 0 8px; }
+        .bubble.info-card.info-b { background-color: #fef3c7; background-image: linear-gradient(315deg, #fcd34d 0, #fcd34d 14px, transparent 14px); color: #78350f; border: 1px solid #fcd34d; border-radius: 2px; border-top-left-radius: 2px; box-shadow: none; }
+        .bubble.info-card.info-b:not(.dice-only-bubble)::before { content: 'メモ'; color: #92400e; }
+        .bubble.info-card.info-c { background-color: #0f172a; color: #bbf7d0; border: 1px solid #334155; border-radius: 6px; border-top-left-radius: 6px; line-height: 1.8; box-shadow: none; }
+        .bubble.info-card.info-c:not([data-cfont]) { font-family: 'Share Tech Mono', ui-monospace, Menlo, Consolas, 'Hiragino Kaku Gothic ProN', 'Yu Gothic', monospace; }
+        .bubble.info-card.info-c:not(.dice-only-bubble)::before { content: '> 情報'; color: #67e8f9; letter-spacing: 0.04em; }
+        .bubble.info-card.info-d { background-color: rgba(255,255,255,0.88); color: #1e293b; border: none; border-top: 3px double #94a3b8; border-bottom: 3px double #94a3b8; border-radius: 0; border-top-left-radius: 0; box-shadow: none; text-align: center; padding: 12px 16px; line-height: 1.9; }
+        .bubble.info-card.info-d:not([data-cfont]) { font-family: 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', serif; }
+        .bubble.info-card.info-d:not(.dice-only-bubble)::before { content: '情報'; color: #64748b; font-size: 11px; letter-spacing: 0.3em; }
+        body.dark-mode .bubble.info-card.info-a { background-color: #1e293b; color: #e2e8f0; border-color: #475569; border-left-color: #38bdf8; }
+        body.dark-mode .bubble.info-card.info-a:not(.dice-only-bubble)::before { color: #bae6fd; background: #0c4a6e; }
+        body.dark-mode .bubble.info-card.info-b { background-color: #78350f; background-image: linear-gradient(315deg, #b45309 0, #b45309 14px, transparent 14px); color: #fef3c7; border-color: #b45309; }
+        body.dark-mode .bubble.info-card.info-b:not(.dice-only-bubble)::before { color: #fde68a; }
+        body.dark-mode .bubble.info-card.info-d { background-color: rgba(15,23,42,0.88); color: #e2e8f0; border-top-color: #64748b; border-bottom-color: #64748b; }
+        body.dark-mode .bubble.info-card.info-d:not(.dice-only-bubble)::before { color: #94a3b8; }
+
         /* Marker Mode */
         body.marker-mode-active .bubble { cursor: pointer; }
         body.marker-mode-active .bubble:hover {
@@ -778,6 +798,11 @@
             font-size: 11px; font-weight: 600; color: #64748b; cursor: pointer; transition: all 0.1s;
         }
         .ctx-style-btn:hover { background: #f8fafc; }
+        .ctx-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 6px; }
+        .ctx-info-btn { font-size: 11px; padding: 4px 6px; border: 1px solid #e2e8f0; border-radius: 6px; background: #fff; color: #475569; cursor: pointer; text-align: left; transition: all 0.1s; }
+        .ctx-info-btn:hover { background: #f8fafc; }
+        .ctx-info-btn.active { background: #eff6ff; color: #3b82f6; border-color: #3b82f6; font-weight: 700; }
+        body.dark-mode .ctx-info-btn { background: var(--dm-panel-soft); border-color: var(--dm-border); color: var(--dm-text); }
         .ctx-style-btn.active { background: #eff6ff; color: #3b82f6; border-color: #3b82f6; }
         .portrait-preview-slot {
             width: 44px; height: 44px; border-radius: 6px; background-color: #f1f5f9; background-size: cover; background-position: center;
@@ -994,6 +1019,17 @@
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
+            /* 情報カードモード（PDF）。A〜Dをマーカー設定どおりに出す */
+            .print-bubble.info-card::before { display: block; font-size: 8pt; font-weight: 700; margin-bottom: 2px; letter-spacing: 0.08em; }
+            .print-bubble.info-a { background: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid #0ea5e9; border-radius: 0; }
+            .print-bubble.info-a::before { content: '情報'; color: #075985; }
+            .print-bubble.info-b { background: #fef3c7; border: 1px solid #fcd34d; border-radius: 2px; }
+            .print-bubble.info-b::before { content: 'メモ'; color: #92400e; }
+            .print-bubble.info-c { background: #0f172a; color: #bbf7d0; border: 1px solid #334155; border-radius: 6px; font-family: ui-monospace, Menlo, Consolas, 'Hiragino Kaku Gothic ProN', monospace; }
+            .print-bubble.info-c::before { content: '> 情報'; color: #67e8f9; }
+            .print-bubble.info-c .print-char-name { color: #bbf7d0 !important; }
+            .print-bubble.info-d { background: #ffffff; border: none; border-top: 3px double #94a3b8; border-bottom: 3px double #94a3b8; border-radius: 0; text-align: center; font-family: 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', serif; }
+            .print-bubble.info-d::before { content: '情報'; color: #64748b; letter-spacing: 0.3em; }
             .print-char-name {
                 font-size: 8pt;
                 font-weight: 700;
@@ -1904,7 +1940,7 @@
     // ↓公開リリースノートはここだよ。更新しようね。
     const APP_VERSION = '1.9.9';
     const RELEASE_NOTES = [
-        { version: '1.9.9', description: 'シーンの切れ目に、ラベル付きの区切り線を入れられる「区切り線モード」を追加しました。編集ボタン内の区切り線ボタンを押し、線を入れたい位置の発言をクリックすると出るパネルで、ラベル（1本の線に複数つけられます）・線の種類（線／破線／点線／波線／二重線／ジグザグ線）・太さ・色を設定できます。区切り線がある場合は、検索バー右の「シーン一覧」ボタンから、ラベルを押してその区切り線へジャンプできます。保存したHTML・PDF・テキスト/Markdown出力にも反映されます。書き出し形式に、配布向けの「閲覧専用HTML」も追加しました。' },
+        { version: '1.9.9', description: '読みやすいログ作りと、配布まわりを強化しました。<br>【シーン区切り線】編集ボタンの「区切り線モード」で、発言と発言の間に区切り線を入れられます。ラベルは1本の線に複数つけられ、線の種類（線・破線・点線・波線・二重線・ジグザグ線）・太さ・色も変えられます。保存したHTML・PDF・テキスト／Markdownにも反映されます。<br>【シーン一覧】区切り線があるログでは、検索バーの右に「シーン一覧」ボタンが現れ、ラベルを押すとそのシーンへジャンプできます。<br>【閲覧専用HTML】書き出し形式に「閲覧専用HTML」を追加しました。編集や読み込みの画面を取り除き、検索・タブ切替・シーン一覧・栞・表示設定・キャラの表示切替だけを残した、配布向けのHTMLを出力できます。<br>【情報カードモード】マーカーモードのスタイル編集で、発言を「情報カード」「付箋メモ」「端末ログ」「ナレーション帯」の見た目にできます。情報タブの描写や手がかりを、会話と区別して読みやすくできます。<br>【保存HTMLの軽量化】立ち絵付きのログを保存したときに、同じ画像データを何度も持たなくなり、HTMLのサイズが大きく小さくなりました。<br>【使い勝手】キャラクター設定・ヘルプ・PDF出力などのパネルは、外側をクリックして閉じられるようになりました。<br>【不具合の修正】キャラクターの表示／非表示が、設定パネルを閉じると元に戻ってしまう問題と、保存したHTMLを開いて再保存・書き出しをすると失敗する問題を直しました。' },
         { version: '1.9.8', description: 'ルビ振りに対応しました。文字編集モードで「｜文字《ルビ》」と入力するか、文字を選択して「文字《ルビ》」ボタンを押すとルビを振れます。' },
         { version: '1.9.7', description: '複数セッションのログを1つに結合できる「追加読み込み」機能を追加しました。末尾と先頭が重なっている場合は自動で重複を除いて繋げ、結果を画面上部のテロップでお知らせします（ヘッダーの＋アイコンから）。' },
         { version: '1.9.6', description: 'ログ編集画面にダークモードを追加しました。設定パネルのスイッチでいつでも切り替えられます。' },
@@ -1939,7 +1975,12 @@
     // 新しいものを配列の先頭に追加する形でずっと積み上げていくこと。
     // ============================================================
     const HIDDEN_CHANGELOG = [
-        { version: '1.9.9.2', note: '書き出し形式に閲覧専用HTML(value=viewer)を追加。通常のHTML保存と同じ複製処理に、stripForViewer(clone)で編集・読み込み・LP・PDF・語録メーカー・トリミング等の画面部品を取り除く処理を足した。bodyにdata-viewer=1を付け、メインスクリプト側はIS_VIEWERで判定(getElが無い部品にはダミーを返す/タイトル編集を無効化/コンソールとHTMLコメントにクレジット/アナリティクスのsourceはviewer)。JSコード自体は残る(画面部品のみ除去)。ヘルプは閲覧用の説明に差し替え。書き出しボタンのラベルにxlsx用の表記も追加。新しい画面部品を足したときは、閲覧専用で要るか要らないかを、stripForViewerの除去リストで判断すること。' },
+        { version: '1.9.9.7', note: 'パネルの外(背景)をクリックして閉じる共通処理bindBackdropCloseを追加(キャラ設定・ヘルプ・PDF出力・語録メーカー)。mousedownもclickも背景上のときだけ閉じる(パネル内で押して外で離すドラッグ操作では閉じない)。キャラ設定は、スタイル設定に未反映の変更(charStylesDirty)があるときだけapplyCharStylesを呼んでから閉じる(再描画が重いので、変更なしなら呼ばない)。トリミング画面は、外クリックで切り抜き作業が消えるため対象外。ホームのリリースノート/機能一覧パネルは元から外クリックとEscで閉じる作りだった。' },
+        { version: '1.9.9.6', note: '保存HTMLを開いて再保存・各形式の書き出しをすると失敗するバグを修正(旧版から存在)。downloadHTMLが保存用の複製からloading-overlayを削除していたため、保存HTMLではgetEl("loading-overlay")がnullになり、classListで落ちていた。複製では削除せず非表示に戻す方式に変更し、すでに配布済みの旧い保存HTML(オーバーレイなし)でもnullガードで動くようにした。' },
+        { version: '1.9.9.5', note: 'キャラの表示/非表示が、設定パネルを閉じる(applyCharStylesが全行を作り直す)・Undo・タブ追加などで全表示に戻るバグを修正(旧版から存在)。行のhiddenクラスだけで状態を持っていたのをやめ、非表示キャラの集合hiddenCharsを持ってcreateRowで再付与するようにした。パネルを開き直したときのチェック状態もhiddenCharsから復元する。別ログの読み込み時はclearする。' },
+        { version: '1.9.9.4', note: 'シーン区切り線とシーン一覧を追加。区切り線は発言とは別の配列sceneDividers({id,beforeId,labels[],line,width,color})で持ち、beforeIdはその発言の直前に置く(nullは末尾)。logDataに混ぜなかったのは、検索・集計・各書き出しへの影響を避けるため。線の描画はdividerLineSVG(波線・ジグザグはSVGのpattern、他はline要素)。ラベルは最大6個(DV_MAX_LABELS)で、旧データの単一labelもdvLabels()で読める。発言の削除時はreanchorDividers()で次に残る発言へ付け替え、重なった線のラベルは合流させる。スタイル編集パネルは#divider-style-panel(1回の編集セッションのUndoは1件にまとめる)。シーン一覧(#scene-list-panel)はonDividersChanged()で更新し、ボタン(PC用scene-list-btn/スマホ用scene-list-btn-mobile)はbodyのhas-scene-dividersクラスで独自CSSにより出し分ける(.btn-secondaryがdisplay:flexを持つため、Tailwindのhiddenやsm:hiddenには頼らない)。保存HTMLにはscene-dividers-storageとして入り、テキスト/Markdown/PDFにも出力される。' },
+        { version: '1.9.9.3', note: '情報カードモードを追加。発言ごとのstyle.info(a/b/c/d)に持ち、createRow/updateBubbleDOM/印刷(PDF)で .bubble に info-card info-x クラスを付けて描く。ラベル(情報/メモ/> 情報)は::beforeで出す(本文DOMは変えない。dice-only吹き出しはラベルなし)。CSSは(0,3,0)でダークモードの.bubbleより優先。C(端末)とD(ナレーション)の既定書体は、ユーザーが書体を選んだとき(data-cfont)は効かせない。Bの折れ角はclip-pathではなくlinear-gradient(clip-pathだと吹き出し外にはみ出す削除ボタンが隠れるため)。マーカーモードのメニューに、トグル(ctx-info-toggle)とA〜Dの選択(ctx-info-btn)。情報タブへの自動適用はしない(設定した発言だけ変わる)。閲覧専用HTMLでは、メニューは取り除かれるがCSSは残るので見た目は反映される。' },
+        { version: '1.9.9.2', note: '栞は閲覧専用HTMLには入れない(作者の栞は個々人のものではないため。閲覧者自身の栞は閲覧者のブラウザのlocalStorageに保存される)。書き出し形式に閲覧専用HTML(value=viewer)を追加。通常のHTML保存と同じ複製処理に、stripForViewer(clone)で編集・読み込み・LP・PDF・語録メーカー・トリミング等の画面部品を取り除く処理を足した。bodyにdata-viewer=1を付け、メインスクリプト側はIS_VIEWERで判定(getElが無い部品にはダミーを返す/タイトル編集を無効化/コンソールとHTMLコメントにクレジット/アナリティクスのsourceはviewer)。JSコード自体は残る(画面部品のみ除去)。ヘルプは閲覧用の説明に差し替え。書き出しボタンのラベルにxlsx用の表記も追加。新しい画面部品を足したときは、閲覧専用で要るか要らないかを、stripForViewerの除去リストで判断すること。' },
         { version: '1.9.9.1', note: '立ち絵(Base64画像)が発言の行ごとに重複して持たれていたのを解消し、保存HTMLのファイルサイズとメモリ使用量を削減。①refreshIcons/createRow/印刷/キャラ設定プレビューが、行ごとにdata URLをインラインで貼っていたのをやめ、画像ごとにBlob URLを1回だけ作って全発言で共有(iconUrl)。②保存HTMLに描画済みの発言行(#rows-container)を含めないようにした(Blob URLは保存先では無効なので。読み込み時にrestore()が行を作り直す)。③log-data-storageでは発言ごとのiconを、重複を除いた画像リスト(icon-pool-storage)への番号iconRefに置換(packLogIcons/expandLogIcons。iconRefなしの古い保存ファイルもそのまま読める)。④Undoの控えをJSONの丸ごとコピーからsnapshotLogData(文字列は共有、入れ子のstyleだけ複製)に変更し、立ち絵の複製を防いだ。別ログ読み込み時はclearIconUrlCacheで共有URLを破棄。' },
         { version: '1.9.8.8', note: 'ランディングページの「機能一覧を見る」モーダルを、ジャンル分けした表示に変更。FEATURE_LISTの各項目にcategoryを追加し(📥読み込み・データ管理/🖥️表示・レイアウト/✏️編集機能/🔍検索・目印/🎲TRPG特化機能/📤書き出し・共有の6ジャンル)、見出し付きでグループ表示するようにした。' },
         { version: '1.9.8.7', note: 'ダイスのみバブルの左の帯(border-left)が、border-radiusとの併用で角の部分が不自然な形に見えるバグを修正。border-leftをやめて::before疑似要素で帯を描く方式にし、帯の太さも3px→6pxに。帯自体の左側だけ吹き出しと同じ角丸(14px)を付けて馴染ませ、削除ボタン(吹き出しの外に少しはみ出す表示)を隠さないようoverflow:hiddenは使わずに対応した。' },
@@ -1990,12 +2031,13 @@
         { category: '📥 読み込み・データ管理', title: '安全性・保存', description: 'ブラウザ内ローカルのみで処理を完結し、外部サーバーに送信しません。' },
         { category: '🖥️ 表示・レイアウト', title: 'マルチタブ表示', description: '発言を main / 雑談 / 情報 等で分割表示し、タブの追加・削除・並び替え・表示切替ができます。' },
         { category: '🖥️ 表示・レイアウト', title: 'ダークモード', description: '設定パネルのスイッチで、ログ編集画面をダークモードに切り替えられます。' },
-        { category: '🖥️ 表示・レイアウト', title: '立ち絵・アイコン', description: 'キャラクターごとに立ち絵を設定でき、アップロードとトリミングの表示切替にも対応します。' },
-        { category: '🖥️ 表示・レイアウト', title: 'UI/ナビゲーション', description: 'スクロールカウンター、タブナビ、スティッキーなヘッダー、モバイル対応ボタンなどを実装しています。' },
+        { category: '🖥️ 表示・レイアウト', title: '立ち絵・アイコン', description: 'キャラクターごとに立ち絵を設定でき、アップロードとトリミングの表示切替にも対応します。保存するHTMLは、同じ立ち絵の画像データを重複して持たないので、立ち絵付きのログでもサイズを抑えられます。' },
+        { category: '🖥️ 表示・レイアウト', title: 'UI/ナビゲーション', description: 'スクロールカウンター、タブナビ、スティッキーなヘッダー、モバイル対応ボタンなどを実装しています。キャラクター設定・ヘルプ・PDF出力のパネルは、外側をクリックして閉じられます。' },
         { category: '✏️ 編集機能', title: '編集機能', description: '発言の直接編集、削除、マーカー装飾、タブ間移動、コンテキストメニューでのスタイル適用が可能です。' },
         { category: '✏️ 編集機能', title: 'Undo / 巻き戻し', description: '最大10件のUndo履歴を保存し、削除・移動・編集を元に戻せるようにしました。' },
         { category: '✏️ 編集機能', title: 'シーン区切り線', description: '区切り線モードで発言の間をクリックすると区切り線を入れられます。ラベルは1本の線に複数つけられ、線の種類（線・破線・点線・波線・二重線・ジグザグ線）・太さ・色もパネルで変更できます。保存HTML・PDF・テキスト/Markdown出力にも反映されます。' },
         { category: '✏️ 編集機能', title: 'ルビ振り', description: '文字編集モードで「｜文字《ルビ》」と入力するか、文字を選択してボタンを押すとルビを振れます。' },
+        { category: '✏️ 編集機能', title: '情報カードモード', description: 'マーカーモードのスタイル編集で、発言ごとに「情報カードモード」をONにして、情報カード・付箋メモ・端末ログ・ナレーション帯の4つの見た目から選べます。ココフォリアの情報タブの描写や手がかりを、会話と区別して読みやすくできます。保存HTML・閲覧専用HTML・PDFにも反映されます。' },
         { category: '✏️ 編集機能', title: 'キャラクタースタイル', description: 'キャラクターごとにフォント、背景色、太字を設定し、スタイルのグループ共有や統合も可能です。' },
         { category: '🔍 検索・目印', title: '検索', description: 'キーワード検索で該当発言へジャンプでき、PC・モバイル両方の画面で使えます。' },
         { category: '🔍 検索・目印', title: 'シーン一覧ジャンプ', description: '区切り線につけたラベルを一覧にして、押すとその区切り線へジャンプできます。保存したHTMLでも使えるので、長いログの目次として便利です。' },
@@ -2238,6 +2280,15 @@
                 <span class="text-[10px] font-bold text-slate-400 block mb-1">強調</span>
                 <div class="ctx-btn-group">
                     <button class="ctx-style-btn" data-type="bold">B 太字</button>
+                </div>
+            </div>
+            <div class="mt-2">
+                <label class="flex items-center gap-2 text-xs font-bold text-slate-500 cursor-pointer select-none"><input type="checkbox" id="ctx-info-toggle" class="w-4 h-4 rounded"> 情報カードモード</label>
+                <div id="ctx-info-types" class="ctx-info-grid" style="display:none">
+                    <button type="button" class="ctx-info-btn" data-info="a">A 情報カード</button>
+                    <button type="button" class="ctx-info-btn" data-info="b">B 付箋メモ</button>
+                    <button type="button" class="ctx-info-btn" data-info="c">C 端末ログ</button>
+                    <button type="button" class="ctx-info-btn" data-info="d">D ナレーション帯</button>
                 </div>
             </div>
             <div class="pt-1 border-t mt-2">
@@ -3157,6 +3208,10 @@
                 getEl('text-edit-mode-btn').onclick = toggleTextEditMode;
                 getEl('close-ctx-menu').onclick = hideContextMenu;
                 getEl('ctx-reset-btn').onclick = resetBubbleStyle;
+                getEl('ctx-info-toggle').onchange = (e) => applyBubbleStyle('info', e.target.checked ? lastInfoType : '');
+                document.querySelectorAll('.ctx-info-btn').forEach(btn => {
+                    btn.onclick = () => applyBubbleStyle('info', btn.dataset.info);
+                });
 
                 // Color pickers in Context Menu
                 document.querySelectorAll('.ctx-color-btn').forEach(btn => {
@@ -4288,6 +4343,7 @@
                 document.querySelectorAll('.ctx-font-btn').forEach(btn => {
                     btn.classList.toggle('active', btn.dataset.font === (currentStyle.font || ''));
                 });
+                syncInfoMenu(currentStyle);
 
                 menu.style.display = 'flex';
                 let top = rect.top + window.scrollY;
@@ -4297,8 +4353,8 @@
                     left = rect.left;
                     top = rect.bottom + 10;
                 }
-                if (top + 300 > window.innerHeight) {
-                    top = Math.max(10, window.innerHeight - 320);
+                if (top + 400 > window.innerHeight) {
+                    top = Math.max(10, window.innerHeight - 420);
                 }
                 menu.style.top = top + 'px';
                 menu.style.left = left + 'px';
@@ -4328,6 +4384,10 @@
                     document.querySelectorAll('.ctx-font-btn').forEach(btn => {
                         btn.classList.toggle('active', btn.dataset.font === value);
                     });
+                } else if (type === 'info') {
+                    if (value && INFO_MAP[value]) { logData[index].style.info = value; lastInfoType = value; }
+                    else delete logData[index].style.info;
+                    syncInfoMenu(logData[index].style);
                 }
                 updateBubbleDOM(currentEditingId, logData[index].style);
             }
@@ -4340,6 +4400,20 @@
                 logData[index].style = {}; 
                 updateBubbleDOM(currentEditingId, {});
                 hideContextMenu();
+            }
+
+            // 情報カードモード: 発言ごとの style.info に 'a'|'b'|'c'|'d' を持つ（未設定=通常の吹き出し）
+            const INFO_MAP = { a: 'info-a', b: 'info-b', c: 'info-c', d: 'info-d' };
+            const INFO_CLASSES = ['info-card', 'info-a', 'info-b', 'info-c', 'info-d'];
+            let lastInfoType = 'a'; // トグルをONにしたときに最初に選ぶ見た目（直近に選んだもの）
+
+            function syncInfoMenu(style) {
+                const on = !!(style && style.info && INFO_MAP[style.info]);
+                const toggle = getEl('ctx-info-toggle');
+                if (toggle) toggle.checked = on;
+                const box = getEl('ctx-info-types');
+                if (box) box.style.display = on ? 'grid' : 'none';
+                document.querySelectorAll('.ctx-info-btn').forEach(b => b.classList.toggle('active', on && b.dataset.info === style.info));
             }
 
             const FONT_CLASSES = ['font-serif','font-maru','font-rounded','font-shippori','font-kaisei','font-dot','font-mono','font-reggae','font-hina'];
@@ -4364,9 +4438,14 @@
                 bubble.classList.toggle('font-bold', !!style.bold);
                 // フォント（既存クラスをすべて外してから付け直す）
                 FONT_CLASSES.forEach(c => bubble.classList.remove(c));
+                bubble.removeAttribute('data-cfont');
                 if (style.font && FONT_MAP[style.font]) {
                     bubble.classList.add(FONT_MAP[style.font]);
+                    bubble.setAttribute('data-cfont', '1'); // 選んだ書体は、情報カードC・Dの既定書体より優先
                 }
+                // 情報カードモード
+                INFO_CLASSES.forEach(c => bubble.classList.remove(c));
+                if (style.info && INFO_MAP[style.info]) bubble.classList.add('info-card', INFO_MAP[style.info]);
             }
 
             // デモモード限定の初回ガイドツアー（吹き出しで主要機能を順番に案内、スキップ可）
@@ -4893,7 +4972,8 @@
 
                         if(style.bg) { bubble.style.backgroundColor = style.bg; bubble.style.borderColor = '#fbbf24'; }
                         if(style.bold) bubble.classList.add('font-bold');
-                        if(style.font && FONT_MAP[style.font]) bubble.classList.add(FONT_MAP[style.font]);
+                        if(style.font && FONT_MAP[style.font]) { bubble.classList.add(FONT_MAP[style.font]); bubble.setAttribute('data-cfont', '1'); }
+                        if(style.info && INFO_MAP[style.info]) bubble.classList.add('info-card', INFO_MAP[style.info]);
 
                         // 発言ごとの立ち絵差分（表情差分など）がある場合はそれを個別に適用
                         if (icon) {
@@ -5952,6 +6032,7 @@
                     }
                     if (m.style && m.style.bold) bubble.style.fontWeight = '700';
                     if (m.style && m.style.serif) bubble.style.fontFamily = "'Noto Serif JP', serif";
+                    if (m.style && m.style.info && INFO_MAP[m.style.info]) bubble.classList.add('info-card', INFO_MAP[m.style.info]);
 
                     const nameDiv = document.createElement('div');
                     nameDiv.className = 'print-char-name';
@@ -6281,6 +6362,14 @@
                         + item('slate', 'sliders-horizontal', '表示設定', 'ダークモード・テーマカラー・文字サイズ・立ち絵の大きさや表示などを変えられます。')
                         + '</div>';
                 }
+
+                // 栞は閲覧者それぞれのもの: 作者の栞は入れない（閲覧者自身の栞は、そのブラウザのlocalStorageに保存される）
+                const bmStore = clone.querySelector('#bookmarks-storage');
+                if (bmStore) bmStore.textContent = '[]';
+                const bmList = clone.querySelector('#bookmark-list');
+                if (bmList) bmList.innerHTML = '';
+                const bmHelp = Array.from(clone.querySelectorAll('#help-modal p')).find(x => x.textContent.trim() === '栞リスト');
+                if (bmHelp && bmHelp.nextElementSibling) bmHelp.nextElementSibling.textContent = '「＋ 現在地に栞を追加」で、今見ている位置に栞を挟めます。栞はあなたのブラウザにだけ保存され、クリックでその場所へジャンプできます。';
 
                 // タイトルは表示のみ（ダブルクリック編集の案内を消し、ブラウザのタブ名もログのタイトルにする）
                 const appTitle = clone.querySelector('#app-title');
