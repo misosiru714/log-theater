@@ -801,6 +801,10 @@
         .ctx-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 6px; }
         .ctx-info-btn { font-size: 11px; padding: 4px 6px; border: 1px solid #e2e8f0; border-radius: 6px; background: #fff; color: #475569; cursor: pointer; text-align: left; transition: all 0.1s; }
         .ctx-info-btn:hover { background: #f8fafc; }
+        .ctx-info-name { width: 100%; border: 1px solid #e2e8f0; border-radius: 6px; padding: 4px 8px; font-size: 12px; outline: none; background: #fff; color: #1e293b; }
+        .ctx-info-name:focus { border-color: #3b82f6; }
+        @media (pointer: coarse) { .ctx-info-name { font-size: 16px; } } /* iOSのフォーカス時ズーム対策 */
+        body.dark-mode .ctx-info-name { background: var(--dm-panel-soft); border-color: var(--dm-border); color: var(--dm-text); }
         .ctx-info-btn.active { background: #eff6ff; color: #3b82f6; border-color: #3b82f6; font-weight: 700; }
         body.dark-mode .ctx-info-btn { background: var(--dm-panel-soft); border-color: var(--dm-border); color: var(--dm-text); }
         .ctx-style-btn.active { background: #eff6ff; color: #3b82f6; border-color: #3b82f6; }
@@ -1940,7 +1944,7 @@
     // ↓公開リリースノートはここだよ。更新しようね。
     const APP_VERSION = '1.9.9';
     const RELEASE_NOTES = [
-        { version: '1.9.9', description: '読みやすいログ作りと、配布まわりを強化しました。<br>【シーン区切り線】編集ボタンの「区切り線モード」で、発言と発言の間に区切り線を入れられます。ラベルは1本の線に複数つけられ、線の種類（線・破線・点線・波線・二重線・ジグザグ線）・太さ・色も変えられます。保存したHTML・PDF・テキスト／Markdownにも反映されます。<br>【シーン一覧】区切り線があるログでは、検索バーの右に「シーン一覧」ボタンが現れ、ラベルを押すとそのシーンへジャンプできます。<br>【閲覧専用HTML】書き出し形式に「閲覧専用HTML」を追加しました。編集や読み込みの画面を取り除き、検索・タブ切替・シーン一覧・栞・表示設定・キャラの表示切替だけを残した、配布向けのHTMLを出力できます。<br>【情報カードモード】マーカーモードのスタイル編集で、発言を「情報カード」「付箋メモ」「端末ログ」「ナレーション帯」の見た目にできます。情報タブの描写や手がかりを、会話と区別して読みやすくできます。<br>【保存HTMLの軽量化】立ち絵付きのログを保存したときに、同じ画像データを何度も持たなくなり、HTMLのサイズが大きく小さくなりました。<br>【使い勝手】キャラクター設定・ヘルプ・PDF出力などのパネルは、外側をクリックして閉じられるようになりました。<br>【不具合の修正】キャラクターの表示／非表示が、設定パネルを閉じると元に戻ってしまう問題と、保存したHTMLを開いて再保存・書き出しをすると失敗する問題を直しました。' },
+        { version: '1.9.9', description: '読みやすいログ作りと、配布まわりを強化しました。<br>【シーン区切り線】編集ボタンの「区切り線モード」で、発言と発言の間に区切り線を入れられます。ラベルは1本の線に複数つけられ、線の種類（線・破線・点線・波線・二重線・ジグザグ線）・太さ・色も変えられます。保存したHTML・PDF・テキスト／Markdownにも反映されます。<br>【シーン一覧】区切り線があるログでは、検索バーの右に「シーン一覧」ボタンが現れ、ラベルを押すとそのシーンへジャンプできます。<br>【閲覧専用HTML】書き出し形式に「閲覧専用HTML」を追加しました。編集や読み込みの画面を取り除き、検索・タブ切替・シーン一覧・栞・表示設定・キャラの表示切替だけを残した、配布向けのHTMLを出力できます。<br>【情報カードモード】マーカーモードのスタイル編集で、発言を「情報カード」「付箋メモ」「端末ログ」「ナレーション帯」の見た目にできます。情報タブの描写や手がかりを、会話と区別して読みやすくできます。その発言だけ、表示する名前を「手がかり」などの項目名に差し替えることもできます。<br>【保存HTMLの軽量化】立ち絵付きのログを保存したときに、同じ画像データを何度も持たなくなり、HTMLのサイズが大きく小さくなりました。<br>【使い勝手】キャラクター設定・ヘルプ・PDF出力などのパネルは、外側をクリックして閉じられるようになりました。<br>【不具合の修正】キャラクターの表示／非表示が、設定パネルを閉じると元に戻ってしまう問題と、保存したHTMLを開いて再保存・書き出しをすると失敗する問題を直しました。' },
         { version: '1.9.8', description: 'ルビ振りに対応しました。文字編集モードで「｜文字《ルビ》」と入力するか、文字を選択して「文字《ルビ》」ボタンを押すとルビを振れます。' },
         { version: '1.9.7', description: '複数セッションのログを1つに結合できる「追加読み込み」機能を追加しました。末尾と先頭が重なっている場合は自動で重複を除いて繋げ、結果を画面上部のテロップでお知らせします（ヘッダーの＋アイコンから）。' },
         { version: '1.9.6', description: 'ログ編集画面にダークモードを追加しました。設定パネルのスイッチでいつでも切り替えられます。' },
@@ -1975,6 +1979,7 @@
     // 新しいものを配列の先頭に追加する形でずっと積み上げていくこと。
     // ============================================================
     const HIDDEN_CHANGELOG = [
+        { version: '1.9.9.8', note: '情報カードモードの発言だけ、表示する名前を差し替えられるようにした(style.infoName。40文字まで)。入力欄は#ctx-info-name(マーカーモードのメニューの、情報カードA〜Dの下)。差し替えるのは見える名前だけで、キャラとしての扱い(data-char・表示切替hiddenChars・色・立ち絵・applyCharStylesのスタイル一括反映)は元のキャラのまま。情報カードがOFFのとき・空欄のときは元のキャラ名(shownNameOf)。名前はcreateRowとupdateBubbleDOMで.char-nameのテキストを更新し、検索(名前でもヒット)・PDF・テキスト/Markdown/xlsxにはdisplayName()で反映。画面のHTMLに入れる差し替え名はescapeHtmlを通す(元のキャラ名は従来どおり)。OFFにしても入力した名前は残り、ONに戻すと復活する。リセットで消える。' },
         { version: '1.9.9.7', note: 'パネルの外(背景)をクリックして閉じる共通処理bindBackdropCloseを追加(キャラ設定・ヘルプ・PDF出力・語録メーカー)。mousedownもclickも背景上のときだけ閉じる(パネル内で押して外で離すドラッグ操作では閉じない)。キャラ設定は、スタイル設定に未反映の変更(charStylesDirty)があるときだけapplyCharStylesを呼んでから閉じる(再描画が重いので、変更なしなら呼ばない)。トリミング画面は、外クリックで切り抜き作業が消えるため対象外。ホームのリリースノート/機能一覧パネルは元から外クリックとEscで閉じる作りだった。' },
         { version: '1.9.9.6', note: '保存HTMLを開いて再保存・各形式の書き出しをすると失敗するバグを修正(旧版から存在)。downloadHTMLが保存用の複製からloading-overlayを削除していたため、保存HTMLではgetEl("loading-overlay")がnullになり、classListで落ちていた。複製では削除せず非表示に戻す方式に変更し、すでに配布済みの旧い保存HTML(オーバーレイなし)でもnullガードで動くようにした。' },
         { version: '1.9.9.5', note: 'キャラの表示/非表示が、設定パネルを閉じる(applyCharStylesが全行を作り直す)・Undo・タブ追加などで全表示に戻るバグを修正(旧版から存在)。行のhiddenクラスだけで状態を持っていたのをやめ、非表示キャラの集合hiddenCharsを持ってcreateRowで再付与するようにした。パネルを開き直したときのチェック状態もhiddenCharsから復元する。別ログの読み込み時はclearする。' },
@@ -2037,7 +2042,7 @@
         { category: '✏️ 編集機能', title: 'Undo / 巻き戻し', description: '最大10件のUndo履歴を保存し、削除・移動・編集を元に戻せるようにしました。' },
         { category: '✏️ 編集機能', title: 'シーン区切り線', description: '区切り線モードで発言の間をクリックすると区切り線を入れられます。ラベルは1本の線に複数つけられ、線の種類（線・破線・点線・波線・二重線・ジグザグ線）・太さ・色もパネルで変更できます。保存HTML・PDF・テキスト/Markdown出力にも反映されます。' },
         { category: '✏️ 編集機能', title: 'ルビ振り', description: '文字編集モードで「｜文字《ルビ》」と入力するか、文字を選択してボタンを押すとルビを振れます。' },
-        { category: '✏️ 編集機能', title: '情報カードモード', description: 'マーカーモードのスタイル編集で、発言ごとに「情報カードモード」をONにして、情報カード・付箋メモ・端末ログ・ナレーション帯の4つの見た目から選べます。ココフォリアの情報タブの描写や手がかりを、会話と区別して読みやすくできます。保存HTML・閲覧専用HTML・PDFにも反映されます。' },
+        { category: '✏️ 編集機能', title: '情報カードモード', description: 'マーカーモードのスタイル編集で、発言ごとに「情報カードモード」をONにして、情報カード・付箋メモ・端末ログ・ナレーション帯の4つの見た目から選べます。ココフォリアの情報タブの描写や手がかりを、会話と区別して読みやすくできます。保存HTML・閲覧専用HTML・PDFにも反映されます。あわせて、その発言だけ表示する名前を差し替えられるので、「手がかり」「書斎の情報」のような項目名にできます（検索・PDF・テキスト/Markdown/xlsxにも反映）。' },
         { category: '✏️ 編集機能', title: 'キャラクタースタイル', description: 'キャラクターごとにフォント、背景色、太字を設定し、スタイルのグループ共有や統合も可能です。' },
         { category: '🔍 検索・目印', title: '検索', description: 'キーワード検索で該当発言へジャンプでき、PC・モバイル両方の画面で使えます。' },
         { category: '🔍 検索・目印', title: 'シーン一覧ジャンプ', description: '区切り線につけたラベルを一覧にして、押すとその区切り線へジャンプできます。保存したHTMLでも使えるので、長いログの目次として便利です。' },
@@ -2289,6 +2294,10 @@
                     <button type="button" class="ctx-info-btn" data-info="b">B 付箋メモ</button>
                     <button type="button" class="ctx-info-btn" data-info="c">C 端末ログ</button>
                     <button type="button" class="ctx-info-btn" data-info="d">D ナレーション帯</button>
+                    <div style="grid-column: 1 / -1">
+                        <span class="text-[10px] font-bold text-slate-400 block mb-1 mt-1">表示名（この発言だけ）</span>
+                        <input id="ctx-info-name" type="text" class="ctx-info-name" maxlength="40" autocomplete="off" placeholder="">
+                    </div>
                 </div>
             </div>
             <div class="pt-1 border-t mt-2">
@@ -3209,6 +3218,7 @@
                 getEl('close-ctx-menu').onclick = hideContextMenu;
                 getEl('ctx-reset-btn').onclick = resetBubbleStyle;
                 getEl('ctx-info-toggle').onchange = (e) => applyBubbleStyle('info', e.target.checked ? lastInfoType : '');
+                getEl('ctx-info-name').oninput = (e) => applyBubbleStyle('infoName', e.target.value);
                 document.querySelectorAll('.ctx-info-btn').forEach(btn => {
                     btn.onclick = () => applyBubbleStyle('info', btn.dataset.info);
                 });
@@ -4388,6 +4398,10 @@
                     if (value && INFO_MAP[value]) { logData[index].style.info = value; lastInfoType = value; }
                     else delete logData[index].style.info;
                     syncInfoMenu(logData[index].style);
+                } else if (type === 'infoName') {
+                    // この発言だけ表示する名前。空欄なら元のキャラ名に戻る（入力中は欄を書き戻さない）
+                    const v = String(value || '').trim().slice(0, 40);
+                    if (v) logData[index].style.infoName = v; else delete logData[index].style.infoName;
                 }
                 updateBubbleDOM(currentEditingId, logData[index].style);
             }
@@ -4407,6 +4421,18 @@
             const INFO_CLASSES = ['info-card', 'info-a', 'info-b', 'info-c', 'info-d'];
             let lastInfoType = 'a'; // トグルをONにしたときに最初に選ぶ見た目（直近に選んだもの）
 
+            // 情報カードモードの発言だけ、表示する名前を差し替えられる（style.infoName。情報の項目名などに使う）。
+            // 差し替えるのは「見える名前」だけ。キャラとしての扱い（表示切替・色・立ち絵・スタイルの一括反映）は元のキャラのまま
+            function shownNameOf(char, style) {
+                return (style && style.info && INFO_MAP[style.info] && style.infoName) ? style.infoName : (char || '');
+            }
+            function displayName(m) { return shownNameOf(m.char, m.style); }
+            // 画面のHTML用: 差し替えた名前はエスケープして入れる（元のキャラ名は従来どおり）
+            function displayNameHtml(m) {
+                const n = displayName(m);
+                return n !== m.char ? escapeHtml(n) : (m.char || '');
+            }
+
             function syncInfoMenu(style) {
                 const on = !!(style && style.info && INFO_MAP[style.info]);
                 const toggle = getEl('ctx-info-toggle');
@@ -4414,6 +4440,12 @@
                 const box = getEl('ctx-info-types');
                 if (box) box.style.display = on ? 'grid' : 'none';
                 document.querySelectorAll('.ctx-info-btn').forEach(b => b.classList.toggle('active', on && b.dataset.info === style.info));
+                const nameInput = getEl('ctx-info-name');
+                if (nameInput) {
+                    const item = logData.find(d => d.id === currentEditingId);
+                    nameInput.placeholder = item ? (item.char || '') : '';
+                    nameInput.value = (style && style.infoName) || '';
+                }
             }
 
             const FONT_CLASSES = ['font-serif','font-maru','font-rounded','font-shippori','font-kaisei','font-dot','font-mono','font-reggae','font-hina'];
@@ -4446,6 +4478,13 @@
                 // 情報カードモード
                 INFO_CLASSES.forEach(c => bubble.classList.remove(c));
                 if (style.info && INFO_MAP[style.info]) bubble.classList.add('info-card', INFO_MAP[style.info]);
+                // 表示名（情報カードモードの発言だけ差し替え。OFFや空欄なら元のキャラ名）
+                const wrapper = bubble.closest('.msg-content-wrapper');
+                const nameEl = wrapper ? wrapper.querySelector('.char-name') : null;
+                if (nameEl) {
+                    const item = logData.find(d => d.id === id);
+                    if (item) nameEl.textContent = shownNameOf(item.char, style);
+                }
             }
 
             // デモモード限定の初回ガイドツアー（吹き出しで主要機能を順番に案内、スキップ可）
@@ -4941,6 +4980,9 @@
 
                 const displayMsg = formatDiceLines(applyRubyMarkup(msg));
                 const diceOnly = isDiceOnlyMessage(msg);
+                // 情報カードモードで表示名を差し替えている発言は、その名前を出す（元のキャラ名は data-char などに残る）
+                const shownName = shownNameOf(char, style);
+                const shownChar = shownName !== char ? escapeHtml(shownName) : char;
 
                 allLocations.forEach((l, lIdx) => {
                     const cell = document.createElement('div'); cell.className = `timeline-cell col-idx-${lIdx}`;
@@ -4950,7 +4992,7 @@
 
                     if (l === loc) {
                         const timeHtml = time ? `<span class="msg-timestamp" style="display:${showTimestamps ? 'inline' : 'none'}">${escapeHtml(time)}</span>` : '';
-                        cell.innerHTML = `<div class="msg-container"><div class="char-portrait ${safeCharClass}"></div><div class="msg-content-wrapper"><div class="msg-info"><span class="char-name-bg" style="border-left: 3px solid ${color}"><span class="char-name" data-name="${char}" style="color:${color}">${char}</span></span>${timeHtml}</div><div class="bubble${diceOnly ? ' dice-only-bubble' : ''}" data-id="${idx}">${displayMsg}<div class="delete-msg-btn"><i data-lucide="x" size="14"></i></div></div></div>`;
+                        cell.innerHTML = `<div class="msg-container"><div class="char-portrait ${safeCharClass}"></div><div class="msg-content-wrapper"><div class="msg-info"><span class="char-name-bg" style="border-left: 3px solid ${color}"><span class="char-name" data-name="${char}" style="color:${color}">${shownChar}</span></span>${timeHtml}</div><div class="bubble${diceOnly ? ' dice-only-bubble' : ''}" data-id="${idx}">${displayMsg}<div class="delete-msg-btn"><i data-lucide="x" size="14"></i></div></div></div>`;
                         const bubble = cell.querySelector('.bubble');
                         bubble.onclick = (e) => handleBubbleClick(e, idx);
                         const delBtn = cell.querySelector('.delete-msg-btn');
@@ -5691,12 +5733,12 @@
             function handleSearch(e, resultsId) {
                 const q = e.target.value.toLowerCase().trim(); const res = getEl(resultsId); res.innerHTML = '';
                 if (!q) { res.classList.add('hidden'); return; }
-                const matches = logData.filter(d => d.msg.toLowerCase().includes(q) || d.char.toLowerCase().includes(q));
+                const matches = logData.filter(d => d.msg.toLowerCase().includes(q) || d.char.toLowerCase().includes(q) || displayName(d).toLowerCase().includes(q));
                 if (matches.length > 0) {
                     res.classList.remove('hidden');
                     matches.forEach(m => {
                         const d = document.createElement('div'); d.className = 'p-3 text-xs border-b border-slate-50 hover:bg-blue-50 cursor-pointer transition-colors';
-                        d.innerHTML = `<div class="flex justify-between mb-1"><span class="font-bold text-blue-600">${m.char}</span><span class="text-[10px] text-slate-400 font-mono">${m.loc}</span></div><div class="text-slate-600 truncate">${m.msg}</div>`;
+                        d.innerHTML = `<div class="flex justify-between mb-1"><span class="font-bold text-blue-600">${displayNameHtml(m)}</span><span class="text-[10px] text-slate-400 font-mono">${m.loc}</span></div><div class="text-slate-600 truncate">${m.msg}</div>`;
                         d.onclick = (ev) => {
                             ev.stopPropagation();
                             const row = getEl(`row-${m.id}`);
@@ -6037,7 +6079,7 @@
                     const nameDiv = document.createElement('div');
                     nameDiv.className = 'print-char-name';
                     nameDiv.style.color = m.color || '#1e293b';
-                    nameDiv.innerHTML = m.char + (mainLocs.length + subLocs.length > 1 ? `<span class="print-tab-badge">${m.loc}</span>` : '');
+                    nameDiv.innerHTML = displayNameHtml(m) + (mainLocs.length + subLocs.length > 1 ? `<span class="print-tab-badge">${m.loc}</span>` : '');
                     bubble.appendChild(nameDiv);
 
                     const msgDiv = document.createElement('div');
@@ -6227,7 +6269,7 @@
                 return locs.map(loc => {
                     const rows = exportRowsWithDividers(loc, (d) => {
                         const content = cleanText(d.msg || d.rawMsg);
-                        return formatMultilineText(content, `${d.char}: `);
+                        return formatMultilineText(content, `${displayName(d)}: `);
                     }, (dv) => dvLabels(dv).length ? `━━━━ ${dvLabels(dv).join(' / ')} ━━━━` : '━━━━━━━━━━━━');
                     return `== ${loc} ==\n\n${rows.join('\n\n')}`;
                 }).join('\n\n');
@@ -6239,7 +6281,7 @@
                     const rows = exportRowsWithDividers(loc, (d) => {
                         const content = cleanText(d.msg || d.rawMsg);
                         const formatted = content.split('\n').map((line, index) => index === 0 ? line : `    ${line}`).join('  \n');
-                        return `- **${d.char}**: ${formatted}`;
+                        return `- **${displayName(d)}**: ${formatted}`;
                     }, (dv) => '\n---\n' + (dvLabels(dv).length ? `\n**▼ ${dvLabels(dv).join(' / ')}**\n` : ''));
                     return `## ${loc}\n\n${rows.join('\n')}`;
                 }).join('\n\n');
@@ -6279,7 +6321,7 @@
                     if (locIdx === -1) return;
 
                     const c = colBase(locIdx);
-                    const char = d.char || '';
+                    const char = displayName(d);
                     const msg  = cleanText(d.msg || d.rawMsg || '');
 
                     // キャラ名セル
