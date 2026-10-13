@@ -805,6 +805,39 @@
         .ctx-info-name:focus { border-color: #3b82f6; }
         @media (pointer: coarse) { .ctx-info-name { font-size: 16px; } } /* iOSのフォーカス時ズーム対策 */
         body.dark-mode .ctx-info-name { background: var(--dm-panel-soft); border-color: var(--dm-border); color: var(--dm-text); }
+        /* 差分（表情）: マーカーモードのメニュー */
+        .ctx-expr-list { display: flex; flex-wrap: wrap; gap: 4px; }
+        .ctx-expr-btn { font-size: 11px; padding: 3px 10px; border: 1px solid #e2e8f0; border-radius: 999px; background: #fff; color: #475569; cursor: pointer; transition: all 0.1s; }
+        .ctx-expr-btn:hover { background: #f8fafc; }
+        .ctx-expr-btn.active { background: #eff6ff; color: #3b82f6; border-color: #3b82f6; font-weight: 700; }
+        .ctx-expr-btn.missing { opacity: 0.45; }
+        .ctx-expr-hint { font-size: 10px; color: #94a3b8; }
+        body.dark-mode .ctx-expr-btn { background: var(--dm-panel-soft); border-color: var(--dm-border); color: var(--dm-text); }
+        /* 差分（表情）: キャラ設定の立ち絵タブ */
+        .expr-chip { display: inline-flex; align-items: center; border: 1px solid #bfdbfe; background: #eff6ff; border-radius: 999px; overflow: hidden; }
+        .expr-chip-name { font-size: 12px; font-weight: 700; color: #1d4ed8; padding: 3px 4px 3px 12px; cursor: text; }
+        .expr-chip-del { font-size: 12px; color: #93c5fd; padding: 3px 10px 3px 4px; cursor: pointer; }
+        .expr-chip-del:hover { color: #ef4444; }
+        .expr-chip-input { font-size: 12px; padding: 3px 10px; outline: none; width: 7em; background: #fff; color: #1e293b; }
+        .expr-new-input { border: 1px solid #e2e8f0; border-radius: 10px; padding: 6px 10px; font-size: 13px; outline: none; background: #fff; color: #1e293b; }
+        .expr-new-input:focus { border-color: #3b82f6; }
+        @media (pointer: coarse) { .expr-new-input, .expr-chip-input { font-size: 16px; } } /* iOSのフォーカス時ズーム対策 */
+        .expr-preset-btn { font-size: 11px; font-weight: 700; color: #3b82f6; padding: 2px 8px; border: 1px dashed #bfdbfe; border-radius: 999px; cursor: pointer; }
+        .expr-preset-btn:hover { background: #eff6ff; }
+        .expr-toggle { font-size: 12px; font-weight: 700; color: #64748b; padding: 6px 4px 2px 4px; cursor: pointer; }
+        .expr-toggle:hover { color: #3b82f6; }
+        .expr-block { display: none; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 8px; padding: 6px 4px 4px; }
+        .expr-slot { position: relative; border: 1px dashed #cbd5e1; border-radius: 12px; background: #fff; padding: 6px; text-align: center; cursor: pointer; transition: all 0.15s; }
+        .expr-slot:hover, .expr-slot.drag-over { border-color: #3b82f6; background: #eff6ff; }
+        .expr-slot.has-image { border-style: solid; border-color: #bfdbfe; }
+        .expr-slot-img { width: 56px; height: 56px; margin: 0 auto 4px; border-radius: 10px; background: #f1f5f9 center / cover no-repeat; }
+        .expr-slot-name { font-size: 11px; font-weight: 700; color: #475569; }
+        .expr-slot-del { position: absolute; top: 2px; right: 4px; font-size: 12px; color: #94a3b8; cursor: pointer; }
+        .expr-slot-del:hover { color: #ef4444; }
+        body.dark-mode #expr-manager { background: var(--dm-panel); border-color: var(--dm-border); }
+        body.dark-mode .expr-slot { background: var(--dm-panel); border-color: var(--dm-border); }
+        body.dark-mode .expr-slot-name { color: var(--dm-text); }
+        body.dark-mode .expr-new-input, body.dark-mode .expr-chip-input { background: var(--dm-panel-soft); border-color: var(--dm-border); color: var(--dm-text); }
         .ctx-info-btn.active { background: #eff6ff; color: #3b82f6; border-color: #3b82f6; font-weight: 700; }
         body.dark-mode .ctx-info-btn { background: var(--dm-panel-soft); border-color: var(--dm-border); color: var(--dm-text); }
         .ctx-style-btn.active { background: #eff6ff; color: #3b82f6; border-color: #3b82f6; }
@@ -1944,7 +1977,7 @@
     // ↓公開リリースノートはここだよ。更新しようね。
     const APP_VERSION = '1.9.9';
     const RELEASE_NOTES = [
-        { version: '1.9.9', description: '読みやすいログ作りと、配布まわりを強化しました。<br>【シーン区切り線】編集ボタンの「区切り線モード」で、発言と発言の間に区切り線を入れられます。ラベルは1本の線に複数つけられ、線の種類（線・破線・点線・波線・二重線・ジグザグ線）・太さ・色も変えられます。保存したHTML・PDF・テキスト／Markdownにも反映されます。<br>【シーン一覧】区切り線があるログでは、検索バーの右に「シーン一覧」ボタンが現れ、ラベルを押すとそのシーンへジャンプできます。<br>【閲覧専用HTML】書き出し形式に「閲覧専用HTML」を追加しました。編集や読み込みの画面を取り除き、検索・タブ切替・シーン一覧・栞・表示設定・キャラの表示切替だけを残した、配布向けのHTMLを出力できます。<br>【情報カードモード】マーカーモードのスタイル編集で、発言を「情報カード」「付箋メモ」「端末ログ」「ナレーション帯」の見た目にできます。情報タブの描写や手がかりを、会話と区別して読みやすくできます。その発言だけ、表示する名前を「手がかり」などの項目名に差し替えることもできます。<br>【保存HTMLの軽量化】立ち絵付きのログを保存したときに、同じ画像データを何度も持たなくなり、HTMLのサイズが大きく小さくなりました。<br>【使い勝手】キャラクター設定・ヘルプ・PDF出力などのパネルは、外側をクリックして閉じられるようになりました。<br>【不具合の修正】キャラクターの表示／非表示が、設定パネルを閉じると元に戻ってしまう問題と、保存したHTMLを開いて再保存・書き出しをすると失敗する問題を直しました。' },
+        { version: '1.9.9', description: '読みやすいログ作りと、配布まわりを強化しました。<br>【シーン区切り線】編集ボタンの「区切り線モード」で、発言と発言の間に区切り線を入れられます。ラベルは1本の線に複数つけられ、線の種類（線・破線・点線・波線・二重線・ジグザグ線）・太さ・色も変えられます。保存したHTML・PDF・テキスト／Markdownにも反映されます。<br>【シーン一覧】区切り線があるログでは、検索バーの右に「シーン一覧」ボタンが現れ、ラベルを押すとそのシーンへジャンプできます。<br>【閲覧専用HTML】書き出し形式に「閲覧専用HTML」を追加しました。編集や読み込みの画面を取り除き、検索・タブ切替・シーン一覧・栞・表示設定・キャラの表示切替だけを残した、配布向けのHTMLを出力できます。<br>【情報カードモード】マーカーモードのスタイル編集で、発言を「情報カード」「付箋メモ」「端末ログ」「ナレーション帯」の見た目にできます。情報タブの描写や手がかりを、会話と区別して読みやすくできます。その発言だけ、表示する名前を「手がかり」などの項目名に差し替えることもできます。<br>【立ち絵の差分】キャラ設定の「立ち絵」タブで差分の名前（笑い・怒り・泣き…）を作り、キャラごとに画像を設定できます。マーカーモードのメニューで発言に差分を付けると、その発言だけ差分の立ち絵になります。取り込み時のアイコンより優先され、保存HTML・閲覧専用HTML・PDFにも反映されます。<br>【保存HTMLの軽量化】立ち絵付きのログを保存したときに、同じ画像データを何度も持たなくなり、HTMLのサイズが大きく小さくなりました。<br>【使い勝手】キャラクター設定・ヘルプ・PDF出力などのパネルは、外側をクリックして閉じられるようになりました。<br>【不具合の修正】キャラクターの表示／非表示が、設定パネルを閉じると元に戻ってしまう問題と、保存したHTMLを開いて再保存・書き出しをすると失敗する問題を直しました。' },
         { version: '1.9.8', description: 'ルビ振りに対応しました。文字編集モードで「｜文字《ルビ》」と入力するか、文字を選択して「文字《ルビ》」ボタンを押すとルビを振れます。' },
         { version: '1.9.7', description: '複数セッションのログを1つに結合できる「追加読み込み」機能を追加しました。末尾と先頭が重なっている場合は自動で重複を除いて繋げ、結果を画面上部のテロップでお知らせします（ヘッダーの＋アイコンから）。' },
         { version: '1.9.6', description: 'ログ編集画面にダークモードを追加しました。設定パネルのスイッチでいつでも切り替えられます。' },
@@ -1979,6 +2012,7 @@
     // 新しいものを配列の先頭に追加する形でずっと積み上げていくこと。
     // ============================================================
     const HIDDEN_CHANGELOG = [
+        { version: '1.9.9.9', note: '立ち絵の差分(表情)を追加。差分名は全キャラ共通のリストexprNames(最大12、1つ12文字まで)、画像は代表キャラごとのcharExprs({代表: {差分名: 画像データ}}。別名キャラはgetGroupLeaderで代表の画像を引く)、発言側はstyle.expr(1発言に1つ)。絵の優先順位は 差分の画像 > 取り込み時のm.icon > キャラの通常の立ち絵(charIcons)。キャラが差分の画像を持たなければ、差分を付けても従来どおりの表示。createRowはstyle.exprの画像をiconとして扱い(data-own-icon=1になるのでrefreshIconsに上書きされない)、マーカー操作や画像変更時はrefreshRowPortrait/refreshAllExprPortraitsで付け直す。設定UIは、キャラ設定の立ち絵タブ上部の差分の名前の管理欄(追加・プリセット・名前変更・削除。名前変更は発言にも追従、削除は全キャラの画像と発言の付与を外す)と、各キャラの行の下の差分の欄(startCropに差分名を渡してcharExprsへ保存)。発言への付与は、マーカーモードのメニューの差分(なし+差分名。画像のないキャラの差分は薄く表示)。保存はexpr-names-storageとchar-exprs-storage。PDFも差分の画像を使う。閲覧専用HTMLでは編集UIは取り除かれるが、データと表示は残る。' },
         { version: '1.9.9.8', note: '情報カードモードの発言だけ、表示する名前を差し替えられるようにした(style.infoName。40文字まで)。入力欄は#ctx-info-name(マーカーモードのメニューの、情報カードA〜Dの下)。差し替えるのは見える名前だけで、キャラとしての扱い(data-char・表示切替hiddenChars・色・立ち絵・applyCharStylesのスタイル一括反映)は元のキャラのまま。情報カードがOFFのとき・空欄のときは元のキャラ名(shownNameOf)。名前はcreateRowとupdateBubbleDOMで.char-nameのテキストを更新し、検索(名前でもヒット)・PDF・テキスト/Markdown/xlsxにはdisplayName()で反映。画面のHTMLに入れる差し替え名はescapeHtmlを通す(元のキャラ名は従来どおり)。OFFにしても入力した名前は残り、ONに戻すと復活する。リセットで消える。' },
         { version: '1.9.9.7', note: 'パネルの外(背景)をクリックして閉じる共通処理bindBackdropCloseを追加(キャラ設定・ヘルプ・PDF出力・語録メーカー)。mousedownもclickも背景上のときだけ閉じる(パネル内で押して外で離すドラッグ操作では閉じない)。キャラ設定は、スタイル設定に未反映の変更(charStylesDirty)があるときだけapplyCharStylesを呼んでから閉じる(再描画が重いので、変更なしなら呼ばない)。トリミング画面は、外クリックで切り抜き作業が消えるため対象外。ホームのリリースノート/機能一覧パネルは元から外クリックとEscで閉じる作りだった。' },
         { version: '1.9.9.6', note: '保存HTMLを開いて再保存・各形式の書き出しをすると失敗するバグを修正(旧版から存在)。downloadHTMLが保存用の複製からloading-overlayを削除していたため、保存HTMLではgetEl("loading-overlay")がnullになり、classListで落ちていた。複製では削除せず非表示に戻す方式に変更し、すでに配布済みの旧い保存HTML(オーバーレイなし)でもnullガードで動くようにした。' },
@@ -2037,6 +2071,7 @@
         { category: '🖥️ 表示・レイアウト', title: 'マルチタブ表示', description: '発言を main / 雑談 / 情報 等で分割表示し、タブの追加・削除・並び替え・表示切替ができます。' },
         { category: '🖥️ 表示・レイアウト', title: 'ダークモード', description: '設定パネルのスイッチで、ログ編集画面をダークモードに切り替えられます。' },
         { category: '🖥️ 表示・レイアウト', title: '立ち絵・アイコン', description: 'キャラクターごとに立ち絵を設定でき、アップロードとトリミングの表示切替にも対応します。保存するHTMLは、同じ立ち絵の画像データを重複して持たないので、立ち絵付きのログでもサイズを抑えられます。' },
+        { category: '🖥️ 表示・レイアウト', title: '立ち絵の差分', description: '差分の名前（笑い・怒り・泣き・驚き・困惑・照れ、または自分で作成）を全キャラ共通で持ち、キャラごとに差分の画像を設定できます。マーカーモードのメニューで発言に差分を付けると、その発言だけ差分の立ち絵になります。' },
         { category: '🖥️ 表示・レイアウト', title: 'UI/ナビゲーション', description: 'スクロールカウンター、タブナビ、スティッキーなヘッダー、モバイル対応ボタンなどを実装しています。キャラクター設定・ヘルプ・PDF出力のパネルは、外側をクリックして閉じられます。' },
         { category: '✏️ 編集機能', title: '編集機能', description: '発言の直接編集、削除、マーカー装飾、タブ間移動、コンテキストメニューでのスタイル適用が可能です。' },
         { category: '✏️ 編集機能', title: 'Undo / 巻き戻し', description: '最大10件のUndo履歴を保存し、削除・移動・編集を元に戻せるようにしました。' },
@@ -2300,6 +2335,10 @@
                     </div>
                 </div>
             </div>
+            <div class="mt-2">
+                <span class="text-[10px] font-bold text-slate-400 block mb-1">差分（立ち絵）</span>
+                <div id="ctx-expr-list" class="ctx-expr-list"></div>
+            </div>
             <div class="pt-1 border-t mt-2">
                 <button id="ctx-reset-btn" class="w-full text-xs text-slate-400 hover:text-red-500 py-1">リセット</button>
             </div>
@@ -2353,6 +2392,16 @@
                     <div id="char-checkbox-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
                 </div>
                 <div id="icon-list-view" class="overflow-y-auto p-6 flex-1 hidden bg-slate-50">
+                    <div id="expr-manager" class="mb-5 p-4 bg-white border border-slate-200 rounded-2xl">
+                        <div class="flex items-center justify-between mb-2"><span class="text-xs font-bold text-slate-600">差分の名前（全キャラ共通）</span><span id="expr-count" class="text-[10px] text-slate-400"></span></div>
+                        <div id="expr-chips" class="flex flex-wrap gap-2 mb-3"></div>
+                        <div class="flex gap-2 mb-2">
+                            <input id="expr-new-input" type="text" maxlength="12" autocomplete="off" placeholder="差分の名前を入力（例：笑い）" class="expr-new-input flex-1">
+                            <button id="expr-add-btn" type="button" class="btn-secondary px-3">追加</button>
+                        </div>
+                        <div id="expr-presets" class="flex flex-wrap gap-1 items-center"><span class="text-[10px] text-slate-400 mr-1">プリセット:</span></div>
+                        <p class="text-[10px] text-slate-400 mt-2">キャラごとの画像は、下の各キャラの「差分」から設定します。発言に付けるのは、マーカーモードのメニューです。</p>
+                    </div>
                     <div id="icon-upload-container" class="space-y-3"></div>
                 </div>
                 <div id="char-style-view" class="overflow-y-auto p-6 flex-1 hidden bg-slate-50">
@@ -2651,6 +2700,8 @@
     <script id="bookmarks-storage" type="application/json">[]</script>
     <script id="scene-dividers-storage" type="application/json">[]</script>
     <script id="icon-pool-storage" type="application/json">[]</script>
+    <script id="expr-names-storage" type="application/json">[]</script>
+    <script id="char-exprs-storage" type="application/json">{}</script>
     <script id="char-groups-storage" type="application/json">{}</script>
 
     <script>
@@ -2666,7 +2717,7 @@
             let hiddenChars = new Set(); // 非表示にしたキャラ名の集合（行の作り直し・パネルの開閉をまたいで表示状態を保つ）
             let hiddenColumnLocs = new Set(); // 非表示にしたタブ名の集合（表示切替を軽くするため、大量要素のclassList操作ではなくCSSルールで一括制御する）
             let characters = new Set();
-            let currentCropImg = null, currentCropChar = "", currentCropDone = null;
+            let currentCropImg = null, currentCropChar = "", currentCropDone = null, currentCropExpr = null;
             let cropState = { x: 0, y: 0, size: 200, scale: 1 };
             let isDragging = false, dragStart = { x: 0, y: 0 };
             let sourceFileName = "log";
@@ -3219,6 +3270,15 @@
                 getEl('ctx-reset-btn').onclick = resetBubbleStyle;
                 getEl('ctx-info-toggle').onchange = (e) => applyBubbleStyle('info', e.target.checked ? lastInfoType : '');
                 getEl('ctx-info-name').oninput = (e) => applyBubbleStyle('infoName', e.target.value);
+                // 差分の名前の追加（キャラ設定の立ち絵タブ）
+                const exprInput = getEl('expr-new-input');
+                const submitExpr = () => { if (addExprName(exprInput.value)) { exprInput.value = ''; exprInput.focus(); } };
+                getEl('expr-add-btn').onclick = submitExpr;
+                exprInput.onkeydown = (e) => {
+                    e.stopPropagation();
+                    if (e.isComposing || e.keyCode === 229) return; // 日本語入力の変換中は無視
+                    if (e.key === 'Enter') { e.preventDefault(); submitExpr(); }
+                };
                 document.querySelectorAll('.ctx-info-btn').forEach(btn => {
                     btn.onclick = () => applyBubbleStyle('info', btn.dataset.info);
                 });
@@ -3419,6 +3479,8 @@
 
             function clearStorage() {
                 getEl('icon-data-storage').textContent = "{}";
+                getEl('expr-names-storage').textContent = "[]";
+                getEl('char-exprs-storage').textContent = "{}";
                 getEl('loc-data-storage').textContent = "[]";
                 getEl('log-data-storage').textContent = "[]";
                 getEl('source-filename-storage').textContent = '""';
@@ -4131,7 +4193,273 @@
                 });
             }
 
-// ---- 立ち絵画像の共有URL ----
+// ---- 差分（表情）----
+            // 発言に「差分名」(style.expr。1発言に1つ)を付けると、そのキャラの「その差分の立ち絵」で表示される。
+            // 差分名は全キャラ共通のリスト(exprNames)。画像は代表キャラごと(charExprs)で、別名キャラは代表のものを使う。
+            // 絵の優先順位: 差分の画像 → 取り込み時のその発言のアイコン(m.icon) → キャラの通常の立ち絵
+            // （キャラがその差分の画像を持っていなければ、差分を付けても従来どおりの表示）
+            const EXPR_MAX = 12;
+            const EXPR_NAME_MAX = 12;
+            const EXPR_PRESETS = ['笑い', '怒り', '泣き', '驚き', '困惑', '照れ'];
+            let exprNames = [];  // 差分名のリスト（全キャラ共通）
+            let charExprs = {};  // { 代表キャラ名: { 差分名: 画像データ } }
+            const exprOpenLeaders = new Set(); // キャラ設定で「差分」欄を開いているキャラ
+
+            function exprImageFor(char, name) {
+                if (!name) return null;
+                const leader = getGroupLeader(char);
+                const a = charExprs[leader] && charExprs[leader][name];
+                const b = charExprs[char] && charExprs[char][name];
+                return a || b || null;
+            }
+
+            function setCharExpr(leader, name, dataUrl) {
+                if (!charExprs[leader]) charExprs[leader] = {};
+                charExprs[leader][name] = dataUrl;
+            }
+
+            function removeCharExpr(leader, name) {
+                if (charExprs[leader]) delete charExprs[leader][name];
+            }
+
+            // 保存データの読み込み時: 壊れた項目を除く（差分名は重複なし・長さ制限、画像は画像のデータURLだけ）
+            function sanitizeExprNames(arr) {
+                if (!Array.isArray(arr)) return [];
+                const out = [];
+                arr.forEach((n) => {
+                    if (typeof n !== 'string') return;
+                    const name = n.trim().slice(0, EXPR_NAME_MAX);
+                    if (name && !out.includes(name) && out.length < EXPR_MAX) out.push(name);
+                });
+                return out;
+            }
+            function sanitizeCharExprs(obj, names) {
+                const out = {};
+                if (!obj || typeof obj !== 'object') return out;
+                Object.keys(obj).forEach((leader) => {
+                    const set = obj[leader];
+                    if (!set || typeof set !== 'object') return;
+                    Object.keys(set).forEach((n) => {
+                        if (names.includes(n) && typeof set[n] === 'string' && set[n].startsWith('data:image/')) {
+                            if (!out[leader]) out[leader] = {};
+                            out[leader][n] = set[n];
+                        }
+                    });
+                });
+                return out;
+            }
+
+            // 1つの発言の立ち絵を、いまの設定(差分→取り込み時のアイコン→通常の立ち絵)で付け直す
+            function refreshRowPortrait(id) {
+                const row = document.getElementById('row-' + id);
+                const p = row ? row.querySelector('.char-portrait') : null;
+                if (!p) return;
+                const item = logData.find(d => d.id === id);
+                if (!item) return;
+                const own = exprImageFor(item.char, item.style && item.style.expr) || item.icon || null;
+                if (own) {
+                    p.style.backgroundImage = `url("${iconUrl(own)}")`;
+                    p.dataset.ownIcon = '1';
+                    p.style.display = showPortraits ? 'block' : 'none';
+                } else {
+                    delete p.dataset.ownIcon;
+                    const leader = getGroupLeader(item.char);
+                    const data = charIcons[leader] || charIcons[item.char];
+                    if (data && showPortraits) { p.style.backgroundImage = `url("${iconUrl(data)}")`; p.style.display = 'block'; }
+                    else { p.style.display = 'none'; }
+                }
+            }
+            function refreshAllExprPortraits() {
+                logData.forEach((m) => { if (m.style && m.style.expr) refreshRowPortrait(m.id); });
+            }
+
+            function addExprName(raw) {
+                const name = String(raw || '').trim().slice(0, EXPR_NAME_MAX);
+                if (!name) return false;
+                if (exprNames.includes(name)) { showAppToast('「' + name + '」はすでにあります'); return false; }
+                if (exprNames.length >= EXPR_MAX) { showAppToast('差分の名前は最大' + EXPR_MAX + '個までです'); return false; }
+                exprNames.push(name);
+                renderIconUploads(); // 管理欄とキャラごとの枠をまとめて描き直す
+                return true;
+            }
+
+            function renameExprName(oldName, raw) {
+                const name = String(raw || '').trim().slice(0, EXPR_NAME_MAX);
+                if (!name || name === oldName) return false;
+                if (exprNames.includes(name)) { showAppToast('「' + name + '」はすでにあります'); return false; }
+                const i = exprNames.indexOf(oldName);
+                if (i < 0) return false;
+                exprNames[i] = name;
+                Object.keys(charExprs).forEach((k) => {
+                    const s = charExprs[k];
+                    if (s && Object.prototype.hasOwnProperty.call(s, oldName)) { s[name] = s[oldName]; delete s[oldName]; }
+                });
+                logData.forEach((m) => { if (m.style && m.style.expr === oldName) m.style.expr = name; });
+                renderIconUploads();
+                return true;
+            }
+
+            function deleteExprName(name) {
+                if (!confirm('差分「' + name + '」を削除します。\n全キャラのこの差分の画像と、発言への付与も外れます。よろしいですか？')) return;
+                exprNames = exprNames.filter(n => n !== name);
+                Object.keys(charExprs).forEach((k) => { if (charExprs[k]) delete charExprs[k][name]; });
+                const affected = [];
+                logData.forEach((m) => { if (m.style && m.style.expr === name) { delete m.style.expr; affected.push(m.id); } });
+                renderIconUploads();
+                affected.forEach(refreshRowPortrait);
+            }
+
+            function startRenameExpr(chip, nameBtn, oldName) {
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'expr-chip-input';
+                input.value = oldName;
+                input.maxLength = EXPR_NAME_MAX;
+                chip.replaceChild(input, nameBtn);
+                input.focus();
+                input.select();
+                let done = false;
+                const finish = (commit) => {
+                    if (done) return;
+                    done = true;
+                    if (commit && renameExprName(oldName, input.value)) return;
+                    renderExprManager();
+                };
+                input.onkeydown = (e) => {
+                    e.stopPropagation();
+                    if (e.isComposing || e.keyCode === 229) return; // 日本語入力の変換中は無視
+                    if (e.key === 'Enter') { e.preventDefault(); finish(true); }
+                    else if (e.key === 'Escape') { e.preventDefault(); finish(false); }
+                };
+                input.onblur = () => finish(true);
+            }
+
+            // キャラ設定の立ち絵タブ上部「差分の名前」欄
+            function renderExprManager() {
+                const chips = getEl('expr-chips');
+                if (!chips) return;
+                chips.innerHTML = '';
+                getEl('expr-count').textContent = exprNames.length + ' / ' + EXPR_MAX;
+                if (!exprNames.length) {
+                    const empty = document.createElement('span');
+                    empty.className = 'text-[11px] text-slate-400';
+                    empty.textContent = 'まだありません。下から追加するか、プリセットを足してください。';
+                    chips.appendChild(empty);
+                }
+                exprNames.forEach((name) => {
+                    const chip = document.createElement('span');
+                    chip.className = 'expr-chip';
+                    const nameBtn = document.createElement('button');
+                    nameBtn.type = 'button';
+                    nameBtn.className = 'expr-chip-name';
+                    nameBtn.textContent = name;
+                    nameBtn.title = 'クリックで名前を変更';
+                    nameBtn.onclick = () => startRenameExpr(chip, nameBtn, name);
+                    const delBtn = document.createElement('button');
+                    delBtn.type = 'button';
+                    delBtn.className = 'expr-chip-del';
+                    delBtn.textContent = '×';
+                    delBtn.title = '削除';
+                    delBtn.onclick = () => deleteExprName(name);
+                    chip.appendChild(nameBtn);
+                    chip.appendChild(delBtn);
+                    chips.appendChild(chip);
+                });
+                const pre = getEl('expr-presets');
+                pre.querySelectorAll('.expr-preset-btn').forEach(b => b.remove());
+                EXPR_PRESETS.forEach((n) => {
+                    if (exprNames.includes(n)) return;
+                    const b = document.createElement('button');
+                    b.type = 'button';
+                    b.className = 'expr-preset-btn';
+                    b.textContent = '＋' + n;
+                    b.onclick = () => addExprName(n);
+                    pre.appendChild(b);
+                });
+                getEl('expr-add-btn').disabled = exprNames.length >= EXPR_MAX;
+            }
+
+            // キャラ(代表)ごとの「差分」欄: 差分名ごとの画像枠
+            function renderExprBlock(leader, block) {
+                block.innerHTML = '';
+                if (!exprNames.length) {
+                    const hint = document.createElement('div');
+                    hint.className = 'text-[11px] text-slate-400';
+                    hint.style.gridColumn = '1 / -1';
+                    hint.textContent = '上の「差分の名前」を追加すると、ここで画像を設定できます。';
+                    block.appendChild(hint);
+                    return;
+                }
+                exprNames.forEach((name) => {
+                    const data = charExprs[leader] && charExprs[leader][name];
+                    const slot = document.createElement('div');
+                    slot.className = 'expr-slot' + (data ? ' has-image' : '');
+                    slot.innerHTML = '<div class="expr-slot-img"></div><div class="expr-slot-name"></div>';
+                    slot.querySelector('.expr-slot-name').textContent = name;
+                    if (data) slot.querySelector('.expr-slot-img').style.backgroundImage = `url('${iconUrl(data)}')`;
+                    const pick = (file) => {
+                        if (file && file.type.startsWith('image/')) {
+                            startCrop(leader, file, () => { renderIconUploads(); refreshAllExprPortraits(); }, name);
+                        }
+                    };
+                    slot.onclick = () => {
+                        const input = document.createElement('input');
+                        input.type = 'file';
+                        input.accept = 'image/*';
+                        input.onchange = (e) => pick(e.target.files[0]);
+                        input.click();
+                    };
+                    slot.ondragover = (e) => { e.preventDefault(); slot.classList.add('drag-over'); };
+                    slot.ondragleave = () => slot.classList.remove('drag-over');
+                    slot.ondrop = (e) => { e.preventDefault(); slot.classList.remove('drag-over'); pick(e.dataTransfer.files[0]); };
+                    if (data) {
+                        const del = document.createElement('button');
+                        del.type = 'button';
+                        del.className = 'expr-slot-del';
+                        del.textContent = '×';
+                        del.title = 'この差分の画像を外す';
+                        del.onclick = (e) => { e.stopPropagation(); removeCharExpr(leader, name); renderIconUploads(); refreshAllExprPortraits(); };
+                        slot.appendChild(del);
+                    }
+                    block.appendChild(slot);
+                });
+            }
+
+            // マーカーモードのメニュー「差分」: なし＋差分名。そのキャラが画像を持たない差分は薄く表示
+            function syncExprMenu(style) {
+                const box = getEl('ctx-expr-list');
+                if (!box) return;
+                box.innerHTML = '';
+                if (!exprNames.length) {
+                    const hint = document.createElement('span');
+                    hint.className = 'ctx-expr-hint';
+                    hint.textContent = '差分は、キャラ設定の「立ち絵」タブで追加できます';
+                    box.appendChild(hint);
+                    return;
+                }
+                const item = logData.find(d => d.id === currentEditingId);
+                const current = style && style.expr;
+                const mk = (label, value, missing) => {
+                    const b = document.createElement('button');
+                    b.type = 'button';
+                    b.className = 'ctx-expr-btn' + (((value || '') === (current || '')) ? ' active' : '') + (missing ? ' missing' : '');
+                    b.textContent = label;
+                    b.dataset.expr = value;
+                    if (missing) b.title = 'このキャラには「' + value + '」の画像がありません（選べますが、絵は変わりません）';
+                    b.onclick = () => applyBubbleStyle('expr', value);
+                    box.appendChild(b);
+                };
+                mk('なし', '', false);
+                exprNames.forEach(n => mk(n, n, !!item && !exprImageFor(item.char, n)));
+            }
+            // 選んだときは、ボタンを作り直さず「選択中」の見た目だけ切り替える
+            // （押したボタンが画面から消えると、メニューの外を押した扱いになってメニューが閉じてしまうため）
+            function updateExprMenuActive(style) {
+                const current = (style && style.expr) || '';
+                document.querySelectorAll('#ctx-expr-list .ctx-expr-btn').forEach(b => b.classList.toggle('active', (b.dataset.expr || '') === current));
+            }
+
+            // ---- 立ち絵画像の共有URL ----
             // Base64の画像データを発言の行ごとにインラインで貼ると、同じ立ち絵が発言数ぶん重複してメモリも保存HTMLも膨らむ。
             // 画像ごとにBlob URLを1回だけ作り、全発言からそのURLを参照する。
             // Blob URLはそのブラウザの表示中だけ有効なので、保存HTMLには描画済みの行を入れない（読み込み時に作り直す）
@@ -4354,6 +4682,7 @@
                     btn.classList.toggle('active', btn.dataset.font === (currentStyle.font || ''));
                 });
                 syncInfoMenu(currentStyle);
+                syncExprMenu(currentStyle);
 
                 menu.style.display = 'flex';
                 let top = rect.top + window.scrollY;
@@ -4363,8 +4692,8 @@
                     left = rect.left;
                     top = rect.bottom + 10;
                 }
-                if (top + 400 > window.innerHeight) {
-                    top = Math.max(10, window.innerHeight - 420);
+                if (top + 480 > window.innerHeight) {
+                    top = Math.max(10, window.innerHeight - 500);
                 }
                 menu.style.top = top + 'px';
                 menu.style.left = left + 'px';
@@ -4402,6 +4731,9 @@
                     // この発言だけ表示する名前。空欄なら元のキャラ名に戻る（入力中は欄を書き戻さない）
                     const v = String(value || '').trim().slice(0, 40);
                     if (v) logData[index].style.infoName = v; else delete logData[index].style.infoName;
+                } else if (type === 'expr') {
+                    if (value && exprNames.includes(value)) logData[index].style.expr = value; else delete logData[index].style.expr;
+                    updateExprMenuActive(logData[index].style);
                 }
                 updateBubbleDOM(currentEditingId, logData[index].style);
             }
@@ -4485,6 +4817,7 @@
                     const item = logData.find(d => d.id === id);
                     if (item) nameEl.textContent = shownNameOf(item.char, style);
                 }
+                refreshRowPortrait(id); // 差分の変更を立ち絵にも反映
             }
 
             // デモモード限定の初回ガイドツアー（吹き出しで主要機能を順番に案内、スキップ可）
@@ -4676,6 +5009,8 @@
                 sourceFileName = JSON.parse(nameRaw);
                 charStyles     = JSON.parse(charStylesRaw);
                 charGroups     = JSON.parse(charGroupsRaw);
+                exprNames      = sanitizeExprNames(JSON.parse(doc.getElementById('expr-names-storage')?.textContent || '[]'));
+                charExprs      = sanitizeCharExprs(JSON.parse(doc.getElementById('char-exprs-storage')?.textContent || '{}'), exprNames);
 
                 const styles = JSON.parse(styleRaw);
                 if (styles.col)   { getEl('col-slider').value = parseInt(styles.col);       updateStyle('--column-width',   styles.col,  'col-val'); }
@@ -4973,6 +5308,8 @@
             }
 
             function createRow(idx, loc, char, color, msg, style = {}, icon = null, time = null) {
+                // 差分を付けた発言は、そのキャラの差分の画像を優先する（取り込み時のアイコンより優先）
+                if (style && style.expr) { const exImg = exprImageFor(char, style.expr); if (exImg) icon = exImg; }
                 const row = document.createElement('div');
                 row.className = 'timeline-row'; row.id = `row-${idx}`; row.setAttribute('data-char', char); row.setAttribute('data-loc', loc);
                 if (hiddenChars.has(char)) row.classList.add('hidden');
@@ -5768,6 +6105,7 @@
             }
 
             function renderIconUploads() {
+                renderExprManager();
                 const container = getEl('icon-upload-container'); container.innerHTML = '';
                 // グループリーダーを代表として表示（メンバーは省略）
                 const shown = new Set();
@@ -5802,13 +6140,30 @@
                     row.ondragleave = () => { row.classList.remove('ring-2', 'ring-blue-500', 'bg-blue-50'); };
                     row.ondrop = (e) => { e.preventDefault(); row.classList.remove('ring-2', 'ring-blue-500', 'bg-blue-50'); setIcon(e.dataTransfer.files[0]); };
                     row.onclick = () => { const input = document.createElement('input'); input.type = 'file'; input.accept = 'image/*'; input.onchange = (e) => setIcon(e.target.files[0]); input.click(); };
-                    container.appendChild(row);
+                    // 差分の欄（キャラごと）: 行の下に、開閉できる画像枠の一覧を置く
+                    const wrap = document.createElement('div');
+                    wrap.appendChild(row);
+                    const setCount = exprNames.filter(n => charExprs[leader] && charExprs[leader][n]).length;
+                    const isOpen = exprOpenLeaders.has(leader);
+                    const toggle = document.createElement('button');
+                    toggle.type = 'button';
+                    toggle.className = 'expr-toggle';
+                    toggle.textContent = (isOpen ? '▾ ' : '▸ ') + '差分（' + setCount + ' / ' + exprNames.length + '）';
+                    toggle.onclick = () => { if (exprOpenLeaders.has(leader)) exprOpenLeaders.delete(leader); else exprOpenLeaders.add(leader); renderIconUploads(); };
+                    const block = document.createElement('div');
+                    block.className = 'expr-block';
+                    if (isOpen) block.style.display = 'grid';
+                    renderExprBlock(leader, block);
+                    wrap.appendChild(toggle);
+                    wrap.appendChild(block);
+                    container.appendChild(wrap);
                 });
                 lucide.createIcons();
             }
 
-            function startCrop(name, file, onDone) {
-                currentCropChar = name; currentCropDone = onDone || null; const r = new FileReader();
+            function startCrop(name, file, onDone, exprName) {
+                // exprName: 差分の画像を設定するときだけ渡す
+                currentCropChar = name; currentCropDone = onDone || null; currentCropExpr = exprName || null; const r = new FileReader();
                 r.onload = (e) => {
                     const img = new Image(); img.onload = () => {
                         currentCropImg = img; getEl('crop-modal').classList.remove('hidden');
@@ -5839,7 +6194,9 @@
                 cv.getContext('2d').drawImage(currentCropImg, cropState.x/s, cropState.y/s, cropState.size/s, cropState.size/s, 0, 0, 256, 256); 
                 // WebPは透過を保ったまま非可逆圧縮できるのでPNGよりファイルサイズを抑えられる。
                 // 対応していない古いブラウザでは、toDataURLの仕様によりPNGへ自動的にフォールバックされる。
-                charIcons[currentCropChar] = cv.toDataURL('image/webp', 0.85);
+                const croppedUrl = cv.toDataURL('image/webp', 0.85);
+                if (currentCropExpr) { setCharExpr(currentCropChar, currentCropExpr, croppedUrl); currentCropExpr = null; }
+                else { charIcons[currentCropChar] = croppedUrl; }
                 getEl('crop-modal').classList.add('hidden');
                 if (currentCropDone) { currentCropDone(); currentCropDone = null; }
                 else { renderIconUploads(); refreshIcons(); }
@@ -5891,6 +6248,8 @@
                     sourceFileName = JSON.parse(nameRaw || '"log"');
                     charStyles     = JSON.parse(charStylesRaw || '{}');
                     charGroups     = JSON.parse((getEl('char-groups-storage')?.textContent) || '{}');
+                    exprNames      = sanitizeExprNames(JSON.parse((getEl('expr-names-storage')?.textContent) || '[]'));
+                    charExprs      = sanitizeCharExprs(JSON.parse((getEl('char-exprs-storage')?.textContent) || '{}'), exprNames);
 
                     const styles = JSON.parse(styleRaw || '{}');
                     if(styles.col)   { getEl('col-slider').value = parseInt(styles.col);       updateStyle('--column-width',   styles.col,  'col-val'); }
@@ -6091,7 +6450,7 @@
                         const wrapper = document.createElement('div');
                         wrapper.className = 'print-msg-wrapper';
 
-                        const iconData = charIcons[m.char];
+                        const iconData = exprImageFor(m.char, m.style && m.style.expr) || charIcons[m.char];
                         if (iconData) {
                             const portrait = document.createElement('div');
                             portrait.className = 'print-portrait';
@@ -6443,7 +6802,7 @@
                         let blob;
 
                         if (format === 'html' || format === 'viewer') {
-                            getEl('icon-data-storage').textContent = JSON.stringify(charIcons); getEl('loc-data-storage').textContent = JSON.stringify(allLocations); { const packed = packLogIcons(); getEl('log-data-storage').textContent = packed.log; getEl('icon-pool-storage').textContent = packed.pool; } getEl('source-filename-storage').textContent = JSON.stringify(sourceFileName);
+                            getEl('icon-data-storage').textContent = JSON.stringify(charIcons); getEl('expr-names-storage').textContent = JSON.stringify(exprNames); getEl('char-exprs-storage').textContent = JSON.stringify(charExprs); getEl('loc-data-storage').textContent = JSON.stringify(allLocations); { const packed = packLogIcons(); getEl('log-data-storage').textContent = packed.log; getEl('icon-pool-storage').textContent = packed.pool; } getEl('source-filename-storage').textContent = JSON.stringify(sourceFileName);
                             getEl('style-data-storage').textContent = JSON.stringify({ col: getComputedStyle(document.documentElement).getPropertyValue('--column-width').trim(), font: getComputedStyle(document.documentElement).getPropertyValue('--base-font-size').trim(), port: getComputedStyle(document.documentElement).getPropertyValue('--portrait-size').trim(), theme: currentTheme, colInd: showColIndicator, ts: showTimestamps });
                             getEl('char-styles-storage').textContent = JSON.stringify(charStyles);
                             getEl('bookmarks-storage').textContent = JSON.stringify(bookmarks);
