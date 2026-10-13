@@ -1975,9 +1975,10 @@
 
 <script>
     // ↓公開リリースノートはここだよ。更新しようね。
-    const APP_VERSION = '1.9.9';
+    const APP_VERSION = '1.9.10';
     const RELEASE_NOTES = [
-        { version: '1.9.9', description: '読みやすいログ作りと、配布まわりを強化しました。<br>【シーン区切り線】編集ボタンの「区切り線モード」で、発言と発言の間に区切り線を入れられます。ラベルは1本の線に複数つけられ、線の種類（線・破線・点線・波線・二重線・ジグザグ線）・太さ・色も変えられます。保存したHTML・PDF・テキスト／Markdownにも反映されます。<br>【シーン一覧】区切り線があるログでは、検索バーの右に「シーン一覧」ボタンが現れ、ラベルを押すとそのシーンへジャンプできます。<br>【閲覧専用HTML】書き出し形式に「閲覧専用HTML」を追加しました。編集や読み込みの画面を取り除き、検索・タブ切替・シーン一覧・栞・表示設定・キャラの表示切替だけを残した、配布向けのHTMLを出力できます。<br>【情報カードモード】マーカーモードのスタイル編集で、発言を「情報カード」「付箋メモ」「端末ログ」「ナレーション帯」の見た目にできます。情報タブの描写や手がかりを、会話と区別して読みやすくできます。その発言だけ、表示する名前を「手がかり」などの項目名に差し替えることもできます。<br>【立ち絵の差分】キャラ設定の「立ち絵」タブで差分の名前（笑い・怒り・泣き…）を作り、キャラごとに画像を設定できます。マーカーモードのメニューで発言に差分を付けると、その発言だけ差分の立ち絵になります。取り込み時のアイコンより優先され、保存HTML・閲覧専用HTML・PDFにも反映されます。<br>【保存HTMLの軽量化】立ち絵付きのログを保存したときに、同じ画像データを何度も持たなくなり、HTMLのサイズが大きく小さくなりました。<br>【使い勝手】キャラクター設定・ヘルプ・PDF出力などのパネルは、外側をクリックして閉じられるようになりました。<br>【不具合の修正】キャラクターの表示／非表示が、設定パネルを閉じると元に戻ってしまう問題と、保存したHTMLを開いて再保存・書き出しをすると失敗する問題を直しました。' },
+        { version: '1.9.10', description: '情報の描写や、キャラの表情を、もっと見せやすくしました。<br>【情報カードモード】マーカーモードのスタイル編集で、発言を「情報カード」「付箋メモ」「端末ログ」「ナレーション帯」の見た目にできます。情報タブの描写や手がかりを、会話と区別して読みやすくできます。その発言だけ、表示する名前を「手がかり」などの項目名に差し替えることもできます。<br>【立ち絵の差分】キャラ設定の「立ち絵」タブで差分の名前（笑い・怒り・泣き…）を作り、キャラごとに画像を設定できます。マーカーモードのメニューで発言に差分を付けると、その発言だけ差分の立ち絵になります（メニューには、そのキャラが画像を設定している差分だけが出ます）。取り込み時のアイコンより優先され、保存HTML・閲覧専用HTML・PDFにも反映されます。' },
+        { version: '1.9.9', description: '読みやすいログ作りと、配布まわりを強化しました。<br>【シーン区切り線】編集ボタンの「区切り線モード」で、発言と発言の間に区切り線を入れられます。ラベルは1本の線に複数つけられ、線の種類（線・破線・点線・波線・二重線・ジグザグ線）・太さ・色も変えられます。保存したHTML・PDF・テキスト／Markdownにも反映されます。<br>【シーン一覧】区切り線があるログでは、検索バーの右に「シーン一覧」ボタンが現れ、ラベルを押すとそのシーンへジャンプできます。<br>【閲覧専用HTML】書き出し形式に「閲覧専用HTML」を追加しました。編集や読み込みの画面を取り除き、検索・タブ切替・シーン一覧・栞・表示設定・キャラの表示切替だけを残した、配布向けのHTMLを出力できます。<br>【保存HTMLの軽量化】立ち絵付きのログを保存したときに、同じ画像データを何度も持たなくなり、HTMLのサイズが大きく小さくなりました。<br>【使い勝手】キャラクター設定・ヘルプ・PDF出力などのパネルは、外側をクリックして閉じられるようになりました。<br>【不具合の修正】キャラクターの表示／非表示が、設定パネルを閉じると元に戻ってしまう問題と、保存したHTMLを開いて再保存・書き出しをすると失敗する問題を直しました。' },
         { version: '1.9.8', description: 'ルビ振りに対応しました。文字編集モードで「｜文字《ルビ》」と入力するか、文字を選択して「文字《ルビ》」ボタンを押すとルビを振れます。' },
         { version: '1.9.7', description: '複数セッションのログを1つに結合できる「追加読み込み」機能を追加しました。末尾と先頭が重なっている場合は自動で重複を除いて繋げ、結果を画面上部のテロップでお知らせします（ヘッダーの＋アイコンから）。' },
         { version: '1.9.6', description: 'ログ編集画面にダークモードを追加しました。設定パネルのスイッチでいつでも切り替えられます。' },
@@ -2012,13 +2013,14 @@
     // 新しいものを配列の先頭に追加する形でずっと積み上げていくこと。
     // ============================================================
     const HIDDEN_CHANGELOG = [
-        { version: '1.9.9.9', note: '立ち絵の差分(表情)を追加。差分名は全キャラ共通のリストexprNames(最大12、1つ12文字まで)、画像は代表キャラごとのcharExprs({代表: {差分名: 画像データ}}。別名キャラはgetGroupLeaderで代表の画像を引く)、発言側はstyle.expr(1発言に1つ)。絵の優先順位は 差分の画像 > 取り込み時のm.icon > キャラの通常の立ち絵(charIcons)。キャラが差分の画像を持たなければ、差分を付けても従来どおりの表示。createRowはstyle.exprの画像をiconとして扱い(data-own-icon=1になるのでrefreshIconsに上書きされない)、マーカー操作や画像変更時はrefreshRowPortrait/refreshAllExprPortraitsで付け直す。設定UIは、キャラ設定の立ち絵タブ上部の差分の名前の管理欄(追加・プリセット・名前変更・削除。名前変更は発言にも追従、削除は全キャラの画像と発言の付与を外す)と、各キャラの行の下の差分の欄(startCropに差分名を渡してcharExprsへ保存)。発言への付与は、マーカーモードのメニューの差分(なし+差分名。画像のないキャラの差分は薄く表示)。保存はexpr-names-storageとchar-exprs-storage。PDFも差分の画像を使う。閲覧専用HTMLでは編集UIは取り除かれるが、データと表示は残る。' },
-        { version: '1.9.9.8', note: '情報カードモードの発言だけ、表示する名前を差し替えられるようにした(style.infoName。40文字まで)。入力欄は#ctx-info-name(マーカーモードのメニューの、情報カードA〜Dの下)。差し替えるのは見える名前だけで、キャラとしての扱い(data-char・表示切替hiddenChars・色・立ち絵・applyCharStylesのスタイル一括反映)は元のキャラのまま。情報カードがOFFのとき・空欄のときは元のキャラ名(shownNameOf)。名前はcreateRowとupdateBubbleDOMで.char-nameのテキストを更新し、検索(名前でもヒット)・PDF・テキスト/Markdown/xlsxにはdisplayName()で反映。画面のHTMLに入れる差し替え名はescapeHtmlを通す(元のキャラ名は従来どおり)。OFFにしても入力した名前は残り、ONに戻すと復活する。リセットで消える。' },
-        { version: '1.9.9.7', note: 'パネルの外(背景)をクリックして閉じる共通処理bindBackdropCloseを追加(キャラ設定・ヘルプ・PDF出力・語録メーカー)。mousedownもclickも背景上のときだけ閉じる(パネル内で押して外で離すドラッグ操作では閉じない)。キャラ設定は、スタイル設定に未反映の変更(charStylesDirty)があるときだけapplyCharStylesを呼んでから閉じる(再描画が重いので、変更なしなら呼ばない)。トリミング画面は、外クリックで切り抜き作業が消えるため対象外。ホームのリリースノート/機能一覧パネルは元から外クリックとEscで閉じる作りだった。' },
-        { version: '1.9.9.6', note: '保存HTMLを開いて再保存・各形式の書き出しをすると失敗するバグを修正(旧版から存在)。downloadHTMLが保存用の複製からloading-overlayを削除していたため、保存HTMLではgetEl("loading-overlay")がnullになり、classListで落ちていた。複製では削除せず非表示に戻す方式に変更し、すでに配布済みの旧い保存HTML(オーバーレイなし)でもnullガードで動くようにした。' },
-        { version: '1.9.9.5', note: 'キャラの表示/非表示が、設定パネルを閉じる(applyCharStylesが全行を作り直す)・Undo・タブ追加などで全表示に戻るバグを修正(旧版から存在)。行のhiddenクラスだけで状態を持っていたのをやめ、非表示キャラの集合hiddenCharsを持ってcreateRowで再付与するようにした。パネルを開き直したときのチェック状態もhiddenCharsから復元する。別ログの読み込み時はclearする。' },
-        { version: '1.9.9.4', note: 'シーン区切り線とシーン一覧を追加。区切り線は発言とは別の配列sceneDividers({id,beforeId,labels[],line,width,color})で持ち、beforeIdはその発言の直前に置く(nullは末尾)。logDataに混ぜなかったのは、検索・集計・各書き出しへの影響を避けるため。線の描画はdividerLineSVG(波線・ジグザグはSVGのpattern、他はline要素)。ラベルは最大6個(DV_MAX_LABELS)で、旧データの単一labelもdvLabels()で読める。発言の削除時はreanchorDividers()で次に残る発言へ付け替え、重なった線のラベルは合流させる。スタイル編集パネルは#divider-style-panel(1回の編集セッションのUndoは1件にまとめる)。シーン一覧(#scene-list-panel)はonDividersChanged()で更新し、ボタン(PC用scene-list-btn/スマホ用scene-list-btn-mobile)はbodyのhas-scene-dividersクラスで独自CSSにより出し分ける(.btn-secondaryがdisplay:flexを持つため、Tailwindのhiddenやsm:hiddenには頼らない)。保存HTMLにはscene-dividers-storageとして入り、テキスト/Markdown/PDFにも出力される。' },
-        { version: '1.9.9.3', note: '情報カードモードを追加。発言ごとのstyle.info(a/b/c/d)に持ち、createRow/updateBubbleDOM/印刷(PDF)で .bubble に info-card info-x クラスを付けて描く。ラベル(情報/メモ/> 情報)は::beforeで出す(本文DOMは変えない。dice-only吹き出しはラベルなし)。CSSは(0,3,0)でダークモードの.bubbleより優先。C(端末)とD(ナレーション)の既定書体は、ユーザーが書体を選んだとき(data-cfont)は効かせない。Bの折れ角はclip-pathではなくlinear-gradient(clip-pathだと吹き出し外にはみ出す削除ボタンが隠れるため)。マーカーモードのメニューに、トグル(ctx-info-toggle)とA〜Dの選択(ctx-info-btn)。情報タブへの自動適用はしない(設定した発言だけ変わる)。閲覧専用HTMLでは、メニューは取り除かれるがCSSは残るので見た目は反映される。' },
+        { version: '1.9.10.4', note: 'マーカーモードのメニューの差分(syncExprMenu)の出し方を変更。差分名は全キャラ共通のリストなので、画像を設定していないキャラにも項目が並んでしまっていたため、そのキャラが画像を持つ差分(exprImageFor)だけを出すようにした。画像を1つも持たないキャラでは「差分（立ち絵）」の欄(#ctx-expr-section)ごと隠す(以前の「画像のない差分を薄く表示」とヒント文はやめた)。ただし、すでに差分が付いている発言は、あとから画像を外していても解除できるよう、現在の差分(薄く表示)と「なし」だけは出す。' },
+        { version: '1.9.10.3', note: '立ち絵の差分(表情)を追加。差分名は全キャラ共通のリストexprNames(最大12、1つ12文字まで)、画像は代表キャラごとのcharExprs({代表: {差分名: 画像データ}}。別名キャラはgetGroupLeaderで代表の画像を引く)、発言側はstyle.expr(1発言に1つ)。絵の優先順位は 差分の画像 > 取り込み時のm.icon > キャラの通常の立ち絵(charIcons)。キャラが差分の画像を持たなければ、差分を付けても従来どおりの表示。createRowはstyle.exprの画像をiconとして扱い(data-own-icon=1になるのでrefreshIconsに上書きされない)、マーカー操作や画像変更時はrefreshRowPortrait/refreshAllExprPortraitsで付け直す。設定UIは、キャラ設定の立ち絵タブ上部の差分の名前の管理欄(追加・プリセット・名前変更・削除。名前変更は発言にも追従、削除は全キャラの画像と発言の付与を外す)と、各キャラの行の下の差分の欄(startCropに差分名を渡してcharExprsへ保存)。発言への付与は、マーカーモードのメニューの差分(なし+差分名。画像のないキャラの差分は薄く表示)。保存はexpr-names-storageとchar-exprs-storage。PDFも差分の画像を使う。閲覧専用HTMLでは編集UIは取り除かれるが、データと表示は残る。' },
+        { version: '1.9.10.2', note: '情報カードモードの発言だけ、表示する名前を差し替えられるようにした(style.infoName。40文字まで)。入力欄は#ctx-info-name(マーカーモードのメニューの、情報カードA〜Dの下)。差し替えるのは見える名前だけで、キャラとしての扱い(data-char・表示切替hiddenChars・色・立ち絵・applyCharStylesのスタイル一括反映)は元のキャラのまま。情報カードがOFFのとき・空欄のときは元のキャラ名(shownNameOf)。名前はcreateRowとupdateBubbleDOMで.char-nameのテキストを更新し、検索(名前でもヒット)・PDF・テキスト/Markdown/xlsxにはdisplayName()で反映。画面のHTMLに入れる差し替え名はescapeHtmlを通す(元のキャラ名は従来どおり)。OFFにしても入力した名前は残り、ONに戻すと復活する。リセットで消える。' },
+        { version: '1.9.10.1', note: '情報カードモードを追加。発言ごとのstyle.info(a/b/c/d)に持ち、createRow/updateBubbleDOM/印刷(PDF)で .bubble に info-card info-x クラスを付けて描く。ラベル(情報/メモ/> 情報)は::beforeで出す(本文DOMは変えない。dice-only吹き出しはラベルなし)。CSSは(0,3,0)でダークモードの.bubbleより優先。C(端末)とD(ナレーション)の既定書体は、ユーザーが書体を選んだとき(data-cfont)は効かせない。Bの折れ角はclip-pathではなくlinear-gradient(clip-pathだと吹き出し外にはみ出す削除ボタンが隠れるため)。マーカーモードのメニューに、トグル(ctx-info-toggle)とA〜Dの選択(ctx-info-btn)。情報タブへの自動適用はしない(設定した発言だけ変わる)。閲覧専用HTMLでは、メニューは取り除かれるがCSSは残るので見た目は反映される。' },
+        { version: '1.9.9.6', note: 'パネルの外(背景)をクリックして閉じる共通処理bindBackdropCloseを追加(キャラ設定・ヘルプ・PDF出力・語録メーカー)。mousedownもclickも背景上のときだけ閉じる(パネル内で押して外で離すドラッグ操作では閉じない)。キャラ設定は、スタイル設定に未反映の変更(charStylesDirty)があるときだけapplyCharStylesを呼んでから閉じる(再描画が重いので、変更なしなら呼ばない)。トリミング画面は、外クリックで切り抜き作業が消えるため対象外。ホームのリリースノート/機能一覧パネルは元から外クリックとEscで閉じる作りだった。' },
+        { version: '1.9.9.5', note: '保存HTMLを開いて再保存・各形式の書き出しをすると失敗するバグを修正(旧版から存在)。downloadHTMLが保存用の複製からloading-overlayを削除していたため、保存HTMLではgetEl("loading-overlay")がnullになり、classListで落ちていた。複製では削除せず非表示に戻す方式に変更し、すでに配布済みの旧い保存HTML(オーバーレイなし)でもnullガードで動くようにした。' },
+        { version: '1.9.9.4', note: 'キャラの表示/非表示が、設定パネルを閉じる(applyCharStylesが全行を作り直す)・Undo・タブ追加などで全表示に戻るバグを修正(旧版から存在)。行のhiddenクラスだけで状態を持っていたのをやめ、非表示キャラの集合hiddenCharsを持ってcreateRowで再付与するようにした。パネルを開き直したときのチェック状態もhiddenCharsから復元する。別ログの読み込み時はclearする。' },
+        { version: '1.9.9.3', note: 'シーン区切り線とシーン一覧を追加。区切り線は発言とは別の配列sceneDividers({id,beforeId,labels[],line,width,color})で持ち、beforeIdはその発言の直前に置く(nullは末尾)。logDataに混ぜなかったのは、検索・集計・各書き出しへの影響を避けるため。線の描画はdividerLineSVG(波線・ジグザグはSVGのpattern、他はline要素)。ラベルは最大6個(DV_MAX_LABELS)で、旧データの単一labelもdvLabels()で読める。発言の削除時はreanchorDividers()で次に残る発言へ付け替え、重なった線のラベルは合流させる。スタイル編集パネルは#divider-style-panel(1回の編集セッションのUndoは1件にまとめる)。シーン一覧(#scene-list-panel)はonDividersChanged()で更新し、ボタン(PC用scene-list-btn/スマホ用scene-list-btn-mobile)はbodyのhas-scene-dividersクラスで独自CSSにより出し分ける(.btn-secondaryがdisplay:flexを持つため、Tailwindのhiddenやsm:hiddenには頼らない)。保存HTMLにはscene-dividers-storageとして入り、テキスト/Markdown/PDFにも出力される。' },
         { version: '1.9.9.2', note: '栞は閲覧専用HTMLには入れない(作者の栞は個々人のものではないため。閲覧者自身の栞は閲覧者のブラウザのlocalStorageに保存される)。書き出し形式に閲覧専用HTML(value=viewer)を追加。通常のHTML保存と同じ複製処理に、stripForViewer(clone)で編集・読み込み・LP・PDF・語録メーカー・トリミング等の画面部品を取り除く処理を足した。bodyにdata-viewer=1を付け、メインスクリプト側はIS_VIEWERで判定(getElが無い部品にはダミーを返す/タイトル編集を無効化/コンソールとHTMLコメントにクレジット/アナリティクスのsourceはviewer)。JSコード自体は残る(画面部品のみ除去)。ヘルプは閲覧用の説明に差し替え。書き出しボタンのラベルにxlsx用の表記も追加。新しい画面部品を足したときは、閲覧専用で要るか要らないかを、stripForViewerの除去リストで判断すること。' },
         { version: '1.9.9.1', note: '立ち絵(Base64画像)が発言の行ごとに重複して持たれていたのを解消し、保存HTMLのファイルサイズとメモリ使用量を削減。①refreshIcons/createRow/印刷/キャラ設定プレビューが、行ごとにdata URLをインラインで貼っていたのをやめ、画像ごとにBlob URLを1回だけ作って全発言で共有(iconUrl)。②保存HTMLに描画済みの発言行(#rows-container)を含めないようにした(Blob URLは保存先では無効なので。読み込み時にrestore()が行を作り直す)。③log-data-storageでは発言ごとのiconを、重複を除いた画像リスト(icon-pool-storage)への番号iconRefに置換(packLogIcons/expandLogIcons。iconRefなしの古い保存ファイルもそのまま読める)。④Undoの控えをJSONの丸ごとコピーからsnapshotLogData(文字列は共有、入れ子のstyleだけ複製)に変更し、立ち絵の複製を防いだ。別ログ読み込み時はclearIconUrlCacheで共有URLを破棄。' },
         { version: '1.9.8.8', note: 'ランディングページの「機能一覧を見る」モーダルを、ジャンル分けした表示に変更。FEATURE_LISTの各項目にcategoryを追加し(📥読み込み・データ管理/🖥️表示・レイアウト/✏️編集機能/🔍検索・目印/🎲TRPG特化機能/📤書き出し・共有の6ジャンル)、見出し付きでグループ表示するようにした。' },
@@ -2071,7 +2073,7 @@
         { category: '🖥️ 表示・レイアウト', title: 'マルチタブ表示', description: '発言を main / 雑談 / 情報 等で分割表示し、タブの追加・削除・並び替え・表示切替ができます。' },
         { category: '🖥️ 表示・レイアウト', title: 'ダークモード', description: '設定パネルのスイッチで、ログ編集画面をダークモードに切り替えられます。' },
         { category: '🖥️ 表示・レイアウト', title: '立ち絵・アイコン', description: 'キャラクターごとに立ち絵を設定でき、アップロードとトリミングの表示切替にも対応します。保存するHTMLは、同じ立ち絵の画像データを重複して持たないので、立ち絵付きのログでもサイズを抑えられます。' },
-        { category: '🖥️ 表示・レイアウト', title: '立ち絵の差分', description: '差分の名前（笑い・怒り・泣き・驚き・困惑・照れ、または自分で作成）を全キャラ共通で持ち、キャラごとに差分の画像を設定できます。マーカーモードのメニューで発言に差分を付けると、その発言だけ差分の立ち絵になります。' },
+        { category: '🖥️ 表示・レイアウト', title: '立ち絵の差分', description: '差分の名前（笑い・怒り・泣き・驚き・困惑・照れ、または自分で作成）を全キャラ共通で持ち、キャラごとに差分の画像を設定できます。マーカーモードのメニューで発言に差分を付けると、その発言だけ差分の立ち絵になります。メニューには、そのキャラが画像を設定している差分だけが出ます。' },
         { category: '🖥️ 表示・レイアウト', title: 'UI/ナビゲーション', description: 'スクロールカウンター、タブナビ、スティッキーなヘッダー、モバイル対応ボタンなどを実装しています。キャラクター設定・ヘルプ・PDF出力のパネルは、外側をクリックして閉じられます。' },
         { category: '✏️ 編集機能', title: '編集機能', description: '発言の直接編集、削除、マーカー装飾、タブ間移動、コンテキストメニューでのスタイル適用が可能です。' },
         { category: '✏️ 編集機能', title: 'Undo / 巻き戻し', description: '最大10件のUndo履歴を保存し、削除・移動・編集を元に戻せるようにしました。' },
@@ -2335,7 +2337,7 @@
                     </div>
                 </div>
             </div>
-            <div class="mt-2">
+            <div class="mt-2" id="ctx-expr-section" style="display:none">
                 <span class="text-[10px] font-bold text-slate-400 block mb-1">差分（立ち絵）</span>
                 <div id="ctx-expr-list" class="ctx-expr-list"></div>
             </div>
@@ -4425,32 +4427,36 @@
                 });
             }
 
-            // マーカーモードのメニュー「差分」: なし＋差分名。そのキャラが画像を持たない差分は薄く表示
+            // マーカーモードのメニュー「差分」: そのキャラが画像を設定している差分だけを出す。
+            // 画像を1つも設定していないキャラでは、「差分」の欄ごと隠す。
+            // ただし、すでに差分が付いている発言は、あとから画像を外していても解除できるよう、現在の差分と「なし」は出す
             function syncExprMenu(style) {
+                const section = getEl('ctx-expr-section');
                 const box = getEl('ctx-expr-list');
                 if (!box) return;
                 box.innerHTML = '';
-                if (!exprNames.length) {
-                    const hint = document.createElement('span');
-                    hint.className = 'ctx-expr-hint';
-                    hint.textContent = '差分は、キャラ設定の「立ち絵」タブで追加できます';
-                    box.appendChild(hint);
+                const item = logData.find(d => d.id === currentEditingId);
+                const current = (style && style.expr) || '';
+                const available = item ? exprNames.filter(n => !!exprImageFor(item.char, n)) : [];
+                const showCurrentMissing = !!current && !available.includes(current);
+                if (!available.length && !showCurrentMissing) {
+                    if (section) section.style.display = 'none';
                     return;
                 }
-                const item = logData.find(d => d.id === currentEditingId);
-                const current = style && style.expr;
+                if (section) section.style.display = '';
                 const mk = (label, value, missing) => {
                     const b = document.createElement('button');
                     b.type = 'button';
-                    b.className = 'ctx-expr-btn' + (((value || '') === (current || '')) ? ' active' : '') + (missing ? ' missing' : '');
+                    b.className = 'ctx-expr-btn' + ((value === current) ? ' active' : '') + (missing ? ' missing' : '');
                     b.textContent = label;
                     b.dataset.expr = value;
-                    if (missing) b.title = 'このキャラには「' + value + '」の画像がありません（選べますが、絵は変わりません）';
+                    if (missing) b.title = 'このキャラには「' + value + '」の画像がありません（「なし」で外せます）';
                     b.onclick = () => applyBubbleStyle('expr', value);
                     box.appendChild(b);
                 };
                 mk('なし', '', false);
-                exprNames.forEach(n => mk(n, n, !!item && !exprImageFor(item.char, n)));
+                available.forEach(n => mk(n, n, false));
+                if (showCurrentMissing) mk(current, current, true);
             }
             // 選んだときは、ボタンを作り直さず「選択中」の見た目だけ切り替える
             // （押したボタンが画面から消えると、メニューの外を押した扱いになってメニューが閉じてしまうため）
