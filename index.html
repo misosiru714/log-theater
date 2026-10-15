@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ろぐしあたー｜TRPG ログ整形ツール</title>
+    <title>ココフォリアログ整形ツール｜ろぐしあたー</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons（使っているアイコンだけを埋め込み。unpkgの@latestに依存しないので、外部の更新でアイコンが変わったり消えたりしない） -->
     <script>
@@ -65,7 +65,7 @@
     <meta name="google-site-verification" content="A-MsHaV-U_3kqIUQR-8TpkHUv1BRzIGn5moQYGhgxXo" />
     <meta name="google-site-verification" content="onYm72m2wJ7I9a5E1fzAzchwSgsL39zruGnTiFzWkvc" />
     <!-- 検索結果の説明のやつ -->
-    <meta name="description" content="ココフォリア・クリステのログを整形・編集できる無料Webツール。タブ別表示、発言の編集・非表示、立ち絵表示などでTRPGログを読みやすく整理。編集後はHTMLとして保存できます。">
+    <meta name="description" content="ココフォリアのログを整形・編集できる無料Webツール。タブ別表示、発言の編集・非表示、立ち絵表示などでTRPGログを読みやすく整理。編集後はHTMLとして保存できます。">
     <meta property="og:site_name" content="ろぐしあたー">
     <!-- アイコン -->
     <link id="favicon-link" rel="icon" type="image/png" href="icon.png">
@@ -373,6 +373,37 @@
         body.dark-mode .scene-item { border-color: var(--dm-border); }
         body.dark-mode .scene-item:hover { background: var(--dm-panel-soft); }
         body.dark-mode .scene-chip { background: var(--dm-panel-soft); color: var(--dm-text); border-color: var(--dm-border); }
+
+        /* ===== ログの概要（キャラ紹介など） ===== */
+        .overview-trigger { display: none !important; }
+        body.show-overview-btn .overview-trigger { display: flex !important; }
+        .overview-view { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px 18px; font-size: 14px; line-height: 1.9; color: #1e293b; word-break: break-word; }
+        .overview-view:empty::before { content: '概要を書くと、ここに表示されます'; color: #94a3b8; font-size: 12px; }
+        .overview-view p { margin: 0 0 0.9em; }
+        .overview-view p:last-child, .overview-view ul:last-child { margin-bottom: 0; }
+        .overview-view ul { margin: 0 0 0.9em 1.3em; list-style: disc; }
+        .overview-view li { margin: 0.1em 0; }
+        .overview-view hr { border: none; border-top: 1px solid #cbd5e1; margin: 1em 0; }
+        .overview-view .ov-h { font-weight: 700; margin: 1em 0 0.4em; line-height: 1.5; }
+        .overview-view .ov-h1 { font-size: 1.25em; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.2em; }
+        .overview-view .ov-h2 { font-size: 1.1em; }
+        .overview-view .ov-h3 { font-size: 1em; color: #475569; }
+        .overview-view a { color: #2563eb; text-decoration: underline; }
+        .overview-view a:hover { color: #1d4ed8; }
+        .ov-toolbar { display: flex; flex-wrap: wrap; gap: 4px; }
+        .ov-tool-btn { font-size: 11px; font-weight: 700; padding: 4px 10px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; color: #475569; cursor: pointer; transition: all 0.1s; }
+        .ov-tool-btn:hover { background: #eff6ff; border-color: #bfdbfe; color: #2563eb; }
+        .ov-textarea { width: 100%; border: 1px solid #e2e8f0; border-radius: 12px; padding: 10px 12px; font-size: 13px; line-height: 1.7; outline: none; resize: vertical; background: #fff; color: #1e293b; }
+        .ov-textarea:focus { border-color: #3b82f6; }
+        .ov-form { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 8px; border: 1px dashed #bfdbfe; border-radius: 10px; background: #eff6ff; }
+        .ov-in { flex: 1 1 140px; min-width: 0; border: 1px solid #e2e8f0; border-radius: 8px; padding: 4px 8px; font-size: 12px; outline: none; background: #fff; color: #1e293b; }
+        .ov-in:focus { border-color: #3b82f6; }
+        @media (pointer: coarse) { .ov-textarea, .ov-in { font-size: 16px; } } /* iOSのフォーカス時ズーム対策 */
+        body.dark-mode .overview-view { background: var(--dm-panel); border-color: var(--dm-border); color: var(--dm-text); }
+        body.dark-mode .overview-view a { color: #7dd3fc; }
+        body.dark-mode .overview-view .ov-h3 { color: #cbd5e1; }
+        body.dark-mode .ov-tool-btn, body.dark-mode .ov-in, body.dark-mode .ov-textarea { background: var(--dm-panel-soft); border-color: var(--dm-border); color: var(--dm-text); }
+        body.dark-mode .ov-form { background: var(--dm-panel); border-color: var(--dm-border); }
 
         /* Highlight Animation */
         @keyframes pulse-yellow {
@@ -2024,7 +2055,7 @@
     // ↓公開リリースノートはここだよ。更新しようね。
     const APP_VERSION = '1.9.10';
     const RELEASE_NOTES = [
-        { version: '1.9.10', description: '情報の描写や、キャラの表情を、もっと見せやすくしました。<br>【情報カードモード】マーカーモードのスタイル編集で、発言を「情報カード」「付箋メモ」「端末ログ」「ナレーション帯」の見た目にできます。情報タブの描写や手がかりを、会話と区別して読みやすくできます。その発言だけ、表示する名前を「手がかり」などの項目名に差し替えることもできます。<br>【立ち絵の差分】キャラ設定の「立ち絵」タブで差分の名前（笑い・怒り・泣き…）を作り、キャラごとに画像を設定できます。マーカーモードのメニューで発言に差分を付けると、その発言だけ差分の立ち絵になります（メニューには、そのキャラが画像を設定している差分だけが出ます）。取り込み時のアイコンより優先され、保存HTML・閲覧専用HTML・PDFにも反映されます。' },
+        { version: '1.9.10', description: '情報の描写や、キャラの表情を、もっと見せやすくしました。<br>【情報カードモード】マーカーモードのスタイル編集で、発言を「情報カード」「付箋メモ」「端末ログ」「ナレーション帯」の見た目にできます。情報タブの描写や手がかりを、会話と区別して読みやすくできます。その発言だけ、表示する名前を「手がかり」などの項目名に差し替えることもできます。<br>【立ち絵の差分】キャラ設定の「立ち絵」タブで差分の名前（笑い・怒り・泣き…）を作り、キャラごとに画像を設定できます。マーカーモードのメニューで発言に差分を付けると、その発言だけ差分の立ち絵になります（メニューには、そのキャラが画像を設定している差分だけが出ます）。取り込み時のアイコンより優先され、保存HTML・閲覧専用HTML・PDFにも反映されます。<br>【ログの概要】ヘッダーのヘルプボタンの右に「概要」ボタンが加わりました。キャラクター紹介・GMやPLの名前・使用ルールや版権表記などを、パネルに書いて、ログと一緒に保存できます。[表示名](URL) でリンク（キャラシートなど）、|漢字《よみ》 でルビ、太字・見出し・箇条書き・区切り線が使え、書く欄の補助ボタンから入力できます。「自動で開く」をONにすると、保存HTML・閲覧専用HTMLを開いたときに概要を表示します。概要が空のときは、読む側にボタンは出ません。' },
         { version: '1.9.9', description: '読みやすいログ作りと、配布まわりを強化しました。<br>【シーン区切り線】編集ボタンの「区切り線モード」で、発言と発言の間に区切り線を入れられます。ラベルは1本の線に複数つけられ、線の種類（線・破線・点線・波線・二重線・ジグザグ線）・太さ・色も変えられます。保存したHTML・PDF・テキスト／Markdownにも反映されます。<br>【シーン一覧】区切り線があるログでは、検索バーの右に「シーン一覧」ボタンが現れ、ラベルを押すとそのシーンへジャンプできます。<br>【閲覧専用HTML】書き出し形式に「閲覧専用HTML」を追加しました。編集や読み込みの画面を取り除き、検索・タブ切替・シーン一覧・栞・表示設定・キャラの表示切替だけを残した、配布向けのHTMLを出力できます。<br>【保存HTMLの軽量化】立ち絵付きのログを保存したときに、同じ画像データを何度も持たなくなり、HTMLのサイズが大きく小さくなりました。<br>【使い勝手】キャラクター設定・ヘルプ・PDF出力などのパネルは、外側をクリックして閉じられるようになりました。<br>【不具合の修正】キャラクターの表示／非表示が、設定パネルを閉じると元に戻ってしまう問題と、保存したHTMLを開いて再保存・書き出しをすると失敗する問題を直しました。' },
         { version: '1.9.8', description: 'ルビ振りに対応しました。文字編集モードで「｜文字《ルビ》」と入力するか、文字を選択して「文字《ルビ》」ボタンを押すとルビを振れます。' },
         { version: '1.9.7', description: '複数セッションのログを1つに結合できる「追加読み込み」機能を追加しました。末尾と先頭が重なっている場合は自動で重複を除いて繋げ、結果を画面上部のテロップでお知らせします（ヘッダーの＋アイコンから）。' },
@@ -2060,6 +2091,7 @@
     // 新しいものを配列の先頭に追加する形でずっと積み上げていくこと。
     // ============================================================
     const HIDDEN_CHANGELOG = [
+        { version: '1.9.10.6', note: 'ログの概要を追加。データはlogOverview({text, autoOpen})で、保存はlog-overview-storage(JSON。保存時は<をu003cにして、概要の文字で保存HTMLが壊れないようにする)。読み込みはsanitizeOverview(最大20000字)。画面のHTMLはrenderOverviewHtmlで、元の文字を部品ごとに必ずescapeHtmlしてから組み立てる。リンクのURLはisSafeOverviewUrlで、http/httpsかつ、ダブルクォート・シングルクォート・山かっこ・バッククォート・空白・制御文字を含まないものだけを許可し、hrefにもescapeHtmlをかける(エスケープ前のダブルクォートがURLに残ると、onmouseoverなどの属性を足せる脆弱性が、開発中のテストで見つかったため。許可外の要素と属性が出ないことは、ランダムな危険文字列1500回のファジングで確認済み)。リンクはrel=noopener noreferrer・target=_blank。URLだけの自動リンクは、URLに使えるASCIIの文字だけが対象で、後ろの日本語は含めない。使える書式([表示名](URL)・URLだけ・**太字**・|漢字《よみ》(applyRubyMarkup)・# 見出し(h3〜h5)・- 項目・--- 区切り線・改行→br)。「概要」ボタン(.overview-trigger。PCはヘルプの右、スマホは下ナビ)は、概要が空でなく、または編集できるとき(overviewEditable=ツールで編集ボタン群が表示中)だけbodyのshow-overview-btnクラスで表示。applyEditButtonVisibilityからも更新する。編集欄はoverviewEditableのときだけ。閲覧専用HTMLでは#overview-editorを取り除き、読むだけにする(ヘルプにも概要の項目を追加)。自動で開く(autoOpen)は、initでrestore後にopenOverviewIfAutoで開く(ツールで保存HTMLを開き直したときも開く)。パネルは外側クリックで閉じる(bindBackdropClose)。新しいアイコンは使っていない(既存のfile-text)。' },
         { version: '1.9.10.5', note: 'ボタンのアイコン(lucide)を、unpkgの@latestを読み込む方式から、使っている39アイコンだけを<head>に埋め込む方式へ変更(外部の更新でアイコンが変わったり消えたりするのを防ぐ)。window.lucide.createIconsを自前で用意し、本物のlucide 1.54.0と、全アイコン×属性パターン(class/size/id/style/title/aria-label等)で出力が一致することを確認済み(変換済みsvgの再処理も同じ)。アイコンのデータは/tmp等で本物のlucideのicons[PascalCase名]から取り出したiconNode(JSON)。新しいアイコンを使うときは、このスクリプトのICONSにそのアイコンを足すこと(足し忘れると、そのアイコンは出ず、コンソールに警告が出る)。すでに配布済みの旧い保存HTMLは、再保存するまで従来どおりunpkgを読み込む。Tailwind・SheetJS・Googleフォント・アナリティクスは従来どおり外部。' },
         { version: '1.9.10.4', note: 'マーカーモードのメニューの差分(syncExprMenu)の出し方を変更。差分名は全キャラ共通のリストなので、画像を設定していないキャラにも項目が並んでしまっていたため、そのキャラが画像を持つ差分(exprImageFor)だけを出すようにした。画像を1つも持たないキャラでは「差分（立ち絵）」の欄(#ctx-expr-section)ごと隠す(以前の「画像のない差分を薄く表示」とヒント文はやめた)。ただし、すでに差分が付いている発言は、あとから画像を外していても解除できるよう、現在の差分(薄く表示)と「なし」だけは出す。' },
         { version: '1.9.10.3', note: '立ち絵の差分(表情)を追加。差分名は全キャラ共通のリストexprNames(最大12、1つ12文字まで)、画像は代表キャラごとのcharExprs({代表: {差分名: 画像データ}}。別名キャラはgetGroupLeaderで代表の画像を引く)、発言側はstyle.expr(1発言に1つ)。絵の優先順位は 差分の画像 > 取り込み時のm.icon > キャラの通常の立ち絵(charIcons)。キャラが差分の画像を持たなければ、差分を付けても従来どおりの表示。createRowはstyle.exprの画像をiconとして扱い(data-own-icon=1になるのでrefreshIconsに上書きされない)、マーカー操作や画像変更時はrefreshRowPortrait/refreshAllExprPortraitsで付け直す。設定UIは、キャラ設定の立ち絵タブ上部の差分の名前の管理欄(追加・プリセット・名前変更・削除。名前変更は発言にも追従、削除は全キャラの画像と発言の付与を外す)と、各キャラの行の下の差分の欄(startCropに差分名を渡してcharExprsへ保存)。発言への付与は、マーカーモードのメニューの差分(なし+差分名。画像のないキャラの差分は薄く表示)。保存はexpr-names-storageとchar-exprs-storage。PDFも差分の画像を使う。閲覧専用HTMLでは編集UIは取り除かれるが、データと表示は残る。' },
@@ -2133,6 +2165,7 @@
         { category: '🔍 検索・目印', title: 'シーン一覧ジャンプ', description: '区切り線につけたラベルを一覧にして、押すとその区切り線へジャンプできます。保存したHTMLでも使えるので、長いログの目次として便利です。' },
         { category: '🔍 検索・目印', title: '栞機能', description: '栞を追加して好きな場所に目印をつけ、クリックでその位置へ瞬時にジャンプできます。' },
         { category: '🎲 TRPG特化機能', title: 'ダイス強調', description: 'BCDiceのロール結果を自動検出し、成功・失敗・クリティカル・ファンブルを色付きで強調します。' },
+        { category: '📤 書き出し・共有', title: 'ログの概要', description: 'ヘッダーの「概要」ボタンから、キャラクター紹介・GM/PLの名前・使用ルールや版権表記などを書けます。[表示名](URL) のリンク、ルビ、太字、見出し、箇条書き、区切り線に対応し、書く欄の補助ボタンで入力できます。保存HTMLと閲覧専用HTMLに入り、「自動で開く」で、開いたときに表示することもできます。' },
         { category: '📤 書き出し・共有', title: '閲覧専用HTML', description: '書き出し形式に「閲覧専用HTML」を追加。編集・読み込みなどの画面を取り除き、検索・タブ切替・シーン一覧・栞・表示設定・キャラの表示切替だけを残した、配布向けのHTMLを出力できます。' },
         { category: '📤 書き出し・共有', title: 'PDF出力', description: 'タブ別の出力設定、立ち絵・アイコン付きPDF、テーマカラー反映に対応しています。' },
         { category: '📤 書き出し・共有', title: '書き出し形式の選択', description: 'HTML・Markdown・テキスト・スプレッドシート（xlsx）形式の出力に対応。xlsxはタブごとに列が分かれたセル結合レイアウトで出力されます。' }
@@ -2465,6 +2498,41 @@
         </div>
 
         <!-- 操作ボタン説明モーダル -->
+        <div id="overview-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[150] items-center justify-center p-4 hidden">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[88vh] overflow-hidden">
+                <div class="p-5 border-b flex justify-between items-center bg-slate-50">
+                    <h3 class="font-bold text-xl text-slate-800 flex items-center gap-2"><i data-lucide="file-text" size="20"></i> ログの概要</h3>
+                    <button id="close-overview-modal" class="p-2 hover:bg-slate-200 rounded-full transition-colors"><i data-lucide="x" size="20"></i></button>
+                </div>
+                <div class="overflow-y-auto p-6 flex-1 bg-slate-50 space-y-4">
+                    <div id="overview-editor" class="space-y-2">
+                        <div id="ov-toolbar" class="ov-toolbar">
+                            <button type="button" class="ov-tool-btn" data-ov="bold"><b>B</b> 太字</button>
+                            <button type="button" class="ov-tool-btn" data-ov="heading"># 見出し</button>
+                            <button type="button" class="ov-tool-btn" data-ov="list">- 箇条書き</button>
+                            <button type="button" class="ov-tool-btn" data-ov="hr">--- 区切り線</button>
+                            <button type="button" class="ov-tool-btn" data-ov="link">リンク</button>
+                            <button type="button" class="ov-tool-btn" data-ov="ruby">ルビ</button>
+                        </div>
+                        <div id="ov-form" class="ov-form" style="display:none">
+                            <span id="ov-form-title" class="text-[11px] font-bold text-blue-700"></span>
+                            <input id="ov-in-1" type="text" autocomplete="off" class="ov-in">
+                            <input id="ov-in-2" type="text" autocomplete="off" class="ov-in">
+                            <button type="button" id="ov-form-ok" class="ov-tool-btn">挿入</button>
+                            <button type="button" id="ov-form-cancel" class="ov-tool-btn">やめる</button>
+                        </div>
+                        <textarea id="overview-text" class="ov-textarea" rows="9" maxlength="20000" placeholder="キャラクター紹介・GM/PLの名前・使用ルールや版権表記などを書けます。&#10;例）PC1：|島宮《しまみや》 |亜希《あき》（[キャラシート](https://example.com/sheet)）"></textarea>
+                        <label class="flex items-center gap-2 text-xs font-bold text-slate-600 cursor-pointer select-none"><input type="checkbox" id="overview-auto-open" class="w-4 h-4 rounded"> このログを開いたとき、概要を自動で開く</label>
+                        <p class="text-[10px] text-slate-400 leading-relaxed">書き方: [表示名](URL) でリンク／URLだけでもリンクになります／|漢字《よみ》 でルビ／**太字**／# 見出し／- 項目／--- 区切り線</p>
+                    </div>
+                    <div>
+                        <p id="ov-preview-label" class="text-[11px] font-bold text-slate-400 uppercase tracking-wide mb-2">プレビュー</p>
+                        <div id="overview-view" class="overview-view"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div id="help-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[150] items-center justify-center p-4 hidden">
             <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg flex flex-col max-h-[85vh] overflow-hidden">
                 <div class="p-5 border-b flex justify-between items-center bg-slate-50">
@@ -2622,6 +2690,7 @@
             </div>
             <div id="header-right-pc" class="flex items-center gap-2">
                 <button id="pc-open-help-modal-btn" class="btn-secondary px-3" title="操作ボタンの説明"><i data-lucide="circle-help" size="14"></i></button>
+                <button id="pc-open-overview-btn" class="btn-secondary px-3 overview-trigger" title="ログの概要（キャラ紹介など）"><i data-lucide="file-text" size="14"></i> 概要</button>
                 <button id="append-log-btn" class="btn-secondary px-3" title="別のログを続けて読み込む（複数セッションの結合）"><i data-lucide="file-plus-2" size="14"></i></button>
                 <input type="file" id="append-log-input" accept=".html,.json" style="display:none">
                 <button id="pc-open-char-modal-btn" class="btn-secondary"><i data-lucide="users" size="14"></i> キャラ設定</button>
@@ -2737,6 +2806,7 @@
             <button id="mb-nav-filter" class="flex flex-col items-center gap-1 text-slate-400"><i data-lucide="columns" size="20"></i><span class="text-[10px] font-bold">タブ</span></button>
             <button id="mb-nav-char" class="flex flex-col items-center gap-1 text-slate-400"><i data-lucide="users" size="20"></i><span class="text-[10px] font-bold">キャラ設定</span></button>
             <button id="mb-nav-settings" class="flex flex-col items-center gap-1 text-slate-400"><i data-lucide="sliders-horizontal" size="20"></i><span class="text-[10px] font-bold">表示設定</span></button>
+            <button id="mb-nav-overview" class="flex flex-col items-center gap-1 text-slate-400 overview-trigger"><i data-lucide="file-text" size="20"></i><span class="text-[10px] font-bold">概要</span></button>
         </nav>
     </div>
 
@@ -2752,6 +2822,7 @@
     <script id="icon-pool-storage" type="application/json">[]</script>
     <script id="expr-names-storage" type="application/json">[]</script>
     <script id="char-exprs-storage" type="application/json">{}</script>
+    <script id="log-overview-storage" type="application/json">{}</script>
     <script id="char-groups-storage" type="application/json">{}</script>
 
     <script>
@@ -2818,6 +2889,7 @@
                 if (hasStoredData()) {
                     showAppView();
                     restore();
+                    openOverviewIfAuto();
                 }
             }
             
@@ -2859,6 +2931,7 @@
                     toggle.style.backgroundColor = '#cbd5e1';
                     toggle.querySelector('div').style.transform = 'translateX(-20px)';
                 }
+                updateOverviewButtons(); // 編集ボタンの表示/非表示で、概要ボタン(書き始める入口)も出入りする
             }
 
             function applyPortraitVisibility() {
@@ -3275,6 +3348,33 @@
                 getEl('divider-mode-btn').onclick = toggleDividerMode;
                 initDividerPanel();
                 initSceneList();
+                // ログの概要（キャラ紹介など）
+                (function () {
+                    const open = () => openOverviewModal();
+                    getEl('pc-open-overview-btn').onclick = open;
+                    getEl('mb-nav-overview').onclick = open;
+                    getEl('close-overview-modal').onclick = closeOverviewModal;
+                    bindBackdropClose(getEl('overview-modal'), closeOverviewModal);
+                    const ta = getEl('overview-text');
+                    ta.addEventListener('input', () => {
+                        logOverview.text = ta.value.slice(0, OVERVIEW_MAX);
+                        refreshOverviewView();
+                        updateOverviewButtons();
+                    });
+                    getEl('overview-auto-open').onchange = (e) => { logOverview.autoOpen = e.target.checked; };
+                    document.querySelectorAll('.ov-tool-btn[data-ov]').forEach((b) => { b.onclick = () => onOverviewTool(b.dataset.ov); });
+                    getEl('ov-form-ok').onclick = submitOverviewForm;
+                    getEl('ov-form-cancel').onclick = closeOverviewForm;
+                    ['ov-in-1', 'ov-in-2'].forEach((id) => {
+                        getEl(id).onkeydown = (e) => {
+                            e.stopPropagation();
+                            if (e.isComposing || e.keyCode === 229) return; // 日本語入力の変換中は無視
+                            if (e.key === 'Enter') { e.preventDefault(); submitOverviewForm(); }
+                            else if (e.key === 'Escape') { e.preventDefault(); closeOverviewForm(); }
+                        };
+                    });
+                    updateOverviewButtons();
+                })();
                 (function () {
                     const rc = getEl('rows-container');
                     rc.addEventListener('mousemove', onDividerHover);
@@ -3531,6 +3631,7 @@
                 getEl('icon-data-storage').textContent = "{}";
                 getEl('expr-names-storage').textContent = "[]";
                 getEl('char-exprs-storage').textContent = "{}";
+                getEl('log-overview-storage').textContent = "{}";
                 getEl('loc-data-storage').textContent = "[]";
                 getEl('log-data-storage').textContent = "[]";
                 getEl('source-filename-storage').textContent = '""';
@@ -4524,6 +4625,189 @@
                 }
             }
 
+            // ---- ログの概要（キャラ紹介・版権表記など）----
+            // 作者が書いた概要を、ログに添えて保存する(log-overview-storage)。パネルはヘッダーの「概要」ボタンから開く。
+            // 書式: [表示名](URL) / URLだけ / |漢字《よみ》 / **太字** / # 見出し / - 項目 / --- 区切り線 / 改行
+            // 画面に出すHTMLは、必ず先にエスケープしてから組み立てる。リンクは http/https だけ
+            const OVERVIEW_MAX = 20000;
+            let logOverview = { text: '', autoOpen: false };
+
+            function sanitizeOverview(o) {
+                const out = { text: '', autoOpen: false };
+                if (!o || typeof o !== 'object') return out;
+                if (typeof o.text === 'string') out.text = o.text.slice(0, OVERVIEW_MAX);
+                out.autoOpen = o.autoOpen === true;
+                return out;
+            }
+
+            function overviewInlineFormat(escaped) {
+                return applyRubyMarkup(escaped.replace(/\*\*([^*\n]+?)\*\*/g, '<strong>$1</strong>'));
+            }
+            // リンクに使えるURLか。http/https だけで、属性の区切りになる文字(" ' < > ` 空白)や制御文字を含むものは、リンクにしない。
+            // （エスケープ前の " がURLに残ると、onmouseover などの別の属性を足されてしまうため、ここで厳しく弾く）
+            function isSafeOverviewUrl(url) {
+                return /^https?:\/\/[^\s"'<>`\u0000-\u001f\u007f]+$/i.test(url);
+            }
+            // 1行ぶんの装飾（入力は、文字をエスケープした後の文字列）
+            // 元の文字(raw)のURLで安全かを判定するため、escapedではなくrawを受け取る版を内部で使う
+            function overviewInline(raw) {
+                const holds = [];
+                const hold = (html) => { holds.push(html); return '\u0001' + (holds.length - 1) + '\u0002'; };
+                const link = (url, labelHtml) => '<a href="' + escapeHtml(url) + '" target="_blank" rel="noopener noreferrer">' + labelHtml + '</a>';
+                // [表示名](URL) — 表示名は、あとでエスケープして装飾する
+                let s = raw.replace(/\[([^\]\n]+)\]\((https?:\/\/[^\s)]+)\)/g, (m, label, url) =>
+                    isSafeOverviewUrl(url) ? hold(link(url, overviewInlineFormat(escapeHtml(label)))) : m);
+                // URLだけが書かれたとき（URLに使える ASCII の文字だけ。後ろの日本語や句読点は含めない）
+                s = s.replace(/https?:\/\/[A-Za-z0-9\-._~:\/?#@!$&()*+,;=%\[\]]+/g, (m) => {
+                    let url = m, tail = '';
+                    const mm = /[.,;:!?)\]]+$/.exec(url);
+                    if (mm) { tail = mm[0]; url = url.slice(0, url.length - tail.length); }
+                    return isSafeOverviewUrl(url) ? hold(link(url, escapeHtml(url))) + tail : m;
+                });
+                // プレースホルダー以外の部分を、エスケープして装飾する
+                s = s.split(/(\u0001\d+\u0002)/).map(part => /^\u0001\d+\u0002$/.test(part) ? part : overviewInlineFormat(escapeHtml(part))).join('');
+                return s.replace(/\u0001(\d+)\u0002/g, (m, i) => holds[+i]);
+            }
+            function renderOverviewHtml(text) {
+                const lines = String(text || '').replace(/\r\n?/g, '\n').split('\n');
+                const out = [];
+                let para = [], list = [];
+                const flushPara = () => { if (para.length) { out.push('<p>' + para.join('<br>') + '</p>'); para = []; } };
+                const flushList = () => { if (list.length) { out.push('<ul>' + list.map(li => '<li>' + li + '</li>').join('') + '</ul>'); list = []; } };
+                lines.forEach((raw) => {
+                    const trimmed = raw.trim();
+                    let m;
+                    if (trimmed === '') { flushPara(); flushList(); return; }
+                    if (/^(-{3,}|\*{3,}|_{3,})$/.test(trimmed)) { flushPara(); flushList(); out.push('<hr>'); return; }
+                    if ((m = /^(#{1,3})\s+(.+)$/.exec(trimmed))) {
+                        flushPara(); flushList();
+                        const lv = m[1].length;
+                        out.push('<h' + (lv + 2) + ' class="ov-h ov-h' + lv + '">' + overviewInline(m[2]) + '</h' + (lv + 2) + '>');
+                        return;
+                    }
+                    if ((m = /^(?:[-*]\s+|・\s*)(.+)$/.exec(trimmed))) { flushPara(); list.push(overviewInline(m[1])); return; }
+                    flushList();
+                    para.push(overviewInline(raw));
+                });
+                flushPara(); flushList();
+                return out.join('');
+            }
+
+            // 概要を編集できるのは、ツールで「編集ボタン」が表示されているとき（閲覧専用・読むだけの保存HTMLでは読むだけ）
+            function overviewEditable() {
+                if (IS_VIEWER) return false;
+                const g = document.getElementById('edit-btn-group');
+                return !!g && g.style.display !== 'none';
+            }
+            // 「概要」ボタン: 概要が書いてあるとき、または編集できるとき(作者が書き始められるように)だけ出す
+            function updateOverviewButtons() {
+                document.body.classList.toggle('show-overview-btn', logOverview.text.trim() !== '' || overviewEditable());
+            }
+            function refreshOverviewView() {
+                const view = getEl('overview-view');
+                if (view) view.innerHTML = renderOverviewHtml(logOverview.text);
+            }
+            function openOverviewModal() {
+                const modal = getEl('overview-modal');
+                if (!modal) return;
+                const editable = overviewEditable();
+                const editor = getEl('overview-editor');
+                if (editor) editor.style.display = editable ? '' : 'none';
+                const label = getEl('ov-preview-label');
+                if (label) label.style.display = editable ? '' : 'none';
+                if (editable) {
+                    getEl('overview-text').value = logOverview.text;
+                    getEl('overview-auto-open').checked = logOverview.autoOpen;
+                    closeOverviewForm();
+                }
+                refreshOverviewView();
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+            function closeOverviewModal() {
+                const modal = getEl('overview-modal');
+                if (modal) modal.classList.add('hidden');
+            }
+            // ログを開いたとき、作者が「自動で開く」をONにしていて概要があれば開く
+            function openOverviewIfAuto() {
+                if (logOverview.autoOpen && logOverview.text.trim() !== '') openOverviewModal();
+            }
+
+            // 書く欄の補助（太字・見出し・箇条書き・区切り線・リンク・ルビ）
+            let ovFormKind = null;
+            function closeOverviewForm() {
+                ovFormKind = null;
+                const f = getEl('ov-form');
+                if (f) f.style.display = 'none';
+            }
+            function overviewInsert(ta, start, end, text, selStart, selEnd) {
+                ta.setRangeText(text, start, end, 'end');
+                ta.focus();
+                if (typeof selStart === 'number') ta.setSelectionRange(selStart, selEnd);
+                ta.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+            // 選択範囲が含む行の先頭に、記号を付ける（すでに付いていれば外す）
+            function overviewPrefixLines(ta, prefix) {
+                const v = ta.value;
+                const s = v.lastIndexOf('\n', ta.selectionStart - 1) + 1;
+                let e = v.indexOf('\n', ta.selectionEnd);
+                if (e === -1) e = v.length;
+                const lines = v.slice(s, e).split('\n');
+                const allHave = lines.every(x => x.startsWith(prefix));
+                const next = lines.map(x => allHave ? x.slice(prefix.length) : (x.startsWith(prefix) ? x : prefix + x)).join('\n');
+                overviewInsert(ta, s, e, next, s, s + next.length);
+            }
+            function openOverviewForm(kind) {
+                const ta = getEl('overview-text');
+                const sel = ta.value.slice(ta.selectionStart, ta.selectionEnd);
+                ovFormKind = kind;
+                const f = getEl('ov-form');
+                const i1 = getEl('ov-in-1'), i2 = getEl('ov-in-2');
+                if (kind === 'link') {
+                    getEl('ov-form-title').textContent = 'リンク';
+                    i1.placeholder = '表示名（例：キャラシート）'; i2.placeholder = 'https://…';
+                    i1.value = sel; i2.value = '';
+                } else {
+                    getEl('ov-form-title').textContent = 'ルビ';
+                    i1.placeholder = '親文字（例：島宮）'; i2.placeholder = 'ふりがな（例：しまみや）';
+                    i1.value = sel; i2.value = '';
+                }
+                f.dataset.start = ta.selectionStart; f.dataset.end = ta.selectionEnd;
+                f.style.display = 'flex';
+                (sel ? i2 : i1).focus();
+            }
+            function submitOverviewForm() {
+                const ta = getEl('overview-text');
+                const f = getEl('ov-form');
+                const a = getEl('ov-in-1').value.trim(), b = getEl('ov-in-2').value.trim();
+                const start = parseInt(f.dataset.start, 10) || 0, end = parseInt(f.dataset.end, 10) || 0;
+                let text;
+                if (ovFormKind === 'link') {
+                    if (!/^https?:\/\/\S+$/i.test(b)) { showAppToast('URLは http:// か https:// から始めてください'); return; }
+                    text = '[' + (a || b).replace(/[\[\]\n]/g, '') + '](' + b + ')';
+                } else if (ovFormKind === 'ruby') {
+                    if (!a || !b) { showAppToast('親文字とふりがなを入れてください'); return; }
+                    text = '|' + a.replace(/[|《》\n]/g, '') + '《' + b.replace(/[》\n]/g, '') + '》';
+                } else { return; }
+                closeOverviewForm();
+                overviewInsert(ta, start, end, text);
+            }
+            function onOverviewTool(kind) {
+                const ta = getEl('overview-text');
+                if (kind === 'bold') {
+                    const s = ta.selectionStart, e = ta.selectionEnd;
+                    const sel = ta.value.slice(s, e) || '太字';
+                    overviewInsert(ta, s, e, '**' + sel + '**', s + 2, s + 2 + sel.length);
+                } else if (kind === 'heading') overviewPrefixLines(ta, '# ');
+                else if (kind === 'list') overviewPrefixLines(ta, '- ');
+                else if (kind === 'hr') {
+                    const s = ta.selectionStart, e = ta.selectionEnd;
+                    const before = ta.value.slice(0, s);
+                    const lead = (before === '' || before.endsWith('\n')) ? '' : '\n';
+                    overviewInsert(ta, s, e, lead + '---\n');
+                } else if (kind === 'link' || kind === 'ruby') openOverviewForm(kind);
+            }
+
             // ---- 立ち絵画像の共有URL ----
             // Base64の画像データを発言の行ごとにインラインで貼ると、同じ立ち絵が発言数ぶん重複してメモリも保存HTMLも膨らむ。
             // 画像ごとにBlob URLを1回だけ作り、全発言からそのURLを参照する。
@@ -5076,6 +5360,8 @@
                 charGroups     = JSON.parse(charGroupsRaw);
                 exprNames      = sanitizeExprNames(JSON.parse(doc.getElementById('expr-names-storage')?.textContent || '[]'));
                 charExprs      = sanitizeCharExprs(JSON.parse(doc.getElementById('char-exprs-storage')?.textContent || '{}'), exprNames);
+                logOverview    = sanitizeOverview(JSON.parse(doc.getElementById('log-overview-storage')?.textContent || '{}'));
+                updateOverviewButtons();
 
                 const styles = JSON.parse(styleRaw);
                 if (styles.col)   { getEl('col-slider').value = parseInt(styles.col);       updateStyle('--column-width',   styles.col,  'col-val'); }
@@ -5298,6 +5584,8 @@
                     logData = tempLogData;
                     sceneDividers = [];
                     hiddenChars.clear();
+                    logOverview = { text: '', autoOpen: false };
+                    updateOverviewButtons();
                     clearIconUrlCache();
                     characters.clear();
                     logData.forEach((d) => characters.add(d.char));
@@ -6315,6 +6603,8 @@
                     charGroups     = JSON.parse((getEl('char-groups-storage')?.textContent) || '{}');
                     exprNames      = sanitizeExprNames(JSON.parse((getEl('expr-names-storage')?.textContent) || '[]'));
                     charExprs      = sanitizeCharExprs(JSON.parse((getEl('char-exprs-storage')?.textContent) || '{}'), exprNames);
+                    logOverview    = sanitizeOverview(JSON.parse((getEl('log-overview-storage')?.textContent) || '{}'));
+                    updateOverviewButtons();
 
                     const styles = JSON.parse(styleRaw || '{}');
                     if(styles.col)   { getEl('col-slider').value = parseInt(styles.col);       updateStyle('--column-width',   styles.col,  'col-val'); }
@@ -6793,7 +7083,8 @@
                 // 編集・読み込み・ランディング・PDF・語録メーカー・トリミングなどの部品
                 ['#home-view', '#setup-screen', '#move-menu', '#style-context-menu', '#divider-style-panel',
                  '#pdf-modal', '#word-cloud-modal', '#crop-modal',
-                 '#exit-demo-btn', '#title-edit-btn', '#append-log-btn', '#append-log-input', '#edit-btn-group'].forEach(rm);
+                 '#exit-demo-btn', '#title-edit-btn', '#append-log-btn', '#append-log-input', '#edit-btn-group',
+                 '#overview-editor', '#ov-preview-label'].forEach(rm);
 
                 // ランディングページ用のスクリプト（リリースノート・機能一覧）。メインのスクリプトとは別物
                 Array.from(clone.querySelectorAll('script')).forEach((s) => {
@@ -6824,6 +7115,7 @@
                         + item('sky', 'search', '検索', '上の検索欄から発言を探して、その場所へジャンプできます。')
                         + item('violet', 'columns', 'タブの切り替え', 'タブ名を押すと、タブごとに表示・非表示を切り替えられます。')
                         + item('amber', 'list', 'シーン一覧', '区切り線につけられたラベルの一覧が開き、押すとそのシーンへジャンプできます（区切り線があるときだけ表示されます）。')
+                        + item('slate', 'file-text', '概要', 'ログの紹介やキャラクターの説明などを読めます（作者が書いたときだけ表示されます）。')
                         + item('blue', 'users', 'キャラ設定', 'キャラごとに発言の表示・非表示を切り替えられます。')
                         + item('slate', 'sliders-horizontal', '表示設定', 'ダークモード・テーマカラー・文字サイズ・立ち絵の大きさや表示などを変えられます。')
                         + '</div>';
@@ -6867,7 +7159,7 @@
                         let blob;
 
                         if (format === 'html' || format === 'viewer') {
-                            getEl('icon-data-storage').textContent = JSON.stringify(charIcons); getEl('expr-names-storage').textContent = JSON.stringify(exprNames); getEl('char-exprs-storage').textContent = JSON.stringify(charExprs); getEl('loc-data-storage').textContent = JSON.stringify(allLocations); { const packed = packLogIcons(); getEl('log-data-storage').textContent = packed.log; getEl('icon-pool-storage').textContent = packed.pool; } getEl('source-filename-storage').textContent = JSON.stringify(sourceFileName);
+                            getEl('icon-data-storage').textContent = JSON.stringify(charIcons); getEl('expr-names-storage').textContent = JSON.stringify(exprNames); getEl('char-exprs-storage').textContent = JSON.stringify(charExprs); getEl('log-overview-storage').textContent = JSON.stringify(logOverview).replace(/</g, '\\u003c'); getEl('loc-data-storage').textContent = JSON.stringify(allLocations); { const packed = packLogIcons(); getEl('log-data-storage').textContent = packed.log; getEl('icon-pool-storage').textContent = packed.pool; } getEl('source-filename-storage').textContent = JSON.stringify(sourceFileName);
                             getEl('style-data-storage').textContent = JSON.stringify({ col: getComputedStyle(document.documentElement).getPropertyValue('--column-width').trim(), font: getComputedStyle(document.documentElement).getPropertyValue('--base-font-size').trim(), port: getComputedStyle(document.documentElement).getPropertyValue('--portrait-size').trim(), theme: currentTheme, colInd: showColIndicator, ts: showTimestamps });
                             getEl('char-styles-storage').textContent = JSON.stringify(charStyles);
                             getEl('bookmarks-storage').textContent = JSON.stringify(bookmarks);
