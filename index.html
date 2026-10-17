@@ -2076,8 +2076,9 @@
     // バージョンの付け方: 1.9.10までは従来の番号（過去の番号は変えない）。1.10.0以降はSemVerで付ける。
     //   機能追加（互換性を保つ）=MINOR（例: 1.10.0 → 1.11.0） / 不具合修正のみ=PATCH（例: 1.10.0 → 1.10.1）
     //   保存済みHTMLなどが読み込めなくなる、互換性を壊す変更=MAJOR（2.0.0）
-    const APP_VERSION = '1.11.0';
+    const APP_VERSION = '1.12.0';
     const RELEASE_NOTES = [
+        { version: '1.12.0', description: '発言者を、あとから変えられるようになりました。<br>【発言者の変更】「構造編集モード」で発言をクリックすると、メニューの「発言者を変更」から、話した人を別のキャラに付け替えられます。キャラは発言数の多い順に並び、「＋ 新しい名前…」でログにまだいない名前にもできます。色と立ち絵は、付け替えたキャラのものに切り替わります。「元に戻す」で取り消せます。変更は1件ずつです。<br>【ヘルプの更新】ヘッダーの？ボタン（操作ボタンの説明）に「区切り線モード」を追加し、「マーカーモード」と「元に戻す」の説明を、いまの動きに合わせて直しました。' },
         { version: '1.11.0', description: 'リロードしても、編集中のログが消えなくなりました。<br>【自動保存】ログを読み込んで編集すると、内容がこのブラウザの中に自動で控えられます（外部サーバーには送りません）。タイトル・発言の編集・立ち絵・スタイル・栞・区切り線・概要も、あわせて保存されます。<br>【前回の続きから】保存された内容があるときは、トップページに「前回の続きから」ボタンが現れます。ボタンには保存されているログのタイトル・件数・保存日時が出て、押すと前回の状態にそのまま戻れます。いらなくなったら、ボタンの下の「保存データを削除」で消せます。<br>【ご注意】自動保存の枠は1つで、新しいログを読み込むと「前回の続き」はそのログに置き換わります。ブラウザの履歴やサイトデータを消すと、自動保存も消えます。大切なログは、これまでどおり「HTMLとして保存」で書き出してください。デモ・閲覧専用HTML・保存したHTMLを開いているときは、自動保存の対象外です。' },
         { version: '1.10.0', description: 'ログの紹介を書けるようになりました。<br>【ログの概要】ヘッダーのヘルプボタンの右に「概要」ボタンが加わりました。キャラクター紹介・GMやPLの名前・使用ルールや版権表記などを、パネルに書いて、ログと一緒に保存できます。[表示名](URL) でリンク（キャラシートなど）、|漢字《よみ》 でルビ、太字・見出し・箇条書き・区切り線が使え、書く欄の補助ボタンから入力できます。「自動で開く」をONにすると、保存HTML・閲覧専用HTMLを開いたときに概要を表示します。概要が空のときは、読む側にボタンは出ません。' },
         { divider: true, label: 'バージョン表記の変更', description: 'v1.10.0から、バージョンの付け方を変更しました。機能が増えた更新は 1.11.0 → 1.12.0 のように2桁目を、不具合の修正だけの更新は 1.11.0 → 1.11.1 のように3桁目を上げます。v1.9.10以前は、従来の付け方のままです。' },
@@ -2119,7 +2120,9 @@
     // 例: 1.10.0のあとの非公開の修正は 1.10.0.1、1.10.0.2 …。次の公開が1.11.0なら、枝番は1.11.0.1から数え直す。
     // ============================================================
     const HIDDEN_CHANGELOG = [
-        { version: '1.11.0.5', note: '発言者の変更を追加。構造編集モード(isMoveMode)で発言をクリックしたときの#move-menuに、移動先タブの下へ『発言者を変更』(#move-menu-speakers)を足した。キャラは発言数の多い順で、色の丸と件数つき。『＋ 新しい名前…』はprompt()で入力(<と>は取り除き、40文字まで。createRowが名前をHTMLにそのまま入れる箇所があるため)。changeSpeaker(id,name): pushUndo()→item.charを変更→色は変更先のキャラの最頻色(ログにまだいない新しい名前なら今の色のまま)→item.iconをnull(取り込み時のアイコンは前の発言者のもの)→style.exprは変更先に同名の差分画像があるときだけ残す→characters集合を作り直し→renderAllRows+refreshIcons。既存の再描画経路(moveMessage/deleteMessage等)では栞の印(.bookmark-flag)が付け直されないので、ここでは付け直し、timeline-viewportのscrollTopも保つ(.timeline-viewportはscroll-behavior:smoothなので、復元はscrollTo({top,behavior:\'instant\'})で即時に行う。念のための保険で、scrollTop代入でも実測では位置は保たれた)。style.infoName(情報カードの表示名)は発言者と無関係なので残す。showMoveMenuは実際の高さを測って画面内に収める(キャラが多くても下にはみ出さない)。一覧はmax-height 168pxで縦スクロール。1件ずつの変更のみ(範囲指定や一括は未対応)。' },
+        { version: '1.12.0.3', note: '不具合の修正: 発言を削除(deleteMessage)すると、残りの全発言から立ち絵が消える問題。立ち絵は行の作成時(createRow)ではなく、refreshIcons()がキャラ設定(charIcons)から各行へ当てる仕組みなのに、行を作り直す4つの処理(発言の削除・タブの追加・タブの削除・タブ名の変更)がrenderAllRows()のあとにrefreshIcons()を呼んでいなかった。設定データ(charIcons)は残っているが、作り直した行に描き戻されていなかった。実ブラウザで再現(削除で60/60→0/59、タブ追加で60/60→0/60)し、4か所にrefreshIcons()を足して解消。renderAllRowsを呼ぶ箇所は、ほかは全てrefreshIcons()とセットになっている(新しく再描画を足すときも必ずセットで呼ぶこと)。' },
+        { version: '1.12.0.2', note: 'ヘルプ(#help-modal、ヘッダーの？ボタン=操作ボタンの説明)を、実際のボタンとコードに突き合わせて更新。(1)区切り線モード(#divider-mode-btn)の説明が抜けていたので追加(アイコンseparator-horizontal、ボタン順どおり構造編集とマーカーの間)。(2)マーカーモードの『背景色や文字色』は実際のスタイルメニュー(背景色・フォント・太字・情報カード4種・表示名)と合っていなかったので直した(文字色の項目は無い)。(3)元に戻すの対象に発言者の変更を追記(上限はUNDO_MAX=10のまま)。(4)構造編集モードの説明を発言者の変更に合わせて整えた。語録メーカー(#word-cloud-btn)は現在コメントアウトで無効化中なので、ヘルプには載せていない(復活させるときにヘルプも足すこと)。' },
+        { version: '1.12.0.1', note: '発言者の変更を追加(公開v1.12.0)。構造編集モード(isMoveMode)で発言をクリックしたときの#move-menuに、移動先タブの下へ『発言者を変更』(#move-menu-speakers)を足した。キャラは発言数の多い順で、色の丸と件数つき。『＋ 新しい名前…』はprompt()で入力(<と>は取り除き、40文字まで。createRowが名前をHTMLにそのまま入れる箇所があるため)。changeSpeaker(id,name): pushUndo()→item.charを変更→色は変更先のキャラの最頻色(ログにまだいない新しい名前なら今の色のまま)→item.iconをnull(取り込み時のアイコンは前の発言者のもの)→style.exprは変更先に同名の差分画像があるときだけ残す→characters集合を作り直し→renderAllRows+refreshIcons。既存の再描画経路(moveMessage/deleteMessage等)では栞の印(.bookmark-flag)が付け直されないので、ここでは付け直し、timeline-viewportのscrollTopも保つ(.timeline-viewportはscroll-behavior:smoothなので、復元はscrollTo({top,behavior:\'instant\'})で即時に行う。念のための保険で、scrollTop代入でも実測では位置は保たれた)。style.infoName(情報カードの表示名)は発言者と無関係なので残す。showMoveMenuは実際の高さを測って画面内に収める(キャラが多くても下にはみ出さない)。一覧はmax-height 168pxで縦スクロール。1件ずつの変更のみ(範囲指定や一括は未対応)。' },
         { version: '1.11.0.4', note: 'ファビコンとホーム左上ロゴを、外部ファイルに頼らない完全な埋め込みにした。headのlink#favicon-linkのhrefに64px版PNGを直接データURIで入れ(icon.png・apple-touch-icon.pngへの参照は廃止)、ロゴ(#home-logo)はinit()でそのhrefをsrcに入れる。これでBase64の置き場はheadの1か所だけになり、JSのFAVICON_BASE64定数は廃止。書き出しHTMLのcloneは元からデータURIを持つので、ファビコンの差し替え処理と、apple-touch-icon除去の処理も不要になり削除した(#home-logoのsrcを外す処理は残す)。ロゴの持ち出し防止: img.no-save-img(pointer-events/選択/ドラッグ/長押し保存を無効)を#home-logo-wrapで包み、wrapのcontextmenuをpreventDefault。ロゴの上でだけメニューが出ず、ほかの場所の右クリックは従来どおり。限界: 埋め込みなのでHTMLのソース表示、開発者ツール、スクリーンショットからは取り出せる。あくまで『画像を保存』を手軽に出さないための対策。' },
         { version: '1.11.0.3', note: 'ホーム画面(ランディング)左上の「ろぐしあたー」横のマークを、青い四角+Lucide layoutアイコンから新アイコン画像(#home-logo, 36px表示)に変更。アプリ画面のヘッダーのマークは変えていない。BOOTHで単体HTMLとして配るため、icon.pngの相対参照ではなく、すでに埋め込んであるFAVICON_BASE64(64px)をinit()でsrcに入れる(HTMLにBase64を重複して書かない)。書き出しHTMLではホームが見えないので、cloneから#home-logoのsrcを外してBase64の重複を避ける。' },
         { version: '1.11.0.2', note: 'アイコンを新デザインに差し替え。元画像(476x486)は縦が10pxだけ長いので、角丸の頂点を削る切り抜きではなく、横を約2%だけ伸ばして正方形にした(歪みは目視で分からない範囲)。icon.png=192px(PNG・四隅透明)、apple-touch-icon.png=180px(透明なし・四隅まで濃紺で塗る。iPhoneが角丸を付けるため)、書き出しHTML用FAVICON_BASE64=64pxに更新、icon-512.pngは元データ用。headにapple-touch-iconのlinkを追加し、書き出しHTML(通常・閲覧専用とも)では相対パス参照が切れるため、そのlinkをcloneから外す。アイコン類はWebPではなくPNGにしている(link typeと、Base64のdata:image/pngがPNG前提のため)。' },
@@ -2603,15 +2606,19 @@
                             </div>
                             <div class="flex items-start gap-3 bg-white p-3 rounded-xl border border-slate-100">
                                 <div class="w-9 h-9 flex-shrink-0 rounded-lg bg-violet-50 text-violet-600 flex items-center justify-center"><i data-lucide="layout-grid" size="16"></i></div>
-                                <div><p class="font-bold text-sm text-slate-800">構造編集モード</p><p class="text-xs text-slate-500 leading-relaxed mt-0.5">タブの追加・並び替えや、発言を別タブへ移動できます。発言をクリックして、話した人（発言者）を別のキャラに変えることもできます。</p></div>
+                                <div><p class="font-bold text-sm text-slate-800">構造編集モード</p><p class="text-xs text-slate-500 leading-relaxed mt-0.5">タブの追加・並び替えや、発言を別タブへ移動できます。発言をクリックして出るメニューの「発言者を変更」で、話した人を別のキャラに付け替えることもできます（新しい名前にも変えられます）。</p></div>
+                            </div>
+                            <div class="flex items-start gap-3 bg-white p-3 rounded-xl border border-slate-100">
+                                <div class="w-9 h-9 flex-shrink-0 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center"><i data-lucide="separator-horizontal" size="16"></i></div>
+                                <div><p class="font-bold text-sm text-slate-800">区切り線モード</p><p class="text-xs text-slate-500 leading-relaxed mt-0.5">発言と発言の間に区切り線を入れて、シーンを分けられます。ラベルや線の種類・太さ・色を変えられ、ラベルは「シーン一覧」からのジャンプにも使われます。</p></div>
                             </div>
                             <div class="flex items-start gap-3 bg-white p-3 rounded-xl border border-slate-100">
                                 <div class="w-9 h-9 flex-shrink-0 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center"><i data-lucide="highlighter" size="16"></i></div>
-                                <div><p class="font-bold text-sm text-slate-800">マーカーモード</p><p class="text-xs text-slate-500 leading-relaxed mt-0.5">発言の背景色や文字色などのスタイルを変更できます。</p></div>
+                                <div><p class="font-bold text-sm text-slate-800">マーカーモード</p><p class="text-xs text-slate-500 leading-relaxed mt-0.5">発言の背景色・フォント・太字を変えたり、情報カードなどの見せ方（表示名も）を選べます。</p></div>
                             </div>
                             <div class="flex items-start gap-3 bg-white p-3 rounded-xl border border-slate-100">
                                 <div class="w-9 h-9 flex-shrink-0 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center"><i data-lucide="undo-2" size="16"></i></div>
-                                <div><p class="font-bold text-sm text-slate-800">元に戻す（Undo）</p><p class="text-xs text-slate-500 leading-relaxed mt-0.5">直前の削除・移動・編集操作を取り消せます（最大10件）。</p></div>
+                                <div><p class="font-bold text-sm text-slate-800">元に戻す（Undo）</p><p class="text-xs text-slate-500 leading-relaxed mt-0.5">直前の削除・移動・発言者の変更・編集操作を取り消せます（最大10件）。</p></div>
                             </div>
                         </div>
                     </div>
@@ -5204,6 +5211,7 @@
                 renderLayout();
                 getEl('rows-container').innerHTML = '';
                 renderAllRows(logData);
+                refreshIcons(); // 行を作り直すと立ち絵が外れるので、キャラ設定から描き戻す
                 updateRowCounter();
             }
 
@@ -5217,6 +5225,7 @@
                 renderLayout();
                 getEl('rows-container').innerHTML = ''; 
                 renderAllRows(logData);
+                refreshIcons(); // 行を作り直すと立ち絵が外れるので、キャラ設定から描き戻す
                 updateRowCounter();
             }
 
@@ -5228,6 +5237,7 @@
                 reanchorDividers(prevLog);
                 getEl('rows-container').innerHTML = ''; 
                 renderAllRows(logData);
+                refreshIcons(); // 行を作り直すと立ち絵が外れるので、キャラ設定から描き戻す
                 updateRowCounter();
             }
             
@@ -6309,6 +6319,7 @@
                                 renderLayout();
                                 getEl('rows-container').innerHTML = '';
                                 renderAllRows(logData);
+                                refreshIcons(); // 行を作り直すと立ち絵が外れるので、キャラ設定から描き戻す
                                 updateRowCounter();
                             } else {
                                 input.replaceWith(nameSpan);
