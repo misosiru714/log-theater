@@ -2076,8 +2076,9 @@
     // バージョンの付け方: 1.9.10までは従来の番号（過去の番号は変えない）。1.10.0以降はSemVerで付ける。
     //   機能追加（互換性を保つ）=MINOR（例: 1.10.0 → 1.11.0） / 不具合修正のみ=PATCH（例: 1.10.0 → 1.10.1）
     //   保存済みHTMLなどが読み込めなくなる、互換性を壊す変更=MAJOR（2.0.0）
-    const APP_VERSION = '1.12.0';
+    const APP_VERSION = '1.12.1';
     const RELEASE_NOTES = [
+        { version: '1.12.1', description: '不具合の修正と、安全性の向上をおこないました。<br>【安全性】取り込んだログの名前や本文を、画面に出す前に安全な形へ整えるようにしました。悪意をもって作られたログを開いても、意図しない動きをしないようにするための対策です。<br>【追記の修正】ログを追記したとき、重なっている部分が80件を超えると二重に追加されたり、別のタブの同じ発言が重複扱いで消えてしまうことがあったのを直しました。<br>【表示の修正】発言やタブを削除したときに、立ち絵や栞の印が消えてしまうことがあったのを直しました。発言がなくなったキャラが、キャラ一覧に残ることがあったのも直しました。旧形式のログで、色つきの文字を含む発言の末尾が重複して表示されることがあったのも直しました。<br>【ご注意】以前のバージョンで書き出したHTMLには、この修正は反映されません。必要に応じて、書き出し直してください。' },
         { version: '1.12.0', description: '発言者を、あとから変えられるようになりました。<br>【発言者の変更】「構造編集モード」で発言をクリックすると、メニューの「発言者を変更」から、話した人を別のキャラに付け替えられます。キャラは発言数の多い順に並び、「＋ 新しい名前…」でログにまだいない名前にもできます。色と立ち絵は、付け替えたキャラのものに切り替わります。「元に戻す」で取り消せます。変更は1件ずつです。<br>【ヘルプの更新】ヘッダーの？ボタン（操作ボタンの説明）に「区切り線モード」を追加し、「マーカーモード」と「元に戻す」の説明を、いまの動きに合わせて直しました。' },
         { version: '1.11.0', description: 'リロードしても、編集中のログが消えなくなりました。<br>【自動保存】ログを読み込んで編集すると、内容がこのブラウザの中に自動で控えられます（外部サーバーには送りません）。タイトル・発言の編集・立ち絵・スタイル・栞・区切り線・概要も、あわせて保存されます。<br>【前回の続きから】保存された内容があるときは、トップページに「前回の続きから」ボタンが現れます。ボタンには保存されているログのタイトル・件数・保存日時が出て、押すと前回の状態にそのまま戻れます。いらなくなったら、ボタンの下の「保存データを削除」で消せます。<br>【ご注意】自動保存の枠は1つで、新しいログを読み込むと「前回の続き」はそのログに置き換わります。ブラウザの履歴やサイトデータを消すと、自動保存も消えます。大切なログは、これまでどおり「HTMLとして保存」で書き出してください。デモ・閲覧専用HTML・保存したHTMLを開いているときは、自動保存の対象外です。' },
         { version: '1.10.0', description: 'ログの紹介を書けるようになりました。<br>【ログの概要】ヘッダーのヘルプボタンの右に「概要」ボタンが加わりました。キャラクター紹介・GMやPLの名前・使用ルールや版権表記などを、パネルに書いて、ログと一緒に保存できます。[表示名](URL) でリンク（キャラシートなど）、|漢字《よみ》 でルビ、太字・見出し・箇条書き・区切り線が使え、書く欄の補助ボタンから入力できます。「自動で開く」をONにすると、保存HTML・閲覧専用HTMLを開いたときに概要を表示します。概要が空のときは、読む側にボタンは出ません。' },
@@ -2120,7 +2121,10 @@
     // 例: 1.10.0のあとの非公開の修正は 1.10.0.1、1.10.0.2 …。次の公開が1.11.0なら、枝番は1.11.0.1から数え直す。
     // ============================================================
     const HIDDEN_CHANGELOG = [
-        { version: '1.12.0.3', note: '不具合の修正: 発言を削除(deleteMessage)すると、残りの全発言から立ち絵が消える問題。立ち絵は行の作成時(createRow)ではなく、refreshIcons()がキャラ設定(charIcons)から各行へ当てる仕組みなのに、行を作り直す4つの処理(発言の削除・タブの追加・タブの削除・タブ名の変更)がrenderAllRows()のあとにrefreshIcons()を呼んでいなかった。設定データ(charIcons)は残っているが、作り直した行に描き戻されていなかった。実ブラウザで再現(削除で60/60→0/59、タブ追加で60/60→0/60)し、4か所にrefreshIcons()を足して解消。renderAllRowsを呼ぶ箇所は、ほかは全てrefreshIcons()とセットになっている(新しく再描画を足すときも必ずセットで呼ぶこと)。' },
+        { version: '1.12.1.4', note: '(5)の追加修正: characters集合を作り直すだけでは、キャラ一覧の画面(#char-checkbox-container)は更新されない。renderCharList()はrenderLayout()の最後でしか呼ばれておらず、発言の削除(deleteMessage)はrenderLayoutを呼ばないため、一覧に古いキャラが残っていた。deleteMessageでrenderCharList()も呼ぶ。同じ原因で、changeSpeaker(発言者の変更)も、新しい名前や発言がゼロになったキャラが一覧に反映されていなかったので、renderCharList()を呼ぶようにした(deleteColumn・addColumn・タブ名変更はrenderLayout経由で既に更新される)。' },
+        { version: '1.12.1.3', note: '外部レビューの残り2件を修正。(4)再描画のあと栞の印(.bookmark-flag)が消える→renderAllRowsの最後で全栞の印を付け直す(呼び出し元ごとに足すと漏れるので入口の1か所に集約。addBookmarkFlagToRowは行が無ければ何もせず、既にあれば重ねないので、何度呼んでも安全)。changeSpeaker内の個別の付け直しは不要になったので削除。(5)発言を削除しても、発言が1件もなくなったキャラがキャラ一覧(characters)に残る→deleteMessageとdeleteColumnで、logDataからcharactersを作り直す(undo()は元から作り直している)。charIcons/charStylesなどのキャラ設定は消さないので、元に戻すや再追加でキャラが戻れば設定も戻る。' },
+        { version: '1.12.1.2', note: '外部レビュー(静的確認)の指摘5件を、実ブラウザで再現してから修正。(1)【セキュリティ・高】取り込んだログの名前・本文・色が、エスケープなしでcreateRowのinnerHTMLに入り、<img onerror>でスクリプトが実行できた(CCFOLIAが実際に出す&lt;エスケープ形の名前でも発生。閲覧専用HTMLを配布する使い方では読者側に被害が及ぶ)。対策: 本文は許可リスト方式のsanitizeMsgHtml(br・b・strong・i・em・u・s・span[styleはcolor等の無害なものだけ]・ruby・rt・rpだけ残し、イベント属性・script・iframe・リンク等は除去。許可外のタグは外して中の文字だけ残す)を、旧形式parse・createRow(最終防衛線)に通す。名前・色・data-nameはescapeHtmlAttr/escapeHtmlで必ずエスケープ(安全でない色の値は禁止文字を除去)。文字編集モードの入力も、escapeHtmlしてから<br>化(<や&を書いても表示が壊れない)。保存データの復元も、描画時に必ずcreateRowを通るため防げることを、悪意ある内容を仕込んだ自動保存データで実測。(3)【中】旧形式parseがp.querySelectorAll(span)で入れ子のspanも拾い、本文末尾に重複して付いた→直下のspanだけを見る(p.childrenのSPAN)。(2)【中】追記時の重複判定commitParsedLog: 署名にloc(タブ)を含め(別タブの同じ発言を同一視して消していた)、重なりの探索上限80件を撤廃(重なりが100件だと350件に膨らんでいた)。全長の総当たりはO(n^2)で重いので、接頭辞関数(KMP法)で線形時間にした。ランダム2万ケースを総当たりと照合して不一致0、5万件でも14ms。栞の印(4)と、削除後にキャラ一覧へ残るキャラ(5)は、続けて修正する(別エントリ)。' },
+        { version: '1.12.1.1', note: '不具合の修正: 発言を削除(deleteMessage)すると、残りの全発言から立ち絵が消える問題。立ち絵は行の作成時(createRow)ではなく、refreshIcons()がキャラ設定(charIcons)から各行へ当てる仕組みなのに、行を作り直す4つの処理(発言の削除・タブの追加・タブの削除・タブ名の変更)がrenderAllRows()のあとにrefreshIcons()を呼んでいなかった。設定データ(charIcons)は残っているが、作り直した行に描き戻されていなかった。実ブラウザで再現(削除で60/60→0/59、タブ追加で60/60→0/60)し、4か所にrefreshIcons()を足して解消。renderAllRowsを呼ぶ箇所は、ほかは全てrefreshIcons()とセットになっている(新しく再描画を足すときも必ずセットで呼ぶこと)。' },
         { version: '1.12.0.2', note: 'ヘルプ(#help-modal、ヘッダーの？ボタン=操作ボタンの説明)を、実際のボタンとコードに突き合わせて更新。(1)区切り線モード(#divider-mode-btn)の説明が抜けていたので追加(アイコンseparator-horizontal、ボタン順どおり構造編集とマーカーの間)。(2)マーカーモードの『背景色や文字色』は実際のスタイルメニュー(背景色・フォント・太字・情報カード4種・表示名)と合っていなかったので直した(文字色の項目は無い)。(3)元に戻すの対象に発言者の変更を追記(上限はUNDO_MAX=10のまま)。(4)構造編集モードの説明を発言者の変更に合わせて整えた。語録メーカー(#word-cloud-btn)は現在コメントアウトで無効化中なので、ヘルプには載せていない(復活させるときにヘルプも足すこと)。' },
         { version: '1.12.0.1', note: '発言者の変更を追加(公開v1.12.0)。構造編集モード(isMoveMode)で発言をクリックしたときの#move-menuに、移動先タブの下へ『発言者を変更』(#move-menu-speakers)を足した。キャラは発言数の多い順で、色の丸と件数つき。『＋ 新しい名前…』はprompt()で入力(<と>は取り除き、40文字まで。createRowが名前をHTMLにそのまま入れる箇所があるため)。changeSpeaker(id,name): pushUndo()→item.charを変更→色は変更先のキャラの最頻色(ログにまだいない新しい名前なら今の色のまま)→item.iconをnull(取り込み時のアイコンは前の発言者のもの)→style.exprは変更先に同名の差分画像があるときだけ残す→characters集合を作り直し→renderAllRows+refreshIcons。既存の再描画経路(moveMessage/deleteMessage等)では栞の印(.bookmark-flag)が付け直されないので、ここでは付け直し、timeline-viewportのscrollTopも保つ(.timeline-viewportはscroll-behavior:smoothなので、復元はscrollTo({top,behavior:\'instant\'})で即時に行う。念のための保険で、scrollTop代入でも実測では位置は保たれた)。style.infoName(情報カードの表示名)は発言者と無関係なので残す。showMoveMenuは実際の高さを測って画面内に収める(キャラが多くても下にはみ出さない)。一覧はmax-height 168pxで縦スクロール。1件ずつの変更のみ(範囲指定や一括は未対応)。' },
         { version: '1.11.0.4', note: 'ファビコンとホーム左上ロゴを、外部ファイルに頼らない完全な埋め込みにした。headのlink#favicon-linkのhrefに64px版PNGを直接データURIで入れ(icon.png・apple-touch-icon.pngへの参照は廃止)、ロゴ(#home-logo)はinit()でそのhrefをsrcに入れる。これでBase64の置き場はheadの1か所だけになり、JSのFAVICON_BASE64定数は廃止。書き出しHTMLのcloneは元からデータURIを持つので、ファビコンの差し替え処理と、apple-touch-icon除去の処理も不要になり削除した(#home-logoのsrcを外す処理は残す)。ロゴの持ち出し防止: img.no-save-img(pointer-events/選択/ドラッグ/長押し保存を無効)を#home-logo-wrapで包み、wrapのcontextmenuをpreventDefault。ロゴの上でだけメニューが出ず、ほかの場所の右クリックは従来どおり。限界: 埋め込みなのでHTMLのソース表示、開発者ツール、スクリーンショットからは取り出せる。あくまで『画像を保存』を手軽に出さないための対策。' },
@@ -3405,6 +3409,56 @@
                 return 'pc-' + encodeURIComponent(name).replace(/[%().'!~*]/g, '_');
             }
 
+            // ===== 取り込んだログの文字を、画面に出す前に安全にそろえる =====
+            // 旧形式のログ本文は、元のHTMLのまま持っている(装飾を残すため)。そのまま画面に差し込むと、
+            // ログに紛れたスクリプトが動いてしまうので、許可したタグ(改行・太字・斜体・色などの装飾・ルビ)だけを残し、
+            // イベント属性・script・リンクなどは取り除く。許可外のタグは外して、中の文字だけ残す。
+            // 名前・色は、HTMLの属性にも入るので、escapeHtmlAttrで必ず無害な文字にしてから差し込む。
+            const SAFE_MSG_TAGS = new Set(['BR','B','STRONG','I','EM','U','S','SPAN','RUBY','RT','RP']);
+            const SAFE_STYLE_PROPS = new Set(['color','font-weight','font-style','text-decoration','background-color']);
+            function sanitizeStyleAttr(value) {
+                return String(value).split(';').map(d => d.trim()).filter(Boolean).filter(d => {
+                    const k = d.indexOf(':'); if (k < 1) return false;
+                    const prop = d.slice(0, k).trim().toLowerCase();
+                    const val = d.slice(k + 1).trim().toLowerCase();
+                    if (!SAFE_STYLE_PROPS.has(prop)) return false;
+                    return !/url\s*\(|expression|javascript|behavior|@import|\\|[<>]/.test(val); // 外部読み込み・スクリプト・エスケープ迂回を含む値は捨てる
+                }).join('; ');
+            }
+            function sanitizeMsgHtml(html) {
+                if (!html) return '';
+                const tpl = document.createElement('template'); // templateの中は、画像の読み込みやスクリプトの実行が起きない
+                tpl.innerHTML = String(html);
+                const walk = (parent) => {
+                    Array.from(parent.childNodes).forEach(node => {
+                        if (node.nodeType === 3) return;                       // テキストはそのまま
+                        if (node.nodeType !== 1) { node.remove(); return; }    // コメント等は捨てる
+                        const tag = node.tagName;
+                        if (!SAFE_MSG_TAGS.has(tag)) {
+                            // 許可外のタグは、中のテキストだけ残して、タグ自体は外す(script/styleは中身ごと捨てる)
+                            if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'IFRAME' || tag === 'OBJECT' || tag === 'EMBED' || tag === 'TEMPLATE') { node.remove(); return; }
+                            walk(node);
+                            while (node.firstChild) parent.insertBefore(node.firstChild, node);
+                            node.remove();
+                            return;
+                        }
+                        Array.from(node.attributes).forEach(a => {
+                            if (tag === 'SPAN' && a.name === 'style') {
+                                const safe = sanitizeStyleAttr(a.value);
+                                if (safe) node.setAttribute('style', safe); else node.removeAttribute('style');
+                            } else node.removeAttribute(a.name);               // on*・class・id・hrefなど、他の属性は全部外す
+                        });
+                        walk(node);
+                    });
+                };
+                walk(tpl.content);
+                return tpl.innerHTML;
+            }
+            function escapeHtmlAttr(s) {
+                return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+            }
+
+
             function escapeHtml(str) {
                 return String(str)
                     .replace(/&/g, '&amp;')
@@ -4026,6 +4080,7 @@
 
                 characters.clear();
                 logData.forEach(d => characters.add(d.char));
+                renderCharList(); // 新しい名前・発言がなくなったキャラを、キャラ一覧に反映する
 
                 // 描き直し（スクロール位置は保つ。栞の印も付け直す）
                 const viewport = getEl('timeline-viewport');
@@ -4033,7 +4088,6 @@
                 getEl('rows-container').innerHTML = '';
                 renderAllRows(logData);
                 refreshIcons();
-                bookmarks.forEach(bm => addBookmarkFlagToRow(bm.rowId));
                 updateRowCounter();
                 // .timeline-viewportはscroll-behavior: smoothなので、位置の復元は『なめらかに移動』にならないよう即時で行う（念のための保険）
                 if (viewport) viewport.scrollTo({ top: scrollTop, behavior: 'instant' });
@@ -5222,6 +5276,7 @@
                 logData = logData.filter(d => d.loc !== loc);
                 reanchorDividers(prevLog);
                 allLocations = allLocations.filter(l => l !== loc);
+                characters.clear(); logData.forEach((d) => characters.add(d.char)); // タブごと消えた発言のキャラを、キャラ一覧から外す
                 renderLayout();
                 getEl('rows-container').innerHTML = ''; 
                 renderAllRows(logData);
@@ -5235,6 +5290,8 @@
                 const prevLog = logData;
                 logData = logData.filter(d => d.id !== id);
                 reanchorDividers(prevLog);
+                characters.clear(); logData.forEach((d) => characters.add(d.char)); // 発言が1件もなくなったキャラを、キャラ一覧から外す
+                renderCharList(); // 一覧の画面は、レイアウトを描き直したときにしか作り直されないので、ここでも作り直す
                 getEl('rows-container').innerHTML = ''; 
                 renderAllRows(logData);
                 refreshIcons(); // 行を作り直すと立ち絵が外れるので、キャラ設定から描き戻す
@@ -5298,7 +5355,9 @@
 
                     textarea.onblur = () => {
                         const newText = textarea.value;
-                        const formattedText = newText.replace(/\n/g, '<br>');
+                        // 編集欄に出ているのは保存されているHTMLそのもの(<b>や&lt;を含む)なので、エスケープし直すと二重になる。
+                        // 改行を<br>にしたうえで、サニタイズして危険なタグ・属性だけを取り除く(装飾や&lt;はそのまま保たれる)
+                        const formattedText = sanitizeMsgHtml(newText.replace(/\n/g, '<br>'));
                         // Update data
                         const dataIndex = logData.findIndex(d => d.id === id);
                         if (dataIndex > -1) {
@@ -5706,13 +5765,15 @@
                 characters.clear(); 
                 ps.forEach((p, idx) => {
                     try {
-                        const spans = p.querySelectorAll('span');
+                        // 直下のspanだけを見る。querySelectorAll('span')だと、本文の中の入れ子のspan(色つき文字など)も
+                        // 別の項目として拾ってしまい、親のinnerHTMLに含まれる同じ内容が二重に足されていた
+                        const spans = Array.from(p.children).filter(el => el.tagName === 'SPAN');
                         if (spans.length < 3) return;
                         const loc = spans[0].textContent.trim();
                         const char = spans[1].textContent.trim();
                         const color = p.style.color || '#1e293b';
                         let msg = ""; for(let i=2; i<spans.length; i++) msg += spans[i].innerHTML;
-                        msg = normalizeMsgWhitespace(msg);
+                        msg = sanitizeMsgHtml(normalizeMsgWhitespace(msg));
                         locSet.add(loc); characters.add(char);
                         tempLogData.push({ id: idx, loc, char, msg: msg.replace(/<[^>]+>/g, ''), color: color, rawMsg: msg, style: {}, icon: null, time: null });
                     } catch(e) {}
@@ -5907,18 +5968,27 @@
                     finishParsing(locSet);
                     return;
                 }
-                const sig = (m) => (m.char || '') + '|' + (m.msg || '').replace(/\s+/g, '');
+                // 重複の判定に使う「その発言らしさ」。タブ(loc)も含める(別のタブで同じ人が同じことを言った発言を、同一とみなして消さないため)
+                const sig = (m) => (m.loc || '') + '|' + (m.char || '') + '|' + (m.msg || '').replace(/\s+/g, '');
                 const existingSigs = logData.map(sig);
                 const newSigs = tempLogData.map(sig);
-                const maxOverlap = Math.min(80, existingSigs.length, newSigs.length);
-                let overlap = 0;
-                for (let k = maxOverlap; k >= 1; k--) {
-                    let match = true;
-                    for (let i = 0; i < k; i++) {
-                        if (existingSigs[existingSigs.length - k + i] !== newSigs[i]) { match = false; break; }
+                // 「既存ログの末尾」と「新しいログの先頭」が重なっている最大の長さを求める。
+                // 件数の上限は設けない(以前は80件までしか見ておらず、それより長く重なると残りが二重に追加されていた)。
+                // 全部の長さを試すと大きなログで重くなるので、接頭辞関数(KMP法)で、ログの長さに比例する時間で求める。
+                const overlap = (() => {
+                    const limit = Math.min(existingSigs.length, newSigs.length);
+                    if (limit === 0) return 0;
+                    const SEP = '\u0000__sep__'; // どの発言とも一致しない区切り
+                    const seq = newSigs.slice(0, limit).concat([SEP], existingSigs.slice(existingSigs.length - limit));
+                    const pi = new Array(seq.length).fill(0);
+                    for (let i = 1; i < seq.length; i++) {
+                        let k = pi[i - 1];
+                        while (k > 0 && seq[i] !== seq[k]) k = pi[k - 1];
+                        if (seq[i] === seq[k]) k++;
+                        pi[i] = k;
                     }
-                    if (match) { overlap = k; break; }
-                }
+                    return pi[seq.length - 1];
+                })();
                 const toAdd = tempLogData.slice(overlap);
                 let nextId = logData.length ? Math.max(...logData.map((m) => m.id)) + 1 : 0;
                 toAdd.forEach((m) => { m.id = nextId++; });
@@ -5973,6 +6043,8 @@
                 getEl('rows-container').appendChild(rowBatchFragment);
                 rowBatchFragment = null;
                 onDividersChanged();
+                // 行を作り直すと栞の印(.bookmark-flag)が消えるので、ここで付け直す(削除済みの発言を指す栞は、行が無いので何もしない)
+                bookmarks.forEach((bm) => addBookmarkFlagToRow(bm.rowId));
             }
 
             function createRow(idx, loc, char, color, msg, style = {}, icon = null, time = null) {
@@ -5983,11 +6055,12 @@
                 if (hiddenChars.has(char)) row.classList.add('hidden');
                 const safeCharClass = getSafeClassName(char);
 
-                const displayMsg = formatDiceLines(applyRubyMarkup(msg));
+                const displayMsg = formatDiceLines(applyRubyMarkup(sanitizeMsgHtml(msg)));
                 const diceOnly = isDiceOnlyMessage(msg);
                 // 情報カードモードで表示名を差し替えている発言は、その名前を出す（元のキャラ名は data-char などに残る）
                 const shownName = shownNameOf(char, style);
-                const shownChar = shownName !== char ? escapeHtml(shownName) : char;
+                const shownChar = escapeHtml(shownName); // 名前は、ログの出どころに関わらず必ず無害な文字にする
+                const safeColor = escapeHtmlAttr(String(color).replace(/[;{}<>"'\\]/g, ''));
 
                 allLocations.forEach((l, lIdx) => {
                     const cell = document.createElement('div'); cell.className = `timeline-cell col-idx-${lIdx}`;
@@ -5997,7 +6070,7 @@
 
                     if (l === loc) {
                         const timeHtml = time ? `<span class="msg-timestamp" style="display:${showTimestamps ? 'inline' : 'none'}">${escapeHtml(time)}</span>` : '';
-                        cell.innerHTML = `<div class="msg-container"><div class="char-portrait ${safeCharClass}"></div><div class="msg-content-wrapper"><div class="msg-info"><span class="char-name-bg" style="border-left: 3px solid ${color}"><span class="char-name" data-name="${char}" style="color:${color}">${shownChar}</span></span>${timeHtml}</div><div class="bubble${diceOnly ? ' dice-only-bubble' : ''}" data-id="${idx}">${displayMsg}<div class="delete-msg-btn"><i data-lucide="x" size="14"></i></div></div></div>`;
+                        cell.innerHTML = `<div class="msg-container"><div class="char-portrait ${safeCharClass}"></div><div class="msg-content-wrapper"><div class="msg-info"><span class="char-name-bg" style="border-left: 3px solid ${safeColor}"><span class="char-name" data-name="${escapeHtmlAttr(char)}" style="color:${safeColor}">${shownChar}</span></span>${timeHtml}</div><div class="bubble${diceOnly ? ' dice-only-bubble' : ''}" data-id="${idx}">${displayMsg}<div class="delete-msg-btn"><i data-lucide="x" size="14"></i></div></div></div>`;
                         const bubble = cell.querySelector('.bubble');
                         bubble.onclick = (e) => handleBubbleClick(e, idx);
                         const delBtn = cell.querySelector('.delete-msg-btn');
