@@ -699,7 +699,7 @@
             background-color: #eff6ff;
         }
 
-        #settings-panel {
+        #settings-panel, #save-panel {
             display: none;
             position: absolute;
             top: 55px;
@@ -714,7 +714,7 @@
             overflow-y: auto;
             z-index: 100;
         }
-        #settings-panel.active { display: block; }
+        #settings-panel.active, #save-panel.active { display: block; }
 
         input[type="range"] { accent-color: var(--accent-color); }
 
@@ -935,7 +935,7 @@
         @media (max-width: 640px) {
             #row-counter { bottom: 84px; }
             #jump-controls { bottom: 84px; right: 16px; }
-            #settings-panel { position: fixed; top: auto; bottom: 80px; right: 20px; left: 20px; width: auto; box-shadow: 0 -10px 25px -5px rgba(0, 0, 0, 0.1); max-height: calc(100vh - 100px); overflow-y: auto; }
+            #settings-panel, #save-panel { position: fixed; top: auto; bottom: 80px; right: 20px; left: 20px; width: auto; box-shadow: 0 -10px 25px -5px rgba(0, 0, 0, 0.1); max-height: calc(100vh - 100px); overflow-y: auto; }
             .filter-section {
                 position: fixed; bottom: 80px; left: 20px; right: 20px; max-height: 40vh; overflow-y: auto;
                 border: 1px solid #e2e8f0; border-radius: 16px; box-shadow: 0 -10px 25px -5px rgba(0, 0, 0, 0.1);
@@ -1053,7 +1053,7 @@
 
             /* 画面UI要素をすべて非表示 */
             .header-nav, #filter-container, #jump-controls,
-            #settings-panel, #row-counter, .mobile-nav,
+            #settings-panel, #save-panel, #row-counter, .mobile-nav,
             #setup-screen, #home-view, #char-modal, #crop-modal,
             #pdf-modal, #loading-overlay, #style-context-menu, #divider-style-panel, #scene-list-panel { display: none !important; }
 
@@ -1634,6 +1634,7 @@
 
         /* パネル・ボタン類（独自CSSクラス） */
         body.dark-mode #settings-panel,
+        body.dark-mode #save-panel,
         body.dark-mode #move-menu,
         body.dark-mode .ctx-menu {
             background: var(--dm-panel);
@@ -2073,16 +2074,21 @@
 
 <script>
     // ↓公開リリースノートはここだよ。更新しようね。
-    // バージョンの付け方: 1.9.10までは従来の番号（過去の番号は変えない）。1.10.0以降はSemVerで付ける。
-    //   機能追加（互換性を保つ）=MINOR（例: 1.10.0 → 1.11.0） / 不具合修正のみ=PATCH（例: 1.10.0 → 1.10.1）
-    //   保存済みHTMLなどが読み込めなくなる、互換性を壊す変更=MAJOR（2.0.0）
-    const APP_VERSION = '1.12.1';
+    // ===== バージョン番号の決まり（1.10.0以降） =====
+    //   1.2.3.4 のように、4つの数字で表す。
+    //   1桁目: 互換性のなくなるアップデート（保存したHTMLなどが、以前のように読み込めなくなる変更。例: 1.12.2 → 2.0.0）
+    //   2桁目: 新機能の追加（今までできなかったことができるようになる。互換性は保つ。例: 1.12.2 → 1.13.0）
+    //   3桁目: 不具合修正と、見た目の変化（機能は増えない、置き場所・レイアウト・デザインの調整。例: 1.12.1 → 1.12.2）
+    //   4桁目: 開発メモ（非公開）。画面には出さず、下のHIDDEN_CHANGELOGにだけ記録する（公開リリースノートには載せない）。
+    //   ※ 1.9.10までは従来の番号。過去の番号は変えない。
+    const APP_VERSION = '1.12.2';
     const RELEASE_NOTES = [
+        { version: '1.12.2', description: '「保存」の置き場所を整えました。<br>【保存ボタン】ヘッダーの表示設定ボタンの右に「保存」ボタンを置きました。押すと「保存・書き出し」パネルが開き、書き出し形式の選択・HTMLなどでの保存・PDF出力・ログのリセットができます。スマホでは、画面下のメニューに「保存」が加わりました。<br>【表示設定】保存まわりを分けたので、表示設定は、ダークモード・テーマカラー・各種サイズ・立ち絵や時刻の表示・編集ボタンの表示といった、見た目の設定だけになりました。できることは、これまでと変わりません。' },
         { version: '1.12.1', description: '不具合の修正と、安全性の向上をおこないました。<br>【安全性】取り込んだログの名前や本文を、画面に出す前に安全な形へ整えるようにしました。悪意をもって作られたログを開いても、意図しない動きをしないようにするための対策です。<br>【追記の修正】ログを追記したとき、重なっている部分が80件を超えると二重に追加されたり、別のタブの同じ発言が重複扱いで消えてしまうことがあったのを直しました。<br>【表示の修正】発言やタブを削除したときに、立ち絵や栞の印が消えてしまうことがあったのを直しました。発言がなくなったキャラが、キャラ一覧に残ることがあったのも直しました。旧形式のログで、色つきの文字を含む発言の末尾が重複して表示されることがあったのも直しました。<br>【ご注意】以前のバージョンで書き出したHTMLには、この修正は反映されません。必要に応じて、書き出し直してください。' },
         { version: '1.12.0', description: '発言者を、あとから変えられるようになりました。<br>【発言者の変更】「構造編集モード」で発言をクリックすると、メニューの「発言者を変更」から、話した人を別のキャラに付け替えられます。キャラは発言数の多い順に並び、「＋ 新しい名前…」でログにまだいない名前にもできます。色と立ち絵は、付け替えたキャラのものに切り替わります。「元に戻す」で取り消せます。変更は1件ずつです。<br>【ヘルプの更新】ヘッダーの？ボタン（操作ボタンの説明）に「区切り線モード」を追加し、「マーカーモード」と「元に戻す」の説明を、いまの動きに合わせて直しました。' },
         { version: '1.11.0', description: 'リロードしても、編集中のログが消えなくなりました。<br>【自動保存】ログを読み込んで編集すると、内容がこのブラウザの中に自動で控えられます（外部サーバーには送りません）。タイトル・発言の編集・立ち絵・スタイル・栞・区切り線・概要も、あわせて保存されます。<br>【前回の続きから】保存された内容があるときは、トップページに「前回の続きから」ボタンが現れます。ボタンには保存されているログのタイトル・件数・保存日時が出て、押すと前回の状態にそのまま戻れます。いらなくなったら、ボタンの下の「保存データを削除」で消せます。<br>【ご注意】自動保存の枠は1つで、新しいログを読み込むと「前回の続き」はそのログに置き換わります。ブラウザの履歴やサイトデータを消すと、自動保存も消えます。大切なログは、これまでどおり「HTMLとして保存」で書き出してください。デモ・閲覧専用HTML・保存したHTMLを開いているときは、自動保存の対象外です。' },
         { version: '1.10.0', description: 'ログの紹介を書けるようになりました。<br>【ログの概要】ヘッダーのヘルプボタンの右に「概要」ボタンが加わりました。キャラクター紹介・GMやPLの名前・使用ルールや版権表記などを、パネルに書いて、ログと一緒に保存できます。[表示名](URL) でリンク（キャラシートなど）、|漢字《よみ》 でルビ、太字・見出し・箇条書き・区切り線が使え、書く欄の補助ボタンから入力できます。「自動で開く」をONにすると、保存HTML・閲覧専用HTMLを開いたときに概要を表示します。概要が空のときは、読む側にボタンは出ません。' },
-        { divider: true, label: 'バージョン表記の変更', description: 'v1.10.0から、バージョンの付け方を変更しました。機能が増えた更新は 1.11.0 → 1.12.0 のように2桁目を、不具合の修正だけの更新は 1.11.0 → 1.11.1 のように3桁目を上げます。v1.9.10以前は、従来の付け方のままです。' },
+        { divider: true, label: 'バージョン表記の変更', description: 'v1.10.0から、バージョンの付け方を変更しました。新しい機能が増えた更新は 1.11.0 → 1.12.0 のように2桁目を、不具合の修正や見た目の調整だけの更新は 1.11.0 → 1.11.1 のように3桁目を上げます。v1.9.10以前は、従来の付け方のままです。' },
         { version: '1.9.10', description: '情報の描写や、キャラの表情を、もっと見せやすくしました。<br>【情報カードモード】マーカーモードのスタイル編集で、発言を「情報カード」「付箋メモ」「端末ログ」「ナレーション帯」の見た目にできます。情報タブの描写や手がかりを、会話と区別して読みやすくできます。その発言だけ、表示する名前を「手がかり」などの項目名に差し替えることもできます。<br>【立ち絵の差分】キャラ設定の「立ち絵」タブで差分の名前（笑い・怒り・泣き…）を作り、キャラごとに画像を設定できます。マーカーモードのメニューで発言に差分を付けると、その発言だけ差分の立ち絵になります（メニューには、そのキャラが画像を設定している差分だけが出ます）。取り込み時のアイコンより優先され、保存HTML・閲覧専用HTML・PDFにも反映されます。' },
         { version: '1.9.9', description: '読みやすいログ作りと、配布まわりを強化しました。<br>【シーン区切り線】編集ボタンの「区切り線モード」で、発言と発言の間に区切り線を入れられます。ラベルは1本の線に複数つけられ、線の種類（線・破線・点線・波線・二重線・ジグザグ線）・太さ・色も変えられます。保存したHTML・PDF・テキスト／Markdownにも反映されます。<br>【シーン一覧】区切り線があるログでは、検索バーの右に「シーン一覧」ボタンが現れ、ラベルを押すとそのシーンへジャンプできます。<br>【閲覧専用HTML】書き出し形式に「閲覧専用HTML」を追加しました。編集や読み込みの画面を取り除き、検索・タブ切替・シーン一覧・栞・表示設定・キャラの表示切替だけを残した、配布向けのHTMLを出力できます。<br>【保存HTMLの軽量化】立ち絵付きのログを保存したときに、同じ画像データを何度も持たなくなり、HTMLのサイズが大きく小さくなりました。<br>【使い勝手】キャラクター設定・ヘルプ・PDF出力などのパネルは、外側をクリックして閉じられるようになりました。<br>【不具合の修正】キャラクターの表示／非表示が、設定パネルを閉じると元に戻ってしまう問題と、保存したHTMLを開いて再保存・書き出しをすると失敗する問題を直しました。' },
         { version: '1.9.8', description: 'ルビ振りに対応しました。文字編集モードで「｜文字《ルビ》」と入力するか、文字を選択して「文字《ルビ》」ボタンを押すとルビを振れます。' },
@@ -2117,10 +2123,12 @@
     // 同じ公開バージョンの間に非公開の修正をしたら枝番を1つずつ増やしていく。
     // 公開バージョンが上がったら枝番は1から数え直す。古い項目は消さず、
     // 新しいものを配列の先頭に追加する形でずっと積み上げていくこと。
-    // 1.10.0以降の公開バージョンはSemVer（機能追加=MINOR、不具合修正のみ=PATCH、互換性を壊す変更=MAJOR）。
-    // 例: 1.10.0のあとの非公開の修正は 1.10.0.1、1.10.0.2 …。次の公開が1.11.0なら、枝番は1.11.0.1から数え直す。
+    // バージョン番号の決まり: 1桁目=互換性のなくなる更新 / 2桁目=新機能の追加 / 3桁目=不具合修正と見た目の変化 / 4桁目=開発メモ(非公開・ここだけに書く)。
+    // 4桁目は、その公開バージョンに入る作業の通し番号。例: 公開1.12.2に入る作業は 1.12.2.1、1.12.2.2 …。
+    // 公開バージョンが上がったら(例: 1.12.3)、4桁目は1から数え直して 1.12.3.1 から始める。
     // ============================================================
     const HIDDEN_CHANGELOG = [
+        { version: '1.12.2.1', note: '保存系を表示設定から分離(公開v1.12.2。置き場所とレイアウトの変更で新機能ではないため、3桁目)。ヘッダーの表示設定ボタン(#pc-settings-btn)の右に「保存」ボタン(#pc-save-btn)、スマホの下のナビに#mb-nav-saveを追加し、新しい#save-panelを開く。#save-panelへは、書き出し形式(#export-format-select)・保存(#download-btn)・PDF出力(#pdf-btn)・ログをリセット(#reset-btn)を、IDを変えずに移動(既存の書き出し処理はそのまま)。表示設定には「編集ボタンを表示」だけを残した。CSSは#settings-panelのセレクタ群(位置・スマホで画面下に固定・印刷時に非表示・ダークモード)に#save-panelを追加。表示設定・保存・タブ一覧(スマホ)の3パネルは、どれか1つだけが開く(toggleSettings/toggleSave/toggleFilterMobileで相互に閉じる)。外側クリックで閉じる処理にも追加。閲覧専用HTMLでは#pc-save-btn・#save-panel・#mb-nav-saveを除去(stripForViewerの除去リスト)。書き出しHTMLのcloneでは、保存パネルを閉じた状態にする。' },
         { version: '1.12.1.4', note: '(5)の追加修正: characters集合を作り直すだけでは、キャラ一覧の画面(#char-checkbox-container)は更新されない。renderCharList()はrenderLayout()の最後でしか呼ばれておらず、発言の削除(deleteMessage)はrenderLayoutを呼ばないため、一覧に古いキャラが残っていた。deleteMessageでrenderCharList()も呼ぶ。同じ原因で、changeSpeaker(発言者の変更)も、新しい名前や発言がゼロになったキャラが一覧に反映されていなかったので、renderCharList()を呼ぶようにした(deleteColumn・addColumn・タブ名変更はrenderLayout経由で既に更新される)。' },
         { version: '1.12.1.3', note: '外部レビューの残り2件を修正。(4)再描画のあと栞の印(.bookmark-flag)が消える→renderAllRowsの最後で全栞の印を付け直す(呼び出し元ごとに足すと漏れるので入口の1か所に集約。addBookmarkFlagToRowは行が無ければ何もせず、既にあれば重ねないので、何度呼んでも安全)。changeSpeaker内の個別の付け直しは不要になったので削除。(5)発言を削除しても、発言が1件もなくなったキャラがキャラ一覧(characters)に残る→deleteMessageとdeleteColumnで、logDataからcharactersを作り直す(undo()は元から作り直している)。charIcons/charStylesなどのキャラ設定は消さないので、元に戻すや再追加でキャラが戻れば設定も戻る。' },
         { version: '1.12.1.2', note: '外部レビュー(静的確認)の指摘5件を、実ブラウザで再現してから修正。(1)【セキュリティ・高】取り込んだログの名前・本文・色が、エスケープなしでcreateRowのinnerHTMLに入り、<img onerror>でスクリプトが実行できた(CCFOLIAが実際に出す&lt;エスケープ形の名前でも発生。閲覧専用HTMLを配布する使い方では読者側に被害が及ぶ)。対策: 本文は許可リスト方式のsanitizeMsgHtml(br・b・strong・i・em・u・s・span[styleはcolor等の無害なものだけ]・ruby・rt・rpだけ残し、イベント属性・script・iframe・リンク等は除去。許可外のタグは外して中の文字だけ残す)を、旧形式parse・createRow(最終防衛線)に通す。名前・色・data-nameはescapeHtmlAttr/escapeHtmlで必ずエスケープ(安全でない色の値は禁止文字を除去)。文字編集モードの入力も、escapeHtmlしてから<br>化(<や&を書いても表示が壊れない)。保存データの復元も、描画時に必ずcreateRowを通るため防げることを、悪意ある内容を仕込んだ自動保存データで実測。(3)【中】旧形式parseがp.querySelectorAll(span)で入れ子のspanも拾い、本文末尾に重複して付いた→直下のspanだけを見る(p.childrenのSPAN)。(2)【中】追記時の重複判定commitParsedLog: 署名にloc(タブ)を含め(別タブの同じ発言を同一視して消していた)、重なりの探索上限80件を撤廃(重なりが100件だと350件に膨らんでいた)。全長の総当たりはO(n^2)で重いので、接頭辞関数(KMP法)で線形時間にした。ランダム2万ケースを総当たりと照合して不一致0、5万件でも14ms。栞の印(4)と、削除後にキャラ一覧へ残るキャラ(5)は、続けて修正する(別エントリ)。' },
@@ -2755,7 +2763,8 @@
                 <button id="append-log-btn" class="btn-secondary px-3" title="別のログを続けて読み込む（複数セッションの結合）"><i data-lucide="file-plus-2" size="14"></i></button>
                 <input type="file" id="append-log-input" accept=".html,.json" style="display:none">
                 <button id="pc-open-char-modal-btn" class="btn-secondary"><i data-lucide="users" size="14"></i> キャラ設定</button>
-                <button id="pc-settings-btn" class="btn-secondary px-3"><i data-lucide="sliders-horizontal" size="14"></i></button>
+                <button id="pc-settings-btn" class="btn-secondary px-3" title="表示設定"><i data-lucide="sliders-horizontal" size="14"></i></button>
+                <button id="pc-save-btn" class="btn-secondary" title="保存・書き出し"><i data-lucide="save" size="14"></i> 保存</button>
             </div>
         </header>
 
@@ -2847,6 +2856,13 @@
                         <div class="absolute top-0.5 right-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform"></div>
                     </div>
                 </label>
+            </div>
+        </div>
+
+        <!-- 保存パネル(ヘッダーの「保存」ボタン/スマホ下のナビの「保存」から開く)。書き出し系の部品は、IDを変えずに表示設定から移した -->
+        <div id="save-panel">
+            <h4 class="font-bold text-xs text-slate-400 mb-4 uppercase tracking-wider">保存・書き出し</h4>
+            <div class="flex flex-col gap-3">
                 <div class="flex flex-col gap-2">
                     <label for="export-format-select" class="text-xs font-bold text-slate-700">書き出し形式</label>
                     <select id="export-format-select" class="w-full rounded-xl border border-slate-200 bg-white py-2 px-3 text-sm text-slate-700 shadow-sm focus:border-blue-400 focus:outline-none">
@@ -2859,6 +2875,8 @@
                 </div>
                 <button id="download-btn" class="btn-primary w-full flex items-center justify-center gap-2"><i data-lucide="download" size="14"></i> HTMLとして保存</button>
                 <button id="pdf-btn" class="w-full flex items-center justify-center gap-2 py-2 px-4 rounded-xl border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50 transition-colors"><i data-lucide="printer" size="14"></i> PDF出力</button>
+            </div>
+            <div class="mt-4 pt-3 border-t flex flex-col">
                 <button id="reset-btn" class="text-[10px] text-slate-400 hover:text-red-500 transition-colors py-2">ログをリセットする</button>
             </div>
         </div>
@@ -2867,6 +2885,7 @@
             <button id="mb-nav-filter" class="flex flex-col items-center gap-1 text-slate-400"><i data-lucide="columns" size="20"></i><span class="text-[10px] font-bold">タブ</span></button>
             <button id="mb-nav-char" class="flex flex-col items-center gap-1 text-slate-400"><i data-lucide="users" size="20"></i><span class="text-[10px] font-bold">キャラ設定</span></button>
             <button id="mb-nav-settings" class="flex flex-col items-center gap-1 text-slate-400"><i data-lucide="sliders-horizontal" size="20"></i><span class="text-[10px] font-bold">表示設定</span></button>
+            <button id="mb-nav-save" class="flex flex-col items-center gap-1 text-slate-400"><i data-lucide="save" size="20"></i><span class="text-[10px] font-bold">保存</span></button>
             <button id="mb-nav-overview" class="flex flex-col items-center gap-1 text-slate-400 overview-trigger"><i data-lucide="file-text" size="20"></i><span class="text-[10px] font-bold">概要</span></button>
         </nav>
     </div>
@@ -3756,13 +3775,16 @@
                 getEl('search-input').oninput = (e) => handleSearch(e, 'search-results');
                 getEl('search-input-mobile').oninput = (e) => handleSearch(e, 'search-results-mobile');
 
-                const toggleSettings = (e) => { e.stopPropagation(); getEl('filter-container').classList.remove('active'); getEl('settings-panel').classList.toggle('active'); };
-                const toggleFilterMobile = (e) => { e.stopPropagation(); getEl('settings-panel').classList.remove('active'); getEl('filter-container').classList.toggle('active'); };
+                // 表示設定・保存・タブ一覧(スマホ)のパネルは、どれか1つだけが開く
+                const toggleSettings = (e) => { e.stopPropagation(); getEl('filter-container').classList.remove('active'); getEl('save-panel').classList.remove('active'); getEl('settings-panel').classList.toggle('active'); };
+                const toggleSave = (e) => { e.stopPropagation(); getEl('filter-container').classList.remove('active'); getEl('settings-panel').classList.remove('active'); getEl('save-panel').classList.toggle('active'); };
+                const toggleFilterMobile = (e) => { e.stopPropagation(); getEl('settings-panel').classList.remove('active'); getEl('save-panel').classList.remove('active'); getEl('filter-container').classList.toggle('active'); };
                 const openCharModal = () => { getEl('char-modal').classList.remove('hidden'); getEl('char-modal').classList.add('flex'); renderIconUploads(); };
                 const openHelpModal = () => { getEl('help-modal').classList.remove('hidden'); getEl('help-modal').classList.add('flex'); };
                 const closeHelpModal = () => getEl('help-modal').classList.add('hidden');
 
                 getEl('pc-settings-btn').addEventListener('click', toggleSettings);
+                getEl('pc-save-btn').addEventListener('click', toggleSave);
                 getEl('pc-open-char-modal-btn').addEventListener('click', openCharModal);
                 getEl('pc-open-help-modal-btn').addEventListener('click', openHelpModal);
                 getEl('append-log-btn').addEventListener('click', () => getEl('append-log-input').click());
@@ -3773,6 +3795,7 @@
                     }
                 });
                 getEl('mb-nav-settings').addEventListener('click', toggleSettings);
+                getEl('mb-nav-save').addEventListener('click', toggleSave);
                 getEl('mb-nav-filter').addEventListener('click', toggleFilterMobile);
                 getEl('mb-nav-char').addEventListener('click', openCharModal);
 
@@ -3879,6 +3902,8 @@
                     const moveMenu = getEl('move-menu');
                     
                     if (panel && !panel.contains(e.target) && !e.target.closest('button')) { panel.classList.remove('active'); }
+                    const savePanel = getEl('save-panel');
+                    if (savePanel && !savePanel.contains(e.target) && !e.target.closest('button')) { savePanel.classList.remove('active'); }
                     // 栞パネルを閉じる
                     const bkPanel = getEl('bookmark-panel');
                     if (bkPanel && bkPanel.classList.contains('open') && !bkPanel.contains(e.target) && !e.target.closest('#bookmark-toggle-btn')) {
@@ -7472,7 +7497,7 @@
                 // 編集・読み込み・ランディング・PDF・語録メーカー・トリミングなどの部品
                 ['#home-view', '#setup-screen', '#move-menu', '#style-context-menu', '#divider-style-panel',
                  '#pdf-modal', '#word-cloud-modal', '#crop-modal',
-                 '#exit-demo-btn', '#title-edit-btn', '#append-log-btn', '#append-log-input', '#edit-btn-group',
+                 '#exit-demo-btn', '#title-edit-btn', '#append-log-btn', '#append-log-input', '#edit-btn-group', '#pc-save-btn', '#save-panel', '#mb-nav-save',
                  '#overview-editor', '#ov-preview-label'].forEach(rm);
 
                 // ランディングページ用のスクリプト（リリースノート・機能一覧）。メインのスクリプトとは別物
@@ -7480,7 +7505,7 @@
                     if (!s.src && !s.type && s.textContent.includes('const APP_VERSION') && s.textContent.length < 100000) s.remove();
                 });
 
-                // 表示設定の下半分（編集ボタンを表示・書き出し形式・保存・PDF・リセット）
+                // 表示設定の下半分（編集ボタンを表示）。保存・書き出し系は#save-panelに分けたので、上の除去リストで取り除いている
                 const editToggle = clone.querySelector('#edit-btn-toggle');
                 const lowerSection = editToggle && editToggle.closest('#settings-panel > div');
                 if (lowerSection) lowerSection.remove();
@@ -7554,7 +7579,7 @@
                             const clone = document.documentElement.cloneNode(true);
                             // 書き出しHTMLは単体で開かれる想定なので、favicon参照をBase64埋め込みに差し替える
                             const cloneHomeLogo = clone.querySelector('#home-logo'); if (cloneHomeLogo) cloneHomeLogo.removeAttribute('src'); // ホームは書き出しHTMLでは見えないので、Base64の重複を持たない
-                            clone.querySelector('#settings-panel').classList.remove('active'); clone.querySelector('#filter-container').classList.remove('active');
+                            clone.querySelector('#settings-panel').classList.remove('active'); clone.querySelector('#filter-container').classList.remove('active'); { const sp = clone.querySelector('#save-panel'); if (sp) sp.classList.remove('active'); }
                             clone.querySelector('#search-results').innerHTML = ''; clone.querySelector('#search-results').classList.add('hidden');
                             clone.querySelector('#search-results-mobile').innerHTML = ''; clone.querySelector('#search-results-mobile').classList.add('hidden');
                             clone.querySelector('#search-input').value = ''; clone.querySelector('#search-input-mobile').value = '';
