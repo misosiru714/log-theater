@@ -627,6 +627,10 @@
             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
             display: inline-block;
         }
+        /* 文字編集モード中は、名前のタグをクリックして発言者を変えられる。押せると分かるよう、カーソルと▾を出す */
+        body.text-edit-mode-active .char-name-bg { cursor: pointer; }
+        body.text-edit-mode-active .char-name-bg:hover { box-shadow: 0 0 0 2px #93c5fd; }
+        body.text-edit-mode-active .char-name-bg::after { content: ' ▾'; font-size: 9px; opacity: 0.55; }
         .char-name {
             display: inline-block;
             text-shadow: -0.5px -0.5px 0 #000, 0.5px -0.5px 0 #000, -0.5px 0.5px 0 #000, 0.5px 0.5px 0 #000;
@@ -997,7 +1001,7 @@
         }
 
         /* コメント移動メニュー */
-        #move-menu {
+        #move-menu, #speaker-menu {
             display: none;
             position: fixed;
             background: white;
@@ -1019,7 +1023,7 @@
         }
         .move-menu-item:hover { background: #fef3c7; color: #d97706; }
         .move-menu-item.current { opacity: 0.4; pointer-events: none; }
-        #move-menu-items, #move-menu-speakers { max-height: 168px; overflow-y: auto; }
+        #move-menu-items, #speaker-menu-list { max-height: 168px; overflow-y: auto; }
         .move-menu-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; border: 1px solid rgba(0,0,0,0.15); }
         .move-menu-count { opacity: 0.55; font-weight: 500; margin-left: 4px; }
 
@@ -1636,6 +1640,7 @@
         body.dark-mode #settings-panel,
         body.dark-mode #save-panel,
         body.dark-mode #move-menu,
+        body.dark-mode #speaker-menu,
         body.dark-mode .ctx-menu {
             background: var(--dm-panel);
             border-color: var(--dm-border);
@@ -2076,13 +2081,14 @@
     // ↓公開リリースノートはここだよ。更新しようね。
     // ===== バージョン番号の決まり（1.10.0以降） =====
     //   1.2.3.4 のように、4つの数字で表す。
-    //   1桁目: 互換性のなくなるアップデート（保存したHTMLなどが、以前のように読み込めなくなる変更。例: 1.12.2 → 2.0.0）
-    //   2桁目: 新機能の追加（今までできなかったことができるようになる。互換性は保つ。例: 1.12.2 → 1.13.0）
-    //   3桁目: 不具合修正と、見た目の変化（機能は増えない、置き場所・レイアウト・デザインの調整。例: 1.12.1 → 1.12.2）
+    //   1桁目: 互換性のなくなるアップデート（保存したHTMLなどが、以前のように読み込めなくなる変更。例: 1.12.3 → 2.0.0）
+    //   2桁目: 新機能の追加（今までできなかったことができるようになる。互換性は保つ。例: 1.12.3 → 1.13.0）
+    //   3桁目: 不具合修正と、見た目の変化（機能は増えない、置き場所・レイアウト・デザインの調整。例: 1.12.2 → 1.12.3）
     //   4桁目: 開発メモ（非公開）。画面には出さず、下のHIDDEN_CHANGELOGにだけ記録する（公開リリースノートには載せない）。
     //   ※ 1.9.10までは従来の番号。過去の番号は変えない。
-    const APP_VERSION = '1.12.2';
+    const APP_VERSION = '1.12.3';
     const RELEASE_NOTES = [
+        { version: '1.12.3', description: '「発言者の変更」の置き場所を、構造編集モードから文字編集モードへ移しました。<br>【操作の変更】発言者を変えるには、「文字編集モード」にして、発言の名前のタグをクリックします（モード中は、名前のタグに▾が出ます）。本文を直すのも発言者を直すのも、文字編集モードにそろいました。使い方は、これまでと同じです。<br>【構造編集モード】タブの追加・名前の変更・並び替えと、発言を別タブへ移動することだけに戻りました。ヘルプ（？ボタン）の説明も、あわせて直しました。' },
         { version: '1.12.2', description: '「保存」の置き場所を整えました。<br>【保存ボタン】ヘッダーの表示設定ボタンの右に「保存」ボタンを置きました。押すと「保存・書き出し」パネルが開き、書き出し形式の選択・HTMLなどでの保存・PDF出力・ログのリセットができます。スマホでは、画面下のメニューに「保存」が加わりました。<br>【表示設定】保存まわりを分けたので、表示設定は、ダークモード・テーマカラー・各種サイズ・立ち絵や時刻の表示・編集ボタンの表示といった、見た目の設定だけになりました。できることは、これまでと変わりません。' },
         { version: '1.12.1', description: '不具合の修正と、安全性の向上をおこないました。<br>【安全性】取り込んだログの名前や本文を、画面に出す前に安全な形へ整えるようにしました。悪意をもって作られたログを開いても、意図しない動きをしないようにするための対策です。<br>【追記の修正】ログを追記したとき、重なっている部分が80件を超えると二重に追加されたり、別のタブの同じ発言が重複扱いで消えてしまうことがあったのを直しました。<br>【表示の修正】発言やタブを削除したときに、立ち絵や栞の印が消えてしまうことがあったのを直しました。発言がなくなったキャラが、キャラ一覧に残ることがあったのも直しました。旧形式のログで、色つきの文字を含む発言の末尾が重複して表示されることがあったのも直しました。<br>【ご注意】以前のバージョンで書き出したHTMLには、この修正は反映されません。必要に応じて、書き出し直してください。' },
         { version: '1.12.0', description: '発言者を、あとから変えられるようになりました。<br>【発言者の変更】「構造編集モード」で発言をクリックすると、メニューの「発言者を変更」から、話した人を別のキャラに付け替えられます。キャラは発言数の多い順に並び、「＋ 新しい名前…」でログにまだいない名前にもできます。色と立ち絵は、付け替えたキャラのものに切り替わります。「元に戻す」で取り消せます。変更は1件ずつです。<br>【ヘルプの更新】ヘッダーの？ボタン（操作ボタンの説明）に「区切り線モード」を追加し、「マーカーモード」と「元に戻す」の説明を、いまの動きに合わせて直しました。' },
@@ -2124,10 +2130,11 @@
     // 公開バージョンが上がったら枝番は1から数え直す。古い項目は消さず、
     // 新しいものを配列の先頭に追加する形でずっと積み上げていくこと。
     // バージョン番号の決まり: 1桁目=互換性のなくなる更新 / 2桁目=新機能の追加 / 3桁目=不具合修正と見た目の変化 / 4桁目=開発メモ(非公開・ここだけに書く)。
-    // 4桁目は、その公開バージョンに入る作業の通し番号。例: 公開1.12.2に入る作業は 1.12.2.1、1.12.2.2 …。
-    // 公開バージョンが上がったら(例: 1.12.3)、4桁目は1から数え直して 1.12.3.1 から始める。
+    // 4桁目は、その公開バージョンに入る作業の通し番号。例: 公開1.12.3に入る作業は 1.12.3.1、1.12.3.2 …。
+    // 公開バージョンが上がったら(例: 1.12.4)、4桁目は1から数え直して 1.12.4.1 から始める。
     // ============================================================
     const HIDDEN_CHANGELOG = [
+        { version: '1.12.3.1', note: '発言者の変更の置き場所を、構造編集モード(isMoveMode)から文字編集モード(isTextEditMode)へ移動(公開v1.12.3。置き場所の変更で新機能ではないため3桁目)。理由: 構造編集は『どこに表示するか』(タブの追加・並び替え・発言の移動)、発言者は『誰が言ったか』という発言の中身で、本文を直す文字編集に近い。当初は、すでにタブ移動のメニューがあった構造編集に便乗して置いていた。文字編集モード中は、発言の名前のタグ(.char-name-bg)をクリックすると新設の#speaker-menuが開く(createRowで配線、isTextEditModeのときだけ反応)。モード中だけ名前のタグにcursor:pointer・hoverの枠・▾を出す(書き出しHTMLのcloneはtext-edit-mode-activeを外すので漏れない)。#move-menu(構造編集)からは発言者の部分(#move-menu-speakers)を外し、タブ移動だけに戻した。メニューの位置決めはpositionMenuNear()に共通化。hideMoveMenu()は両方のメニューを閉じる(外側クリック・文字編集モードをoffにしたときも)。閲覧専用の除去リストに#speaker-menuを追加。changeSpeaker/speakerStatsなどの中身は変更なし。ヘルプ・ボタンのtitle・デモのガイド・機能一覧の説明も合わせた(過去の公開リリースノートv1.12.0の文面は履歴なので変えない)。' },
         { version: '1.12.2.1', note: '保存系を表示設定から分離(公開v1.12.2。置き場所とレイアウトの変更で新機能ではないため、3桁目)。ヘッダーの表示設定ボタン(#pc-settings-btn)の右に「保存」ボタン(#pc-save-btn)、スマホの下のナビに#mb-nav-saveを追加し、新しい#save-panelを開く。#save-panelへは、書き出し形式(#export-format-select)・保存(#download-btn)・PDF出力(#pdf-btn)・ログをリセット(#reset-btn)を、IDを変えずに移動(既存の書き出し処理はそのまま)。表示設定には「編集ボタンを表示」だけを残した。CSSは#settings-panelのセレクタ群(位置・スマホで画面下に固定・印刷時に非表示・ダークモード)に#save-panelを追加。表示設定・保存・タブ一覧(スマホ)の3パネルは、どれか1つだけが開く(toggleSettings/toggleSave/toggleFilterMobileで相互に閉じる)。外側クリックで閉じる処理にも追加。閲覧専用HTMLでは#pc-save-btn・#save-panel・#mb-nav-saveを除去(stripForViewerの除去リスト)。書き出しHTMLのcloneでは、保存パネルを閉じた状態にする。' },
         { version: '1.12.1.4', note: '(5)の追加修正: characters集合を作り直すだけでは、キャラ一覧の画面(#char-checkbox-container)は更新されない。renderCharList()はrenderLayout()の最後でしか呼ばれておらず、発言の削除(deleteMessage)はrenderLayoutを呼ばないため、一覧に古いキャラが残っていた。deleteMessageでrenderCharList()も呼ぶ。同じ原因で、changeSpeaker(発言者の変更)も、新しい名前や発言がゼロになったキャラが一覧に反映されていなかったので、renderCharList()を呼ぶようにした(deleteColumn・addColumn・タブ名変更はrenderLayout経由で既に更新される)。' },
         { version: '1.12.1.3', note: '外部レビューの残り2件を修正。(4)再描画のあと栞の印(.bookmark-flag)が消える→renderAllRowsの最後で全栞の印を付け直す(呼び出し元ごとに足すと漏れるので入口の1か所に集約。addBookmarkFlagToRowは行が無ければ何もせず、既にあれば重ねないので、何度呼んでも安全)。changeSpeaker内の個別の付け直しは不要になったので削除。(5)発言を削除しても、発言が1件もなくなったキャラがキャラ一覧(characters)に残る→deleteMessageとdeleteColumnで、logDataからcharactersを作り直す(undo()は元から作り直している)。charIcons/charStylesなどのキャラ設定は消さないので、元に戻すや再追加でキャラが戻れば設定も戻る。' },
@@ -2217,7 +2224,7 @@
         { category: '🖥️ 表示・レイアウト', title: '立ち絵・アイコン', description: 'キャラクターごとに立ち絵を設定でき、アップロードとトリミングの表示切替にも対応します。保存するHTMLは、同じ立ち絵の画像データを重複して持たないので、立ち絵付きのログでもサイズを抑えられます。' },
         { category: '🖥️ 表示・レイアウト', title: '立ち絵の差分', description: '差分の名前（笑い・怒り・泣き・驚き・困惑・照れ、または自分で作成）を全キャラ共通で持ち、キャラごとに差分の画像を設定できます。マーカーモードのメニューで発言に差分を付けると、その発言だけ差分の立ち絵になります。メニューには、そのキャラが画像を設定している差分だけが出ます。' },
         { category: '🖥️ 表示・レイアウト', title: 'UI/ナビゲーション', description: 'スクロールカウンター、タブナビ、スティッキーなヘッダー、モバイル対応ボタンなどを実装しています。キャラクター設定・ヘルプ・PDF出力のパネルは、外側をクリックして閉じられます。' },
-        { category: '✏️ 編集機能', title: '発言者の変更', description: '構造編集モードで発言をクリックすると、話した人（発言者）を別のキャラに変えられます。色は変更先のキャラに合わせて、立ち絵も切り替わります。ログにまだいない新しい名前にもできます。元に戻すで取り消せます。' },
+        { category: '✏️ 編集機能', title: '発言者の変更', description: '文字編集モードで、発言の名前のタグをクリックすると、話した人（発言者）を別のキャラに変えられます。色は変更先のキャラに合わせて、立ち絵も切り替わります。ログにまだいない新しい名前にもできます。元に戻すで取り消せます。' },
         { category: '✏️ 編集機能', title: '編集機能', description: '発言の直接編集、削除、マーカー装飾、タブ間移動、コンテキストメニューでのスタイル適用が可能です。' },
         { category: '✏️ 編集機能', title: 'Undo / 巻き戻し', description: '最大10件のUndo履歴を保存し、削除・移動・編集を元に戻せるようにしました。' },
         { category: '✏️ 編集機能', title: 'シーン区切り線', description: '区切り線モードで発言の間をクリックすると区切り線を入れられます。ラベルは1本の線に複数つけられ、線の種類（線・破線・点線・波線・二重線・ジグザグ線）・太さ・色もパネルで変更できます。保存HTML・PDF・テキスト/Markdown出力にも反映されます。' },
@@ -2403,9 +2410,9 @@
 
         <div id="jump-controls">
             <div id="edit-btn-group">
-                <button id="text-edit-mode-btn" class="jump-btn" title="文字編集モード(クリックして修正)"><i data-lucide="pencil" size="20"></i></button>
+                <button id="text-edit-mode-btn" class="jump-btn" title="文字編集モード(本文の修正・発言者の変更)"><i data-lucide="pencil" size="20"></i></button>
                 <button id="edit-mode-toggle-btn" class="jump-btn" title="削除モード(発言・タブの削除)"><i data-lucide="trash-2" size="20"></i></button>
-                <button id="move-mode-btn" class="jump-btn" title="構造編集モード(タブ追加・並び替え・コメント移動・発言者の変更)"><i data-lucide="layout-grid" size="20"></i></button>
+                <button id="move-mode-btn" class="jump-btn" title="構造編集モード(タブ追加・並び替え・コメント移動)"><i data-lucide="layout-grid" size="20"></i></button>
                 <button id="divider-mode-btn" class="jump-btn" title="区切り線モード(シーンの切れ目に線を入れる)"><i data-lucide="separator-horizontal" size="20"></i></button>
                 <button id="marker-toggle-btn" class="jump-btn" title="マーカーモード(スタイル変更)"><i data-lucide="highlighter" size="20"></i></button>
                 <button id="undo-btn" class="jump-btn" title="元に戻す（履歴なし）" disabled style="opacity:0.35"><i data-lucide="undo-2" size="20"></i></button>
@@ -2425,8 +2432,12 @@
         <div id="move-menu">
             <div class="text-[10px] font-bold text-slate-400 px-2 pb-1 mb-1 border-b border-slate-100">移動先タブ</div>
             <div id="move-menu-items"></div>
-            <div class="text-[10px] font-bold text-slate-400 px-2 pb-1 mb-1 mt-2 pt-2 border-t border-slate-100">発言者を変更</div>
-            <div id="move-menu-speakers"></div>
+        </div>
+
+        <!-- 発言者を変更するメニュー(文字編集モードで、発言の名前のタグをクリックすると開く) -->
+        <div id="speaker-menu">
+            <div class="text-[10px] font-bold text-slate-400 px-2 pb-1 mb-1 border-b border-slate-100">発言者を変更</div>
+            <div id="speaker-menu-list"></div>
         </div>
 
         <div id="style-context-menu">
@@ -2610,7 +2621,7 @@
                         <div class="space-y-3">
                             <div class="flex items-start gap-3 bg-white p-3 rounded-xl border border-slate-100">
                                 <div class="w-9 h-9 flex-shrink-0 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center"><i data-lucide="pencil" size="16"></i></div>
-                                <div><p class="font-bold text-sm text-slate-800">文字編集モード</p><p class="text-xs text-slate-500 leading-relaxed mt-0.5">クリックした発言のテキストをその場で直接修正できます。</p></div>
+                                <div><p class="font-bold text-sm text-slate-800">文字編集モード</p><p class="text-xs text-slate-500 leading-relaxed mt-0.5">クリックした発言のテキストをその場で直接修正できます。名前のタグをクリックすると、話した人（発言者）を別のキャラに付け替えることもできます（新しい名前にも変えられます）。</p></div>
                             </div>
                             <div class="flex items-start gap-3 bg-white p-3 rounded-xl border border-slate-100">
                                 <div class="w-9 h-9 flex-shrink-0 rounded-lg bg-red-50 text-red-600 flex items-center justify-center"><i data-lucide="trash-2" size="16"></i></div>
@@ -2618,7 +2629,7 @@
                             </div>
                             <div class="flex items-start gap-3 bg-white p-3 rounded-xl border border-slate-100">
                                 <div class="w-9 h-9 flex-shrink-0 rounded-lg bg-violet-50 text-violet-600 flex items-center justify-center"><i data-lucide="layout-grid" size="16"></i></div>
-                                <div><p class="font-bold text-sm text-slate-800">構造編集モード</p><p class="text-xs text-slate-500 leading-relaxed mt-0.5">タブの追加・並び替えや、発言を別タブへ移動できます。発言をクリックして出るメニューの「発言者を変更」で、話した人を別のキャラに付け替えることもできます（新しい名前にも変えられます）。</p></div>
+                                <div><p class="font-bold text-sm text-slate-800">構造編集モード</p><p class="text-xs text-slate-500 leading-relaxed mt-0.5">タブの追加・名前の変更・並び替えや、発言を別タブへ移動できます。</p></div>
                             </div>
                             <div class="flex items-start gap-3 bg-white p-3 rounded-xl border border-slate-100">
                                 <div class="w-9 h-9 flex-shrink-0 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center"><i data-lucide="separator-horizontal" size="16"></i></div>
@@ -3920,6 +3931,10 @@
                     if (moveMenu && moveMenu.style.display === 'block' && !moveMenu.contains(e.target) && !e.target.classList.contains('bubble')) {
                         hideMoveMenu();
                     }
+                    const speakerMenu = getEl('speaker-menu');
+                    if (speakerMenu && speakerMenu.style.display === 'block' && !speakerMenu.contains(e.target) && !e.target.closest('.char-name-bg')) {
+                        hideMoveMenu();
+                    }
                 });
             }
 
@@ -3987,6 +4002,7 @@
                 isTextEditMode = !isTextEditMode;
                 getEl('text-edit-mode-btn').classList.toggle('active', isTextEditMode);
                 document.body.classList.toggle('text-edit-mode-active', isTextEditMode);
+                if (!isTextEditMode) hideMoveMenu();
             }
 
             function toggleMoveMode() {
@@ -4019,11 +4035,32 @@
                     items.appendChild(item);
                 });
 
-                // 発言者を変更: ログに出てくるキャラを、発言数の多い順に並べる（色の丸つき）
-                const speakers = getEl('move-menu-speakers');
-                speakers.innerHTML = '';
-                const stats = speakerStats();
-                stats.forEach(st => {
+                menu.style.display = 'block';
+                positionMenuNear(menu, e.target.closest('.bubble').getBoundingClientRect());
+            }
+
+            // メニューを、基準の要素のそばで、画面の中に収まるように置く（実際の大きさを測ってから決める。キャラが多くても下にはみ出さない）
+            function positionMenuNear(menu, rect) {
+                const mw = menu.offsetWidth, mh = menu.offsetHeight;
+                let top = rect.bottom + 6;
+                let left = rect.left;
+                if (left + mw > window.innerWidth - 8) left = Math.max(8, window.innerWidth - mw - 8);
+                if (top + mh > window.innerHeight - 8) top = Math.max(8, rect.top - mh - 6);
+                menu.style.top = top + 'px';
+                menu.style.left = left + 'px';
+            }
+
+            // 発言者を変更するメニュー(文字編集モードで、名前のタグをクリックしたときに開く)
+            function showSpeakerMenu(e, id) {
+                e.stopPropagation();
+                const data = logData.find(d => d.id === id);
+                if (!data) return;
+                hideMoveMenu(); // 他のメニューが開いていたら閉じる
+                const menu = getEl('speaker-menu');
+                const list = getEl('speaker-menu-list');
+                list.innerHTML = '';
+                // ログに出てくるキャラを、発言数の多い順に（色の丸と件数つき）
+                speakerStats().forEach(st => {
                     const item = document.createElement('div');
                     item.className = 'move-menu-item' + (st.name === data.char ? ' current' : '');
                     const dot = document.createElement('span');
@@ -4036,7 +4073,7 @@
                     cnt.textContent = st.count + '件';
                     item.append(dot, label, cnt);
                     item.onclick = () => { hideMoveMenu(); changeSpeaker(id, st.name); };
-                    speakers.appendChild(item);
+                    list.appendChild(item);
                 });
                 const addNew = document.createElement('div');
                 addNew.className = 'move-menu-item';
@@ -4046,18 +4083,9 @@
                     const name = prompt('この発言をしたことにする、新しいキャラ名を入力してください：', '');
                     if (name !== null) changeSpeaker(id, name);
                 };
-                speakers.appendChild(addNew);
-
+                list.appendChild(addNew);
                 menu.style.display = 'block';
-                // 実際の大きさを測ってから、画面の中に収まる位置を決める（キャラが多くても下にはみ出さない）
-                const rect = e.target.closest('.bubble').getBoundingClientRect();
-                const mw = menu.offsetWidth, mh = menu.offsetHeight;
-                let top = rect.bottom + 6;
-                let left = rect.left;
-                if (left + mw > window.innerWidth - 8) left = Math.max(8, window.innerWidth - mw - 8);
-                if (top + mh > window.innerHeight - 8) top = Math.max(8, rect.top - mh - 6);
-                menu.style.top = top + 'px';
-                menu.style.left = left + 'px';
+                positionMenuNear(menu, e.currentTarget.getBoundingClientRect());
             }
 
             // ===== 発言者の変更 =====
@@ -4120,6 +4148,7 @@
             }
 
             function hideMoveMenu() {
+                getEl('speaker-menu').style.display = 'none';
                 getEl('move-menu').style.display = 'none';
             }
 
@@ -5569,7 +5598,7 @@
                 { selector: () => (document.getElementById('pc-open-char-modal-btn') && document.getElementById('pc-open-char-modal-btn').offsetParent !== null) ? '#pc-open-char-modal-btn' : '#mb-nav-char', text: 'ここから、キャラクターごとの立ち絵・フォント・背景色などを設定できます。' },
                 { selector: '#text-edit-mode-btn', text: '「文字編集モード」。クリックした発言をその場で修正できます。' },
                 { selector: '#edit-mode-toggle-btn', text: '「削除モード」。不要な発言やタブをまとめて削除できます。' },
-                { selector: '#move-mode-btn', text: '「構造編集モード」。タブの追加・並び替え・発言の移動と、発言者の変更ができます。' },
+                { selector: '#move-mode-btn', text: '「構造編集モード」。タブの追加・並び替え・発言の移動ができます。' },
                 { selector: '#divider-mode-btn', text: '「区切り線モード」。シーンの切れ目をクリックして、ラベル・線の種類・太さ・色を選んだ線を入れられます。' },
                 { selector: '#marker-toggle-btn', text: '「マーカーモード」。発言の背景色や文字装飾を変更できます。' },
                 { selector: '#bookmark-toggle-btn', text: '気になる発言に栞を付けておくと、あとからワンタップでその場所に戻れます。' },
@@ -6098,6 +6127,9 @@
                         cell.innerHTML = `<div class="msg-container"><div class="char-portrait ${safeCharClass}"></div><div class="msg-content-wrapper"><div class="msg-info"><span class="char-name-bg" style="border-left: 3px solid ${safeColor}"><span class="char-name" data-name="${escapeHtmlAttr(char)}" style="color:${safeColor}">${shownChar}</span></span>${timeHtml}</div><div class="bubble${diceOnly ? ' dice-only-bubble' : ''}" data-id="${idx}">${displayMsg}<div class="delete-msg-btn"><i data-lucide="x" size="14"></i></div></div></div>`;
                         const bubble = cell.querySelector('.bubble');
                         bubble.onclick = (e) => handleBubbleClick(e, idx);
+                        // 文字編集モードでは、名前のタグをクリックして、発言者を変えられる
+                        const nameTag = cell.querySelector('.char-name-bg');
+                        if (nameTag) nameTag.onclick = (e) => { if (isTextEditMode) showSpeakerMenu(e, idx); };
                         const delBtn = cell.querySelector('.delete-msg-btn');
                         if (delBtn) delBtn.onclick = (e) => { e.stopPropagation(); deleteMessage(idx); };
 
@@ -7495,7 +7527,7 @@
                 const rm = (sel) => clone.querySelectorAll(sel).forEach(n => n.remove());
 
                 // 編集・読み込み・ランディング・PDF・語録メーカー・トリミングなどの部品
-                ['#home-view', '#setup-screen', '#move-menu', '#style-context-menu', '#divider-style-panel',
+                ['#home-view', '#setup-screen', '#move-menu', '#speaker-menu', '#style-context-menu', '#divider-style-panel',
                  '#pdf-modal', '#word-cloud-modal', '#crop-modal',
                  '#exit-demo-btn', '#title-edit-btn', '#append-log-btn', '#append-log-input', '#edit-btn-group', '#pc-save-btn', '#save-panel', '#mb-nav-save',
                  '#overview-editor', '#ov-preview-label'].forEach(rm);
