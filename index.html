@@ -2087,8 +2087,9 @@
     //   3桁目: 不具合修正と、見た目の変化（機能は増えない、置き場所・レイアウト・デザインの調整。例: 1.12.4 → 1.12.5）
     //   4桁目: 開発メモ（非公開）。画面には出さず、下のHIDDEN_CHANGELOGにだけ記録する（公開リリースノートには載せない）。
     //   ※ 1.9.10までは従来の番号。過去の番号は変えない。
-    const APP_VERSION = '1.12.5';
+    const APP_VERSION = '1.13.0';
     const RELEASE_NOTES = [
+        { version: '1.13.0', description: '前に整形したログの設定を、別のログへ引き継げるようになりました。<br>【設定の引き継ぎ】「キャラ設定」パネルの「設定を引き継ぐ」から、ろぐしあたーで保存した整形済みHTML（閲覧専用HTMLも可）を選ぶと、立ち絵・差分・キャラの統合・キャラごとのスタイル（フォント・太字・背景色）・表示設定（タブ幅・文字サイズ・立ち絵サイズ・テーマカラー）・ログの概要・区切り線（シーンのラベルや線の見た目）を、いま開いているログへ持ってこられます。持ってくる項目は、チェックで選べます。<br>【名前の対応づけ】名前が同じキャラは、自動で結びつきます。名前が違うキャラ（呼び名が変わった、など）は、一覧の選択欄から引き継ぎ先を選べます。<br>【区切り線】位置は、発言の内容（話した人と本文）で探します。同じセッションのログを入れ直したときなどに、そのまま戻せます。位置が見つからない線は、引き継げません。<br>【ご注意】発言と栞は、引き継ぎません。「すでにあるものは上書きしない」は、はじめからONです。すでに統合してあるキャラの統合は、そのままにします。スタイルを引き継ぐと、そのキャラの全発言に反映されます（キャラ設定の「反映する」と同じ動きです）。' },
         { version: '1.12.5', description: '発言の頭の字下げが、ココフォリアのログで消えてしまう不具合を、あらためて直しました。<br>【字下げの修正】ココフォリアから書き出したログで、発言の頭の全角スペース（「　　あ」のような字下げ）が、取り込むと消えて左に詰まってしまう不具合を直しました。v1.12.4の修正では、この形のログが直っていませんでした。<br>【ご注意】古いバージョンで取り込んで保存してあるログは、字下げが消えた状態で保存されています。字下げを戻すには、元のログファイルを、あらためて取り込み直してください。' },
         { version: '1.12.4', description: '発言の中の空白（字下げやスペース）が消えてしまう不具合を直しました。<br>【空白の修正】ログに入っていた、発言の頭の字下げ（「　　あ」のような全角スペースや、半角スペースの連続）が、取り込んだときに消えたり、画面で詰まって表示されたりしていたのを、元のログのとおりに表示するようにしました。文章の途中のスペースや、末尾の空白も、そのまま残ります。<br>【書き出し】Markdown・テキスト・スプレッドシートに書き出しても、字下げが引き継がれます。文字編集モードで入れた字下げも、そのまま保存されます。' },
         { version: '1.12.3', description: '「発言者の変更」の置き場所を、構造編集モードから文字編集モードへ移しました。<br>【操作の変更】発言者を変えるには、「文字編集モード」にして、発言の名前のタグをクリックします（モード中は、名前のタグに▾が出ます）。本文を直すのも発言者を直すのも、文字編集モードにそろいました。使い方は、これまでと同じです。<br>【構造編集モード】タブの追加・名前の変更・並び替えと、発言を別タブへ移動することだけに戻りました。ヘルプ（？ボタン）の説明も、あわせて直しました。' },
@@ -2137,6 +2138,8 @@
     // 公開バージョンが上がったら(例: 1.12.6)、4桁目は1から数え直して 1.12.6.1 から始める。
     // ============================================================
     const HIDDEN_CHANGELOG = [
+        { version: '1.13.0.2', note: '設定の引き継ぎに、ログの概要と区切り線(シーン)を追加(公開v1.13.0の説明も同じ内容に更新。1.13.0.1の「読まない」は、この項目で置き換わった)。【概要】log-overview-storageをsanitizeOverviewに通し、本文が空でなければ引き継ぎ対象にする。適用は logOverview の置き換え+updateOverviewButtons+refreshOverviewView。「上書きしない」ON(初期)のときは、いまのログに概要の本文があれば何もしない(autoOpenも元のまま)。【区切り線】scene-dividers-storageは、位置を『発言のid』で持っている(beforeId)が、別のログではidが一致しない。そこで元のlog-data-storageから、各発言の{id, 話した人, 本文(msg=タグを除いた取り込み時の文章。文字編集では変わらない。空白は全部除く)}だけを控え、いまのlogDataと『話した人+本文』で結びつける(carryPlaceDividers)。同じ内容の発言が複数あるときは、出てくる順に1つずつ対応させる。キャラの対応づけ(map)も、話した人の名前に反映する(hasOwnPropertyで引くので、名前がconstructor等でも安全)。タブ(loc)は照合に含めない(構造編集で別タブへ移した発言でも一致させるため。追記の重複判定は含めているが、目的が違う)。線の直後の発言が見つからなければ、元のログで『その後ろで最初に一致した発言』の前へ付け替える(発言の削除時のreanchorDividersと同じ考え方)。後ろに一致する発言が1つもない線は、置き場がないので引き継がず、件数を知らせる。末尾の線(beforeId=null)は、元のログで最後に一致した発言のすぐ次の発言の前へ(それが最後の発言なら末尾のまま)。同じ位置に重なった線は、ラベルを重複なしで合流(最大6個)。いまのログにすでにある線は残し、同じ位置に線があるときだけ『上書きしない』なら元からあるほうを残す/上書きなら置き換える。線のid・ラベル・線種・太さ・色は、sanitizeDividersを(元のログのid集合を渡せるようにして)再利用して検査する。新しい線のidは、いまの最大+1から振る。描き直しは、スタイル反映(applyCharStyles)をしたときはそれに任せ、区切り線だけのときは行を描き直す。【限界】元のログとまったく別の内容のログでは、線は置けない(中身が一致する発言がないため)。線の位置は『似た発言があるか』で決めるので、同じ内容の発言が大量に重複する場面では、位置が少しずれることがある。引き継ぎは元に戻せない(区切り線のUndoは、スタイルや立ち絵の設定まで戻せず、かえって混乱するため、あえて積んでいない)。' },
+        { version: '1.13.0.1', note: '公開v1.13.0(設定の引き継ぎ)の内部記録。【やりたいこと】前に整形して保存したHTMLの、キャラまわりの設定だけを、いま開いているログへ持ってくる。【入口】キャラ設定パネルのタブ列の下に#carryover-bar(「設定を引き継ぐ」ボタン#carry-open-btn)を追加。押すと別モーダル#carryover-modal(z-[160]、キャラ設定の上に重なる。bindBackdropCloseで外クリックでも閉じる)が開く。閲覧専用HTMLでは、stripForViewerの除去リストに#carryover-barと#carryover-modalを足して取り除いている。【読み取り元】handleFileと同じく、log-data-storageがある=ろぐしあたーの保存HTML(閲覧専用HTMLも同じタグを持つ)。DOMParserで読むだけなのでスクリプトは動かない。読むのはicon-data-storage・char-groups-storage・char-styles-storage・expr-names-storage・char-exprs-storage・style-data-storageの6つだけ。発言・栞・区切り線・概要・発言ごとの立ち絵(icon-pool)は読まない。【信用しない読み取り】画像はdata:image(png/jpeg/webp/gif)のbase64だけをCARRY_IMG_REで全文検査して通す(preview用にstyleへurl()で入れるため、引用符や括弧が混ざらないことも兼ねる)。フォントはCARRY_FONTSの10種だけ、背景色は空か#16進だけ、太字は真偽値だけ。タブ幅/文字サイズ/立ち絵サイズはスライダーの範囲(200-600/10-24/30-150)に丸め、テーマはthemesにあるものだけ。キー名の__proto__/constructor/prototypeは読み飛ばす。差分名はsanitizeExprNamesを通す。【対応づけ】元のキャラ名ごとに、いまのログのキャラを選ぶ表(#carry-map-list)を出す。初期値は、同名→(NFKC・空白除去・小文字にそろえた)ほぼ同名→なし。一致する人が上に並ぶ。複数の元が同じ引き継ぎ先を選んだら、最初の1人だけを使う。元のグループ内でも、画像・スタイル・差分は『元のリーダー経由』で引く(保存データでは、メンバーの画像はリーダーのコピー、差分はリーダー名でだけ持っているため)。【適用(applyCarryover)】順番は 統合→立ち絵→スタイル→差分→表示設定。統合: 元グループの中で引き継ぎ先が決まった2人以上、かつ、いまのログで未統合の人だけをグループにする(リーダーは元のリーダーの引き継ぎ先を優先)。すでに統合済みの人は動かさない(上書きモードでも)。立ち絵・スタイルは、引き継ぎ先と同じグループの全員に入れる(mergeCharと同じ流儀)。差分は代表(リーダー)名に入れ、差分名exprNamesには『実際に使う分だけ』を元の順で足す(最大12個。入りきらない差分は画像も入れない)。「すでに設定のあるキャラは上書きしない」(初期ON)は、立ち絵・スタイル・差分に効く(リーダー側の有無で判定)。スタイルを入れたときはapplyCharStylesで全発言へ反映して描き直す(それ以外はrefreshIcons+refreshAllExprPortraits)。最後にscheduleAutosave。【既知の限界】名前が違うキャラは自動では結びつかない(表で選ぶ)。引き継ぎは取り消し(元に戻す)できない(applyCharStylesと同じ)。' },
         { version: '1.12.5.1', note: 'v1.12.4の空白の修正の見落としを修正(利用者が実際のログを提出して判明)。【事実】ココフォリアの書き出しHTMLは、本文を <span>⏎(半角4個)本文 ⏎(半角2個)</span> の形で包む。つまり本文の前に必ず『改行+半角スペース』の整形用インデントがあり、ログを書いた人の全角スペースの字下げは、その直後に続く(例: ⏎    　　　　　あ ⏎  )。【誤り】v1.12.4のnormalizeMsgWhitespaceは、整形用の空白を『改行を含む空白の塊』としたうえで、文字クラスに全角スペース(U+3000)も含めていた(FMT=[ \\\\t\\\\u3000]*[\\\\r\\\\n][ \\\\t\\\\r\\\\n\\\\u3000]*)。そのため、整形用のインデントと一緒に、直後の全角の字下げまで消えていた。当時の単体テストには、この形(整形用インデント+全角字下げ)が無く、『改行の後ろの全角の字下げは整形扱いで落ちる』を許容するトレードオフとして書いていた。これは実際の書き出し形式を確認せずに置いた仮定で、誤りだった。【修正】整形用の空白は『半角スペース・タブ・改行』だけにし、全角スペースは改行の直後にあっても常に本文として残す(FMT=[ \\\\t]*[\\\\r\\\\n][ \\\\t\\\\r\\\\n]*)。【検証】利用者の実ログ(ココフォリア書き出し)を固定データ(user_log.html)にして、取り込み・画面の字下げ位置・文字編集の往復・自動保存からの復元・Markdown/テキスト/HTML書き出しまで15項目で確認。修正前のコードで再現(字下げが消える)してから直した。【既知の限界】整形用の半角インデントと、本文頭の半角スペースの字下げは、この書き出し形式では区別できないため、頭の半角スペースは落ちる(全角は残る)。文中・同じ行・JSONなど整形用の改行がない形では、半角も残る。【影響】修正前に取り込んで自動保存・HTML保存したログは、字下げが消えた状態で保存済みなので、元のログの取り込み直しが必要(公開ノートの注意書きに記載)。【別件・未対応】書き出し(Markdown/テキスト/xlsx)で複数行の発言の改行が消える不具合は、まだ直していない(1.12.4.1の記録を参照)。' },
         { version: '1.12.4.1', note: '【不具合】発言の頭の字下げ(全角/半角スペース)と連続した半角スペースが消える(利用者の報告)。原因は2つで、取り込み形式によって現れ方が違った。(1)旧形式のparse: normalizeMsgWhitespaceが本文の前後を.trim()していた(JSのtrimは全角スペースU+3000も除く)。ソースHTMLの整形用の空白(改行+インデント)を落とす意図の処理に、本文の字下げを消す副作用が混ざっていた。→『改行を含む空白の塊』だけを整形用として落とし、改行を含まない空白(字下げ・文中のスペース・末尾の空白)は本文として残す形に分けた(FMT=[ \\\\t\\\\u3000]*[\\\\r\\\\n][ \\\\t\\\\r\\\\n\\\\u3000]*)。(2)表示(.bubbleのwhite-space:normal): 新形式HTML/critical-stage/JSONは取り込みの時点では空白が残っているが、HTMLの空白の折りたたみで、行頭の半角スペースと連続した半角スペースが潰れていた(全角の字下げは元々残る)。→.bubbleにwhite-space:pre-wrapを追加。バブルのHTMLは${displayMsg}の直後に余計な空白なしで続く1行のテンプレートなので、pre-wrapでソース由来の空白は出ない(バブルの高さで確認)。(3)書き出し: cleanText(Markdown/テキスト/xlsx、語録の頻出語抽出でも使用)が末尾で.trim()していて、書き出しでも字下げが落ちていた→.trim()を外した(語録側は空白で分割するので影響なし)。文字編集(textarea)の往復でも字下げが保たれることを確認。4つの取り込み形式(旧形式・新形式HTML・critical-stage・JSON)で確認。ダイス行は従来どおり前後の空白が整形される(plainから作り直すため)。【未対応・別件】MarkdownとテキストとxlsxにはD.msg(取り込み時に<br>を含むタグを全部消した文字列)を優先して渡しているため、複数行の発言の改行が書き出しで消える(今回の修正前からある別の不具合。修正前のコードでも再現)。' },
         { version: '1.12.3.1', note: '発言者の変更の置き場所を、構造編集モード(isMoveMode)から文字編集モード(isTextEditMode)へ移動(公開v1.12.3。置き場所の変更で新機能ではないため3桁目)。理由: 構造編集は『どこに表示するか』(タブの追加・並び替え・発言の移動)、発言者は『誰が言ったか』という発言の中身で、本文を直す文字編集に近い。当初は、すでにタブ移動のメニューがあった構造編集に便乗して置いていた。文字編集モード中は、発言の名前のタグ(.char-name-bg)をクリックすると新設の#speaker-menuが開く(createRowで配線、isTextEditModeのときだけ反応)。モード中だけ名前のタグにcursor:pointer・hoverの枠・▾を出す(書き出しHTMLのcloneはtext-edit-mode-activeを外すので漏れない)。#move-menu(構造編集)からは発言者の部分(#move-menu-speakers)を外し、タブ移動だけに戻した。メニューの位置決めはpositionMenuNear()に共通化。hideMoveMenu()は両方のメニューを閉じる(外側クリック・文字編集モードをoffにしたときも)。閲覧専用の除去リストに#speaker-menuを追加。changeSpeaker/speakerStatsなどの中身は変更なし。ヘルプ・ボタンのtitle・デモのガイド・機能一覧の説明も合わせた(過去の公開リリースノートv1.12.0の文面は履歴なので変えない)。' },
@@ -2222,6 +2225,7 @@
     const FEATURE_LIST = [
         { category: '📥 読み込み・データ管理', title: 'インポート・読み込み', description: 'ココフォリアのログHTMLをドラッグ＆ドロップで読み込み、整形済みHTMLファイルの再読み込みも可能です。' },
         { category: '📥 読み込み・データ管理', title: '複数ログの結合', description: '別のログファイルを追加読み込みして、今開いているログの続きとして結合できます。末尾と先頭が重複している場合は自動で除去します。' },
+        { category: '📥 読み込み・データ管理', title: '設定の引き継ぎ', description: '前に整形して保存したHTML（閲覧専用HTMLも可）から、立ち絵・差分・キャラの統合・キャラごとのスタイル・表示設定・ログの概要・区切り線（シーン）を、いま開いているログへ持ってこられます。キャラ設定パネルの「設定を引き継ぐ」から使います。名前が違うキャラも、選んで対応づけられます。区切り線は、発言の内容（話した人と本文）で位置を探します。発言と栞は引き継ぎません。' },
         { category: '📥 読み込み・データ管理', title: '自動保存・前回の続きから', description: '編集中のログを、このブラウザの中に自動で控えます。リロードしても、トップページの「前回の続きから」ボタンで、そのまま再開できます。保存データはボタン下の「保存データを削除」で消せます。外部サーバーには送信しません。' },
         { category: '📥 読み込み・データ管理', title: '安全性・保存', description: 'ブラウザ内ローカルのみで処理を完結し、外部サーバーに送信しません。' },
         { category: '🖥️ 表示・レイアウト', title: 'マルチタブ表示', description: '発言を main / 雑談 / 情報 等で分割表示し、タブの追加・削除・並び替え・表示切替ができます。' },
@@ -2548,6 +2552,10 @@
                     <button id="tab-icons" class="flex-1 px-4 py-3 text-sm font-bold text-slate-400">立ち絵・画像管理</button>
                     <button id="tab-char-style" class="flex-1 px-4 py-3 text-sm font-bold text-slate-400">スタイル設定</button>
                 </div>
+                <div id="carryover-bar" class="px-6 py-2 bg-white border-b flex items-center justify-between gap-3">
+                    <span class="text-[11px] text-slate-500 leading-snug">前に整形したログの設定（立ち絵・統合・スタイルなど）を、このログへ持ってこられます。</span>
+                    <button id="carry-open-btn" type="button" class="btn-secondary px-3 shrink-0 text-xs"><i data-lucide="upload-cloud" size="14"></i> 設定を引き継ぐ</button>
+                </div>
                 <div id="char-list-view" class="overflow-y-auto p-6 flex-1 bg-slate-50">
                     <div class="flex gap-3 mb-6">
                         <button id="btn-all-select" class="text-xs bg-slate-800 text-white px-4 py-2 rounded-lg font-bold hover:bg-slate-700">すべて表示</button>
@@ -2574,6 +2582,49 @@
                 </div>
                 <div class="p-5 border-t bg-white flex justify-end">
                     <button id="close-char-modal-btn" class="btn-primary w-full sm:w-auto px-10">設定を反映する</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 設定の引き継ぎモーダル -->
+        <div id="carryover-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[160] items-center justify-center p-4 hidden">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[88vh] overflow-hidden">
+                <div class="p-5 border-b flex justify-between items-center bg-slate-50">
+                    <h3 class="font-bold text-xl text-slate-800 flex items-center gap-2"><i data-lucide="upload-cloud" size="20"></i> 設定の引き継ぎ</h3>
+                    <button id="close-carry-modal" class="p-2 hover:bg-slate-200 rounded-full transition-colors"><i data-lucide="x" size="20"></i></button>
+                </div>
+                <div class="overflow-y-auto p-6 flex-1 bg-slate-50 space-y-4">
+                    <div id="carry-drop" class="border-2 border-dashed border-slate-300 rounded-2xl p-5 text-center bg-white">
+                        <p class="text-xs text-slate-500 mb-3">ろぐしあたーで保存した整形済みHTML（閲覧専用HTMLも可）を選んでください。ここへドラッグ＆ドロップもできます。</p>
+                        <button id="carry-pick-btn" type="button" class="btn-secondary px-4">ファイルを選ぶ</button>
+                        <input id="carry-file-input" type="file" accept=".html,.htm,text/html" class="hidden">
+                        <p id="carry-status" class="text-xs text-slate-500 mt-3"></p>
+                    </div>
+                    <div id="carry-body" class="hidden space-y-4">
+                        <div>
+                            <p class="text-xs font-bold text-slate-600 mb-2">引き継ぐもの</p>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <label class="flex items-center gap-2 text-sm bg-white border border-slate-200 rounded-xl px-3 py-2 cursor-pointer"><input type="checkbox" id="carry-opt-icons" class="w-4 h-4 rounded text-blue-600" checked><span class="font-medium">立ち絵</span><span id="carry-cnt-icons" class="ml-auto text-[10px] text-slate-400"></span></label>
+                        <label class="flex items-center gap-2 text-sm bg-white border border-slate-200 rounded-xl px-3 py-2 cursor-pointer"><input type="checkbox" id="carry-opt-exprs" class="w-4 h-4 rounded text-blue-600" checked><span class="font-medium">差分（表情）</span><span id="carry-cnt-exprs" class="ml-auto text-[10px] text-slate-400"></span></label>
+                        <label class="flex items-center gap-2 text-sm bg-white border border-slate-200 rounded-xl px-3 py-2 cursor-pointer"><input type="checkbox" id="carry-opt-groups" class="w-4 h-4 rounded text-blue-600" checked><span class="font-medium">キャラの統合</span><span id="carry-cnt-groups" class="ml-auto text-[10px] text-slate-400"></span></label>
+                        <label class="flex items-center gap-2 text-sm bg-white border border-slate-200 rounded-xl px-3 py-2 cursor-pointer"><input type="checkbox" id="carry-opt-styles" class="w-4 h-4 rounded text-blue-600" checked><span class="font-medium">キャラのスタイル（フォント・太字・背景色）</span><span id="carry-cnt-styles" class="ml-auto text-[10px] text-slate-400"></span></label>
+                        <label class="flex items-center gap-2 text-sm bg-white border border-slate-200 rounded-xl px-3 py-2 cursor-pointer"><input type="checkbox" id="carry-opt-display" class="w-4 h-4 rounded text-blue-600" checked><span class="font-medium">表示設定（タブ幅・文字サイズ・立ち絵サイズ・テーマ）</span><span id="carry-cnt-display" class="ml-auto text-[10px] text-slate-400"></span></label>
+                        <label class="flex items-center gap-2 text-sm bg-white border border-slate-200 rounded-xl px-3 py-2 cursor-pointer"><input type="checkbox" id="carry-opt-overview" class="w-4 h-4 rounded text-blue-600" checked><span class="font-medium">ログの概要</span><span id="carry-cnt-overview" class="ml-auto text-[10px] text-slate-400"></span></label>
+                        <label class="flex items-center gap-2 text-sm bg-white border border-slate-200 rounded-xl px-3 py-2 cursor-pointer"><input type="checkbox" id="carry-opt-dividers" class="w-4 h-4 rounded text-blue-600" checked><span class="font-medium">区切り線・シーン（ラベル・線の見た目）</span><span id="carry-cnt-dividers" class="ml-auto text-[10px] text-slate-400"></span></label>
+                            </div>
+                            <label class="flex items-center gap-2 text-xs text-slate-600 mt-3 cursor-pointer"><input type="checkbox" id="carry-opt-keep" class="w-4 h-4 rounded text-blue-600" checked><span>すでにあるものは上書きしない（立ち絵・スタイル・差分・概要・区切り線）</span></label>
+                            <p class="text-[10px] text-slate-400 mt-1 leading-relaxed">スタイルを引き継ぐと、そのキャラの全発言に反映されます。すでに統合してあるキャラの統合は、そのままです。区切り線は、発言の内容（話した人と本文）で位置を探します。見つからない線は引き継げません。</p>
+                        </div>
+                        <div id="carry-map-wrap">
+                            <p class="text-xs font-bold text-slate-600 mb-1">キャラの対応づけ</p>
+                            <p class="text-[10px] text-slate-400 mb-2">左が引き継ぎ元のキャラ、右がこのログのキャラです。名前が違うときは、右の欄から選んでください。</p>
+                            <div id="carry-map-list" class="space-y-2"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-5 border-t bg-white flex justify-end gap-3">
+                    <button id="carry-cancel-btn" type="button" class="btn-secondary px-6">閉じる</button>
+                    <button id="carry-apply-btn" type="button" class="btn-primary px-8" disabled>この内容で引き継ぐ</button>
                 </div>
             </div>
         </div>
@@ -3825,6 +3876,21 @@
                 getEl('mb-nav-filter').addEventListener('click', toggleFilterMobile);
                 getEl('mb-nav-char').addEventListener('click', openCharModal);
 
+                // 設定の引き継ぎ（別の整形済みHTMLから、キャラの設定などを持ってくる）
+                getEl('carry-open-btn').addEventListener('click', openCarryoverModal);
+                getEl('close-carry-modal').onclick = closeCarryoverModal;
+                getEl('carry-cancel-btn').onclick = closeCarryoverModal;
+                getEl('carry-apply-btn').onclick = runCarryover;
+                getEl('carry-pick-btn').onclick = () => getEl('carry-file-input').click();
+                getEl('carry-file-input').onchange = (e) => { const f = e.target.files && e.target.files[0]; if (f) loadCarrySource(f); e.target.value = ''; };
+                (() => {
+                    const drop = getEl('carry-drop');
+                    drop.ondragover = (e) => { e.preventDefault(); drop.classList.add('ring-2', 'ring-blue-500', 'bg-blue-50'); };
+                    drop.ondragleave = () => drop.classList.remove('ring-2', 'ring-blue-500', 'bg-blue-50');
+                    drop.ondrop = (e) => { e.preventDefault(); drop.classList.remove('ring-2', 'ring-blue-500', 'bg-blue-50'); const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]; if (f) loadCarrySource(f); };
+                })();
+                bindBackdropClose(getEl('carryover-modal'), closeCarryoverModal);
+
                 getEl('close-char-modal').onclick = () => getEl('char-modal').classList.add('hidden');
                 getEl('close-char-modal-btn').onclick = () => { applyCharStyles(); getEl('char-modal').classList.add('hidden'); };
                 // パネルの外（暗い背景）をクリックしても閉じる。
@@ -4618,9 +4684,9 @@
             }
 
             // 保存データの読み込み時: 壊れた項目を除き、存在しない発言を指す線は末尾扱いにする
-            function sanitizeDividers(arr) {
+            function sanitizeDividers(arr, idsOverride) {
                 if (!Array.isArray(arr)) return [];
-                const ids = new Set(logData.map(d => d.id));
+                const ids = idsOverride || new Set(logData.map(d => d.id));
                 const seen = new Set();
                 const out = [];
                 arr.forEach(dv => {
@@ -7031,6 +7097,441 @@
                     });
                 });
             }
+            // ===== 設定の引き継ぎ =====
+            // 前に整形して保存したHTML(ろぐしあたーの保存HTML・閲覧専用HTML)から、キャラまわりの設定だけを読み取って、
+            // いま開いているログへ持ってくる。発言・栞・区切り線・概要など「そのログ自身の中身」は持ってこない。
+            // 読み取った中身は信用せず、画像はdata:image(base64)だけ、スタイルは決まった値だけを受け付ける。
+            const CARRY_FONTS = ['', 'serif', 'maru', 'rounded', 'shippori', 'kaisei', 'dot', 'mono', 'reggae', 'hina'];
+            const CARRY_IMG_RE = /^data:image\/(?:png|jpeg|jpg|webp|gif);base64,[A-Za-z0-9+\/]+={0,2}$/;
+            const CARRY_BAD_KEYS = ['__proto__', 'constructor', 'prototype'];
+            let carrySrc = null;   // 読み込んだ引き継ぎ元 { icons, groups, styles, exprNames, exprs, disp, names, fileName }
+            let carryRows = [];    // 対応づけの表の各行 { name, select }
+
+            function carryNorm(s) { return String(s).normalize('NFKC').replace(/\s+/g, '').toLowerCase(); }
+            function carryIsObj(o) { return !!o && typeof o === 'object' && !Array.isArray(o); }
+            function carryReadJSON(doc, id, fallback) {
+                try {
+                    const el = doc.getElementById(id);
+                    if (!el) return fallback;
+                    const v = JSON.parse(el.textContent || '');
+                    return (v === null || v === undefined) ? fallback : v;
+                } catch (e) { return fallback; }
+            }
+
+            // 整形済みHTMLのdocumentから、引き継げる設定を取り出す。ろぐしあたーの保存HTMLでなければnull
+            function parseCarrySource(doc) {
+                if (!doc.getElementById('log-data-storage')) return null;
+                const src = { icons: {}, groups: {}, styles: {}, exprNames: [], exprs: {}, disp: {}, names: [], overview: null, dividers: [], log: [] };
+
+                const rawIcons = carryReadJSON(doc, 'icon-data-storage', {});
+                if (carryIsObj(rawIcons)) Object.keys(rawIcons).forEach((k) => {
+                    if (CARRY_BAD_KEYS.includes(k)) return;
+                    if (typeof rawIcons[k] === 'string' && CARRY_IMG_RE.test(rawIcons[k])) src.icons[k] = rawIcons[k];
+                });
+
+                const rawGroups = carryReadJSON(doc, 'char-groups-storage', {});
+                if (carryIsObj(rawGroups)) Object.keys(rawGroups).forEach((leader) => {
+                    if (CARRY_BAD_KEYS.includes(leader) || !Array.isArray(rawGroups[leader])) return;
+                    const members = rawGroups[leader].filter((m, i, a) => typeof m === 'string' && !CARRY_BAD_KEYS.includes(m) && m !== leader && a.indexOf(m) === i);
+                    if (members.length) src.groups[leader] = members;
+                });
+
+                const rawStyles = carryReadJSON(doc, 'char-styles-storage', {});
+                if (carryIsObj(rawStyles)) Object.keys(rawStyles).forEach((k) => {
+                    const o = rawStyles[k];
+                    if (CARRY_BAD_KEYS.includes(k) || !carryIsObj(o)) return;
+                    const st = {};
+                    if (typeof o.font === 'string' && CARRY_FONTS.includes(o.font)) st.font = o.font;
+                    if (typeof o.bg === 'string' && (o.bg === '' || /^#[0-9a-fA-F]{3,8}$/.test(o.bg))) st.bg = o.bg;
+                    if (typeof o.bold === 'boolean') st.bold = o.bold;
+                    if (Object.keys(st).length) src.styles[k] = st;
+                });
+
+                const exprNames = sanitizeExprNames(carryReadJSON(doc, 'expr-names-storage', [])).filter(n => !CARRY_BAD_KEYS.includes(n));
+                const rawExprs = carryReadJSON(doc, 'char-exprs-storage', {});
+                if (carryIsObj(rawExprs)) Object.keys(rawExprs).forEach((leader) => {
+                    const set = rawExprs[leader];
+                    if (CARRY_BAD_KEYS.includes(leader) || !carryIsObj(set)) return;
+                    const o = {};
+                    exprNames.forEach((n) => { if (typeof set[n] === 'string' && CARRY_IMG_RE.test(set[n])) o[n] = set[n]; });
+                    if (Object.keys(o).length) src.exprs[leader] = o;
+                });
+                src.exprNames = exprNames;
+
+                const d = carryReadJSON(doc, 'style-data-storage', {});
+                if (carryIsObj(d)) {
+                    const num = (v, min, max) => { const n = parseInt(v, 10); return Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : null; };
+                    const col = num(d.col, 200, 600), font = num(d.font, 10, 24), port = num(d.port, 30, 150);
+                    if (col !== null) src.disp.col = col;
+                    if (font !== null) src.disp.font = font;
+                    if (port !== null) src.disp.port = port;
+                    if (typeof d.theme === 'string' && Object.prototype.hasOwnProperty.call(themes, d.theme)) src.disp.theme = d.theme;
+                }
+
+                // 概要(sanitizeOverviewで長さ・形を整える。空なら引き継ぎ対象にしない)
+                const ov = sanitizeOverview(carryReadJSON(doc, 'log-overview-storage', {}));
+                if (ov.text.trim() !== '') src.overview = ov;
+
+                // 区切り線(シーン)。位置は元の発言のidで持っているので、位置合わせ用に、元のログの「話した人+本文」も控える
+                const rawDv = carryReadJSON(doc, 'scene-dividers-storage', []);
+                if (Array.isArray(rawDv) && rawDv.length) {
+                    const rawLog = carryReadJSON(doc, 'log-data-storage', []);
+                    if (Array.isArray(rawLog)) {
+                        rawLog.forEach((m) => {
+                            if (m && typeof m.id === 'number') src.log.push({ id: m.id, char: String(m.char || ''), msg: String(m.msg || '').replace(/\s+/g, '') });
+                        });
+                        src.dividers = sanitizeDividers(rawDv, new Set(src.log.map(m => m.id)));
+                    }
+                }
+
+                const names = new Set();
+                Object.keys(src.icons).forEach(n => names.add(n));
+                Object.keys(src.styles).forEach(n => names.add(n));
+                Object.keys(src.exprs).forEach(n => names.add(n));
+                Object.keys(src.groups).forEach((l) => { names.add(l); src.groups[l].forEach(m => names.add(m)); });
+                src.names = Array.from(names);
+                return src;
+            }
+
+            // 元のログでのグループのリーダー(グループに入っていなければ自分自身)
+            function carrySrcLeader(src, n) {
+                if (src.groups[n]) return n;
+                for (const l of Object.keys(src.groups)) { if (src.groups[l].includes(n)) return l; }
+                return n;
+            }
+            // 元のキャラnの設定(kind: icons / styles / exprs)。保存データでは、メンバーの画像はリーダーのコピー、差分はリーダー名でだけ持っているので、リーダー経由で引く
+            function carryEff(src, kind, n) {
+                const l = carrySrcLeader(src, n);
+                return src[kind][l] || src[kind][n] || null;
+            }
+
+            function openCarryoverModal() {
+                carrySrc = null; carryRows = [];
+                getEl('carry-status').textContent = '';
+                getEl('carry-body').classList.add('hidden');
+                getEl('carry-map-list').innerHTML = '';
+                getEl('carry-apply-btn').disabled = true;
+                getEl('carryover-modal').classList.remove('hidden');
+                getEl('carryover-modal').classList.add('flex');
+            }
+            function closeCarryoverModal() {
+                getEl('carryover-modal').classList.add('hidden');
+                carrySrc = null; carryRows = [];   // 大きな画像データを手放す
+                getEl('carry-map-list').innerHTML = '';
+            }
+
+            function loadCarrySource(file) {
+                const status = getEl('carry-status');
+                const fail = (msg) => {
+                    carrySrc = null; carryRows = [];
+                    getEl('carry-body').classList.add('hidden');
+                    getEl('carry-apply-btn').disabled = true;
+                    status.textContent = msg;
+                };
+                status.textContent = '読み込み中…';
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const doc = new DOMParser().parseFromString(e.target.result, 'text/html');
+                        const src = parseCarrySource(doc);
+                        if (!src) { fail('ろぐしあたーで保存したHTMLではないようです。「HTMLとして保存」で書き出したファイルを選んでください。'); return; }
+                        src.fileName = file.name;
+                        carrySrc = src;
+                        renderCarryDialog();
+                    } catch (err) {
+                        console.error('Carryover parse error:', err);
+                        fail('読み込みに失敗しました。ファイルが壊れているかもしれません。');
+                    }
+                };
+                reader.onerror = () => fail('ファイルを読み込めませんでした。');
+                reader.readAsText(file, 'UTF-8');
+            }
+
+            function renderCarryDialog() {
+                const src = carrySrc;
+                const names = src.names;
+                const targets = Array.from(characters).sort();
+                const exact = new Set(targets);
+                const byNorm = new Map();
+                targets.forEach((t) => { const k = carryNorm(t); if (!byNorm.has(k)) byNorm.set(k, t); });
+                const defaultFor = (n) => exact.has(n) ? n : (byNorm.get(carryNorm(n)) || '');
+
+                const counts = {
+                    icons: names.filter(n => carryEff(src, 'icons', n)).length,
+                    exprs: names.filter(n => carryEff(src, 'exprs', n)).length,
+                    groups: Object.keys(src.groups).length,
+                    styles: names.filter(n => carryEff(src, 'styles', n)).length,
+                    display: Object.keys(src.disp).length,
+                    overview: src.overview ? 1 : 0,
+                    dividers: src.dividers.length
+                };
+                const units = { icons: '人', exprs: '人', groups: '組', styles: '人', display: '', overview: '', dividers: '本' };
+                Object.keys(counts).forEach((k) => {
+                    const cb = getEl('carry-opt-' + k), lab = getEl('carry-cnt-' + k);
+                    cb.disabled = counts[k] === 0;
+                    cb.checked = counts[k] > 0;
+                    lab.textContent = counts[k] > 0 ? ((k === 'display' || k === 'overview') ? 'あり' : counts[k] + units[k]) : '見つかりません';
+                    cb.closest('label').classList.toggle('opacity-50', counts[k] === 0);
+                });
+
+                const list = getEl('carry-map-list');
+                list.innerHTML = '';
+                carryRows = [];
+                const rows = names.map(n => ({ n, def: defaultFor(n) }));
+                rows.sort((a, b) => (b.def ? 1 : 0) - (a.def ? 1 : 0) || a.n.localeCompare(b.n, 'ja'));
+                rows.forEach(({ n, def }) => {
+                    const row = document.createElement('div');
+                    row.className = 'flex items-center gap-2 bg-white border border-slate-200 rounded-xl p-2';
+                    const thumb = document.createElement('div');
+                    thumb.style.cssText = 'width:36px;height:36px;flex:none;border-radius:8px;background:#e2e8f0 center/contain no-repeat;';
+                    const ic = carryEff(src, 'icons', n);
+                    if (ic) thumb.style.backgroundImage = 'url("' + iconUrl(ic) + '")';
+                    const info = document.createElement('div');
+                    info.className = 'flex-1 min-w-0';
+                    const nm = document.createElement('div');
+                    nm.className = 'text-sm font-bold text-slate-800 truncate';
+                    nm.textContent = n;
+                    const badges = [];
+                    if (ic) badges.push('立ち絵');
+                    const ex = carryEff(src, 'exprs', n);
+                    if (ex) badges.push('差分' + Object.keys(ex).length);
+                    if (carryEff(src, 'styles', n)) badges.push('スタイル');
+                    if (carrySrcLeader(src, n) !== n) badges.push('統合（メンバー）');
+                    else if (src.groups[n]) badges.push('統合（代表）');
+                    const bd = document.createElement('div');
+                    bd.className = 'text-[10px] text-slate-400 truncate';
+                    bd.textContent = badges.join(' ・ ') || '設定なし';
+                    info.appendChild(nm); info.appendChild(bd);
+                    const arrow = document.createElement('span');
+                    arrow.className = 'text-slate-400 text-xs shrink-0';
+                    arrow.textContent = '→';
+                    const sel = document.createElement('select');
+                    sel.className = 'text-xs border border-slate-200 rounded-lg px-2 py-1.5 bg-white w-36 sm:w-44 shrink-0';
+                    const o0 = document.createElement('option'); o0.value = ''; o0.textContent = '引き継がない'; sel.appendChild(o0);
+                    targets.forEach((t) => { const o = document.createElement('option'); o.value = t; o.textContent = t; sel.appendChild(o); });
+                    sel.value = def;
+                    row.appendChild(thumb); row.appendChild(info); row.appendChild(arrow); row.appendChild(sel);
+                    list.appendChild(row);
+                    carryRows.push({ name: n, select: sel });
+                });
+
+                const matched = rows.filter(r => r.def).length;
+                const status = getEl('carry-status');
+                const anything = names.length > 0 || counts.display > 0 || counts.overview > 0 || counts.dividers > 0;
+                status.textContent = anything
+                    ? '「' + src.fileName + '」から' + (names.length ? names.length + '人分の設定' : '設定') + 'が見つかりました' + (names.length ? '（このログと名前が合う人：' + matched + '人）' : '')
+                    : '「' + src.fileName + '」には、引き継げる設定が見つかりませんでした。';
+                getEl('carry-map-wrap').classList.toggle('hidden', names.length === 0);
+                getEl('carry-body').classList.toggle('hidden', !anything);
+                getEl('carry-apply-btn').disabled = !anything;
+            }
+
+            // 区切り線の位置合わせ。元の発言を「話した人+本文」で、このログの発言に結びつける(同じ内容が複数あるときは、出てくる順に1つずつ)。
+            // 引き継ぎ先に選んだキャラ名への読み替え(map)も反映する。
+            function carryPlaceDividers(src, map, keep) {
+                const mapped = (n) => Object.prototype.hasOwnProperty.call(map, n) ? map[n] : n;
+                const sigOf = (c, m) => c + '|' + m;
+                const tgtBySig = new Map();
+                const tgtPos = new Map();
+                logData.forEach((m, i) => {
+                    tgtPos.set(m.id, i);
+                    const k = sigOf(m.char || '', String(m.msg || '').replace(/\s+/g, ''));
+                    if (!tgtBySig.has(k)) tgtBySig.set(k, []);
+                    tgtBySig.get(k).push(m.id);
+                });
+                const seen = new Map();
+                const align = new Map();   // 元の発言id → このログの発言id
+                const order = src.log.map(m => m.id);
+                const posSrc = new Map();
+                src.log.forEach((m, i) => {
+                    posSrc.set(m.id, i);
+                    const k = sigOf(mapped(m.char), m.msg);
+                    const n = seen.get(k) || 0;
+                    seen.set(k, n + 1);
+                    const arr = tgtBySig.get(k);
+                    if (arr && arr[n] !== undefined) align.set(m.id, arr[n]);
+                });
+
+                const placed = new Map();   // 新しい位置(beforeId。nullは末尾) → 線
+                let skipped = 0;
+                src.dividers.forEach((dv) => {
+                    let beforeT;
+                    if (dv.beforeId === null) {
+                        // 末尾の線: 元のログで最後に一致した発言の、すぐ次の発言の前へ
+                        let last = -1;
+                        for (let i = order.length - 1; i >= 0; i--) {
+                            const t = align.get(order[i]);
+                            if (t !== undefined) { last = tgtPos.get(t); break; }
+                        }
+                        if (last < 0) { skipped++; return; }
+                        beforeT = (last + 1 < logData.length) ? logData[last + 1].id : null;
+                    } else {
+                        // 線の直後の発言が見つからなければ、その後ろで最初に見つかった発言の前へ(発言の削除時の付け替えと同じ考え方)
+                        let i = posSrc.get(dv.beforeId), t;
+                        for (; i < order.length; i++) {
+                            t = align.get(order[i]);
+                            if (t !== undefined) break;
+                        }
+                        if (i >= order.length) { skipped++; return; }   // それ以降に一致する発言がない
+                        beforeT = t;
+                    }
+                    const prev = placed.get(beforeT);
+                    if (prev) {   // 同じ位置に重なったら、ラベルを合流させる
+                        const merged = dvLabels(prev);
+                        dvLabels(dv).forEach((s) => { if (!merged.includes(s) && merged.length < DV_MAX_LABELS) merged.push(s); });
+                        prev.labels = merged;
+                    } else {
+                        placed.set(beforeT, { ...dv, labels: dvLabels(dv), beforeId: beforeT });
+                    }
+                });
+
+                // いまのログの線と合わせる: 同じ位置にすでに線があるとき、「上書きしない」なら元からある線を残す
+                let nextId = sceneDividers.length ? Math.max(...sceneDividers.map(d => d.id)) + 1 : 1;
+                const result = sceneDividers.slice();
+                let added = 0;
+                placed.forEach((dv, beforeT) => {
+                    const idx = result.findIndex(d => d.beforeId === beforeT);
+                    if (idx >= 0) { if (keep) return; result.splice(idx, 1); }
+                    result.push({ ...dv, id: nextId++ });
+                    added++;
+                });
+                return { dividers: result, added, skipped };
+            }
+
+            // 引き継ぎの本体。map: { 元のキャラ名: このログのキャラ名 }、opts: { icons, exprs, groups, styles, display, keep }
+            function applyCarryover(src, map, opts) {
+                const res = { icons: 0, exprs: 0, groups: 0, styles: 0, display: false, overview: false, dividers: 0, dvSkipped: 0 };
+                const iconNames = new Set(), styleNames = new Set();   // 人数は、実際に入れた人を重複なく数える
+
+                // 1) 統合: 元のグループのうち、引き継ぎ先が決まった2人以上で、いまのログで未統合の人だけをグループにする
+                if (opts.groups) {
+                    Object.keys(src.groups).forEach((leader) => {
+                        const targets = [];
+                        [leader, ...src.groups[leader]].forEach((sn) => {
+                            const t = map[sn];
+                            if (t && characters.has(t) && !targets.includes(t) && !isGrouped(t)) targets.push(t);
+                        });
+                        if (targets.length < 2) return;
+                        const newLeader = (map[leader] && targets.includes(map[leader])) ? map[leader] : targets[0];
+                        charGroups[newLeader] = targets.filter(t => t !== newLeader);
+                        res.groups++;
+                    });
+                }
+
+                // 引き継ぎ先ごとに、元のキャラを1人だけ選ぶ（複数の元が同じ先を選んだら、最初の1人）
+                const tOf = new Map();
+                Object.keys(map).forEach((sn) => {
+                    const t = map[sn];
+                    if (t && characters.has(t) && !tOf.has(t)) tOf.set(t, sn);
+                });
+
+                // 2) 立ち絵 / 3) スタイル: 引き継ぎ先と同じグループの全員に入れる
+                tOf.forEach((sn, t) => {
+                    const group = getGroupMembers(t);
+                    const leaderT = getGroupLeader(t);
+                    if (opts.icons) {
+                        const ic = carryEff(src, 'icons', sn);
+                        if (ic && !(opts.keep && (charIcons[leaderT] || charIcons[t]))) {
+                            group.forEach((m) => { charIcons[m] = ic; iconNames.add(m); });
+                        }
+                    }
+                    if (opts.styles) {
+                        const st = carryEff(src, 'styles', sn);
+                        const cur = charStyles[leaderT] || charStyles[t];
+                        if (st && !(opts.keep && cur && Object.keys(cur).length)) {
+                            group.forEach((m) => { charStyles[m] = { ...st }; styleNames.add(m); });
+                        }
+                    }
+                });
+
+                res.icons = iconNames.size;
+                res.styles = styleNames.size;
+
+                // 4) 差分: 差分名は「実際に使う分だけ」を元の順で足す(最大12個)。画像はグループの代表(リーダー)に入れる
+                if (opts.exprs) {
+                    const plan = [];
+                    const used = new Set();
+                    tOf.forEach((sn, t) => {
+                        const ex = carryEff(src, 'exprs', sn);
+                        if (!ex) return;
+                        plan.push({ leaderT: getGroupLeader(t), ex });
+                        Object.keys(ex).forEach(n => used.add(n));
+                    });
+                    src.exprNames.forEach((n) => { if (used.has(n) && !exprNames.includes(n) && exprNames.length < EXPR_MAX) exprNames.push(n); });
+                    const touched = new Set();
+                    plan.forEach(({ leaderT, ex }) => {
+                        Object.keys(ex).forEach((n) => {
+                            if (!exprNames.includes(n)) return;   // 上限で入らなかった差分
+                            if (opts.keep && charExprs[leaderT] && charExprs[leaderT][n]) return;
+                            setCharExpr(leaderT, n, ex[n]);
+                            touched.add(leaderT);
+                        });
+                    });
+                    res.exprs = touched.size;
+                }
+
+                // 5) 表示設定
+                if (opts.display) {
+                    const d = src.disp;
+                    if (d.col != null)  { getEl('col-slider').value = d.col;       updateStyle('--column-width',   d.col + 'px',  'col-val');      res.display = true; }
+                    if (d.font != null) { getEl('font-slider').value = d.font;     updateStyle('--base-font-size', d.font + 'px', 'font-val');     res.display = true; }
+                    if (d.port != null) { getEl('portrait-slider').value = d.port; updateStyle('--portrait-size',  d.port + 'px', 'portrait-val'); res.display = true; }
+                    if (d.theme)        { setTheme(d.theme); res.display = true; }
+                }
+
+                // 6) 概要
+                if (opts.overview && src.overview && !(opts.keep && logOverview.text.trim() !== '')) {
+                    logOverview = { text: src.overview.text, autoOpen: src.overview.autoOpen };
+                    res.overview = true;
+                    updateOverviewButtons();
+                    refreshOverviewView();
+                }
+
+                // 7) 区切り線(シーン)
+                let rerender = false;
+                if (opts.dividers && src.dividers.length) {
+                    const r = carryPlaceDividers(src, map, opts.keep);
+                    res.dvSkipped = r.skipped;
+                    if (r.added > 0) { sceneDividers = r.dividers; res.dividers = r.added; rerender = true; }
+                }
+
+                // 反映: スタイルを入れたときは全発言へ反映して描き直す(区切り線もここで描かれる)。区切り線だけのときは行を描き直す。それ以外は立ち絵だけ付け直す
+                if (opts.styles && res.styles > 0) applyCharStyles();
+                else if (rerender) { getEl('rows-container').innerHTML = ''; renderAllRows(logData); refreshIcons(); updateRowCounter(); }
+                else refreshIcons();
+                refreshAllExprPortraits();
+                renderIconUploads();
+                renderCharStyleList();
+                scheduleAutosave();
+                return res;
+            }
+
+            function runCarryover() {
+                if (!carrySrc) return;
+                const map = {};
+                carryRows.forEach(({ name, select }) => { if (select.value && characters.has(select.value)) map[name] = select.value; });
+                const opts = {};
+                ['icons', 'exprs', 'groups', 'styles', 'display', 'overview', 'dividers'].forEach((k) => {
+                    const cb = getEl('carry-opt-' + k);
+                    opts[k] = !!(cb && cb.checked && !cb.disabled);
+                });
+                opts.keep = !!getEl('carry-opt-keep').checked;
+                const res = applyCarryover(carrySrc, map, opts);
+                const parts = [];
+                if (res.icons) parts.push('立ち絵' + res.icons + '人');
+                if (res.exprs) parts.push('差分' + res.exprs + '人');
+                if (res.groups) parts.push('統合' + res.groups + '組');
+                if (res.styles) parts.push('スタイル' + res.styles + '人');
+                if (res.display) parts.push('表示設定');
+                if (res.overview) parts.push('概要');
+                if (res.dividers) parts.push('区切り線' + res.dividers + '本');
+                const skipNote = res.dvSkipped ? '（位置が見つからない区切り線' + res.dvSkipped + '本は除きました）' : '';
+                showAppToast(parts.length
+                    ? '✅ 設定を引き継ぎました（' + parts.join('・') + '）' + skipNote
+                    : 'ℹ️ 引き継げる設定がありませんでした（対応づけ・チェック・「上書きしない」を確認してください）' + skipNote);
+                closeCarryoverModal();
+            }
+
             function updateStyle(prop, val, labelId) { if(labelId) getEl(labelId).textContent = val; document.documentElement.style.setProperty(prop, val); }
             function switchTab(t) {
                 const tabs = { 'visibility': 'tab-visibility', 'icons': 'tab-icons', 'char-style': 'tab-char-style' };
@@ -7547,7 +8048,7 @@
                 ['#home-view', '#setup-screen', '#move-menu', '#speaker-menu', '#style-context-menu', '#divider-style-panel',
                  '#pdf-modal', '#word-cloud-modal', '#crop-modal',
                  '#exit-demo-btn', '#title-edit-btn', '#append-log-btn', '#append-log-input', '#edit-btn-group', '#pc-save-btn', '#save-panel', '#mb-nav-save',
-                 '#overview-editor', '#ov-preview-label'].forEach(rm);
+                 '#overview-editor', '#ov-preview-label', '#carryover-bar', '#carryover-modal'].forEach(rm);
 
                 // ランディングページ用のスクリプト（リリースノート・機能一覧）。メインのスクリプトとは別物
                 Array.from(clone.querySelectorAll('script')).forEach((s) => {
