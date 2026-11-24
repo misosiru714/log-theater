@@ -2112,8 +2112,9 @@
     //   3桁目: 不具合修正と、見た目の変化（機能は増えない、置き場所・レイアウト・デザインの調整。例: 1.12.4 → 1.12.5）
     //   4桁目: 開発メモ（非公開）。画面には出さず、下のHIDDEN_CHANGELOGにだけ記録する（公開リリースノートには載せない）。
     //   ※ 1.9.10までは従来の番号。過去の番号は変えない。
-    const APP_VERSION = '1.16.0';
+    const APP_VERSION = '1.17.0';
     const RELEASE_NOTES = [
+        { version: '1.17.0', description: 'ココフォリアの2つの書き出し形式のログを、より正しく読み込めるようになりました。<br>【立ち絵つきの書き出し】発言の中の改行が、そのまま改行として取り込まれます。これまでは改行が詰まって一行になり、ダイスの結果が前の行とくっついたり、字下げした一行目と本文がつながったりしていました。<br>【時刻つきの書き出し】名前や時刻が並ぶ形式（アイコンなし）の書き出しから、時刻も読み込めるようになりました。タブの名前も「メイン・情報・雑談」にそろい、同じ部屋の2種類の書き出しを「ログを追加」でつなげても、同じタブとして扱われます。<br>【ご注意】これまで取り込んで保存してあるログは、そのままです。直したいときは、元のログを読み込み直してください。' },
         { version: '1.16.0', description: 'PDF出力に、ログに入っているアイコンも使うようになりました。<br>【PDF】取り込んだログに入っているアイコンが、メインのタブのPDFにも付きます。これまでは、自分でアップロードした立ち絵と差分だけでした。<br>【切り抜き位置】「アイコン位置」で調整した切り抜き位置は、PDFにも同じように使われます。調整していないときは、これまでの中央いっぱいの切り抜きです。<br>【優先順位】画面と同じで、差分の画像 → ログに入っていたアイコン → キャラの立ち絵の順に使います。' },
         { version: '1.15.0', description: 'ログに入っているアイコンの、切り抜き位置を調整できるようになりました。<br>【アイコン位置】「キャラ設定」の「立ち絵・画像管理」で、ログにアイコンが入っているキャラに「アイコン位置」ボタンが出ます。押すと、四角い枠をドラッグして位置を、スライダー（またはホイール）で大きさを決められます。縦長の立ち絵で顔が切れていたときなどに使えます。<br>【範囲】そのキャラの、ログに入っているアイコンすべてに、同じ位置が使われます。自分でアップロードした立ち絵と差分は、アップロードのときに切り抜く、これまでどおりです。<br>【保存・引き継ぎ】位置は、保存するHTMLと自動保存に入り、「設定を引き継ぐ」でも、キャラごとのスタイルと一緒に持ってこられます。' },
         { version: '1.14.0', description: 'クリティカルステージ（クリステ）の新しい書き出し形式のログを読み込めるようになりました。<br>【新形式に対応】クリステから書き出した新しい形式のログHTMLを、ドラッグ＆ドロップで取り込めます。キャラの名前・名前の色・アイコン（立ち絵）・タブ（チャンネル）・時刻・ダイスの結果・キャラの値の変化が、これまでと同じように反映されます。<br>【ルビ】発言の中のルビは、ろぐしあたーのルビ記法（|文字《ルビ》）として取り込まれ、文字編集で直せます。キャラの名前に付いているルビは、名前を読みやすくするため取り込みません。<br>【ご注意】これまでの形式のクリステのログも、そのまま読み込めます。' },
@@ -2166,6 +2167,7 @@
     // 公開バージョンが上がったら(例: 1.12.6)、4桁目は1から数え直して 1.12.6.1 から始める。
     // ============================================================
     const HIDDEN_CHANGELOG = [
+        { version: '1.17.0.1', note: '公開v1.17.0(ココフォリアの2つの書き出し形式への対応)の内部記録。【2形式】(A)立ち絵つき: <article class="message" data-channel>+.avatar-image-N(styleに画像)、発言は.message-text(white-space:pre-wrap、改行は生の\\n)、タブ表示名は[メイン]等。(B)<p>形式に時刻が付いたもの: <p style="color:..."><span> [main]</span><span>名前</span> <time class="timestamp">YYYY/MM/DD HH:MM:SS</time> :<span>本文(改行は<br>)</span></p>、アイコンなし、タブはID(main/info/other)で[ ]付き。【実測(jsdomでツールを動かして確認)】A: 発言の生の改行がそのまま入り、HTML表示で詰まる(「1d100&lt;=76 【正気度ロール】⏎(1D100…」が一行になり、全体が1つのダイス行扱いで成功バッジが付く/「　　ｵｰｳﾞｧｰﾄﾞ⏎「お前らみたいな…」」の2行目がつながる)。B: 旧parse()はspan直下だけを見るので本文は読めていたが、<time>を見ておらず時刻がnull、タブ名が「[main]」のまま(Aの同じ部屋のログと別タブ扱い)。【対応】補助関数を3つ追加: ccfoliaTimeTextToStamp(表示済み時刻→「26-10/14・11:18:09」。Aの既存処理を共通化、挙動は同じ)、normalizeCcfoliaChannelName([ ]を外し、main/info/otherのときだけメイン/情報/雑談に直す)、plainTextToMsgHtml(escapeHtml後に改行を<br>へ)。parseCocofoliaNewHTMLは本文と.roll-resultをplainTextToMsgHtmlに通し、時刻は共通関数を使う。parse()は直下の<time>があれば時刻を読み、その場合だけタブ名も整える(時刻なしの従来の旧形式は、タブ名も含めて従来どおり=既存ログの見た目を変えないため)。【確認済み】A/Bとも22件・タブ3つ、Bで時刻が入ること、Aで改行→<br>とダイス行の分割が正しいこと、A+Bを「ログを追加」でつなげると全件重複扱いで追加0件になること。【既知の限界】speaker「system」の行(ダイスシンボル変更・侵蝕率の増減など)は、従来どおり発言者「system」として取り込む(JSON形式はsystemを捨てるが、HTML形式は元から残す挙動のため変えていない)。' },
         { version: '1.16.0.1', note: '公開v1.16.0(PDF出力でもログのアイコンを使う)の内部記録。【背景】PDF出力(印刷用のprint-portrait)は、これまで差分(exprImageFor)とcharIcons[m.char]だけを見て、取り込んだログの発言ごとのアイコン(m.icon)は使っていなかった(画面表示はrefreshRowPortraitで差分→m.icon→charIconsの順)。クリステ/ココフォリアの新形式のログは、アイコンがm.iconにしか入らないので、PDFでは立ち絵が出なかった。【対応】PDFも画面と同じ優先順位(差分→m.icon→charIcons[m.char])にした。m.iconのときだけ、getIconPosFor(m.char)の切り抜き位置(v1.15.0のcharStyles[キャラ].iconPos)をiconPosCssでbackground-size/positionに直してインラインで当てる(印刷用の.print-portraitは元がcover+center。インラインなのでdata-log-iconのCSS規則には頼らない)。差分の画像とcharIconsは切り抜き済みなので対象外=これまでどおり。メイン以外のタブにはもともとアイコンがない。【既知の限界】PDFのcharIconsの引き方はこれまでどおりm.charのみ(画面はリーダー→本人の順)。ただしグループ統合のときcharIconsがメンバーにも写されるので、通常は同じ見た目。' },
         { version: '1.15.0.1', note: '公開v1.15.0(ログのアイコンの切り抜き位置の調整)の内部記録。【背景】取り込んだログの発言ごとのアイコン(m.icon)は元画像のまま(クリステの立ち絵など縦長)で、.char-portraitのbackground-size:cover+position:centerで中央基準に切り抜かれ、顔が切れる。自分でアップロードした立ち絵(charIcons)と差分(charExprs)はstartCrop/applyCropで256px四角に切り抜き済みなので対象外。【保存】charStyles[キャラ].iconPos={l,t,a,b}(全て元画像に対する割合。l,t=範囲の左上、a=一辺÷画像の幅、b=一辺÷画像の高さ)。charStylesの中に置いたので、char-styles-storage経由で、HTML保存・自動保存(buildStorageTags)・再読み込み(parseFromStorage/restore)・グループ統合(charStyles[m]={...srcStyle})にそのまま乗る(新しい保存タグ・プレースホルダは足していない=旧バージョンの保存HTMLとの互換も変わらない)。applyCharStylesはfont/bg/boldしか見ないので影響なし。設定の引き継ぎは、スタイルの読み取りでsanitizeIconPosを通して、数値だけを受け付ける。引き継ぎ適用側はcharStyles[m]={...st}なので、iconPosも一緒に入る。【表示】割合→CSS: background-size=(100/a)% (100/b)%、background-position=(l/(1-a))% (t/(1-b))%(%は「枠−画像」に対する割合のため。a,bが1に近いときは50%)。キャラごとのCSSを1枚の<style id=icon-crop-style>にまとめて、.char-portrait[data-log-icon="1"].pc-名前 に当てる(発言の数だけ個別に書き換えない)。refreshIconsの頭で作り直すので、読み込み・復元・引き継ぎ・グループ変更のどの経路でも反映される。data-log-iconは、createRowのm.icon適用時と、refreshRowPortraitで(差分の画像でなくitem.iconのとき)だけ付く。別名キャラ(グループ)は、リーダー→本人の順でcharStylesを引く(既存の流儀)。【画面】renderIconUploadsの各行に、ログにアイコンがあるキャラだけ「アイコン位置」ボタン(設定済みは✓付き)。調整に使う画像は、そのグループでいちばん使われているログのアイコン。モーダル#iconpos-modal: 画像の上の四角をドラッグ(範囲の外を押すとそこが中心になる)、スライダー・ホイール・+/-で大きさ、矢印キーで移動、プレビュー付き、Escで閉じる。決定したとき、初期(中央いっぱい)と同じ位置なら設定を消す。「位置を戻す」で設定を消す。行のtrashボタンの取得を、querySelector(button)から.icon-del-btnに変えた(新しいボタンが先に来ても取り違えないため)。【対象外・既知の限界】PDF出力は、これまでもログのアイコン(m.icon)を使わない(charIcons/差分だけ)ため、今回も触っていない。一人のキャラに縦横比のちがうアイコンが混ざっていると、割合なので完全には同じ範囲にならない。' },
         { version: '1.14.0.1', note: '公開v1.14.0(クリステの新しい書き出し形式に対応)の内部記録。【新形式の中身】<article class="chat-item">は残っているが、発言は#log-source(hidden)の中に入り、実行時にスクリプトが画面へ並べ替える(カラム数・発言者・日付の目次・ルビ表示などのビューア付き)。立ち絵は各<img class="chat-icon">がsrcを持たず、data-icon/data-portrait/data-imageのID(i0,i1…)で、末尾の<script id="log-images" type="application/json">の{ID: data:image}表を引く。名前は<span class="chat-name chat-export-name" style="--chat-name-light:#..;--chat-name-dark:#..">で、中身が<ruby>名字<rt>読み</rt></ruby> 名前の形。発言者の素の名前は<article>のdata-speakerにある。発言は.chat-text(white-space:pre-wrapなので改行は生の\\n。本文のルビは実際の<ruby>)、成否・値変動は旧形式の.chat-dice-judgement等ではなく.result(中の文字は、ココフォリアの結果文のままで、「|岸下　恵奈《きしもと　　えな》 侵蝕:37→38」や全角「｜四川導　要《…》」のようなルビ記法の生テキストが入ることがある)。時刻は.chat-timeの"YYYY/MM/DD HH:MM:SS"。【旧パーサで壊れる点(実ログで確認)】①.chat-icon[src]を読むので、アイコンが全員なし ②名前は.chat-nameのtextContentなので、ルビの読みが混ざる(星野ほしの レイ) ③色はcolor:だけを見ていたので、--chat-name-*に当たらず全員#1e293b ④.resultを読まないので、侵蝕率などの変動が消える ⑤改行が生の\\nのまま入り、formatDiceLines/isDiceOnlyMessage(<br>で行分割)がダイス行を見つけられない。【対応(parseCriticalStageHTML)】①log-imagesをJSON.parseし、hasOwnPropertyで引き、data:image(png/jpeg/webp/gif;base64)だけ通す(ビューア自身と同じ検査)。data-icon→data-image→data-portrait→旧形式のsrcの順。②data-speakerを優先(なければ.chat-nameを複製してrt/rpを除いてから読む)。名前のルビは取り込まない(キャラ名は素の文字列のため。同じ人の表記ゆれで別キャラに割れるのを避ける)。③--chat-name-light→--chat-name-dark→旧color:の順(lightは元の指定色に近く、darkは暗い背景用に明るくされた補正色のため)。④.chat-dice-judgement/.chat-character-value-result/.chat-room-variable-result/.resultを1回のquerySelectorAllで文書順に拾い、入れ子の二重取りだけ避けて<br>でつなぐ。⑤要素を再帰で読むnodeToRaw: テキストはescapeHtml、<ruby>は「|親文字《ルビ》」(rtだけ別、親文字に仮名が混ざっても範囲が決まるよう必ず|付き)、<br>と生の改行(\\r\\n含む)は<br>にし、前後の<br>だけ落とす(全角スペースの字下げは残す)。全角｜《も|に正規化。時刻は"YYYY/MM/DD HH:MM:SS"なら、ココフォリアHTML取り込みと同じformatCocofoliaTimestampで「26-11/19・21:30:57」に統一(それ以外の書式は元の文字列のまま)。GAのlog_loadedのsourceは、#log-sourceがあれば新たにcritical_stage_new、なければこれまでのcritical_stage。【検証】実際の新形式ログ(70件・3タブ・画像6枚・ルビ付き名前と本文・.result 19件)で、発言数・名前・色・タブ・時刻・アイコン・改行→<br>・ルビ記法を確認。【既知の限界】サンプルに無かった要素は未確認(CSSに.still=発言に付く画像、.chat-canceled=取り消し発言、.badgeがあるが、取り込みでは特別扱いしていない)。ルビ記法の生テキストが.result内にある場合も、applyRubyMarkupが扱うのは半角|のみのため、取り込みで半角に直している(手入力の全角｜は従来どおりそのまま)。' },
@@ -3601,6 +3603,36 @@
                     .replace(/&/g, '&amp;')
                     .replace(/</g, '&lt;')
                     .replace(/>/g, '&gt;');
+            }
+
+            // ココフォリアのHTML書き出しに入っている、表示済みの時刻テキスト "YYYY/MM/DD HH:MM:SS" を、
+            // ろぐしあたーの時刻表記("26-10/14・11:18:09")に直す。読めない書式は元の文字列のまま返す。
+            function ccfoliaTimeTextToStamp(txt) {
+                txt = String(txt || '').trim();
+                if (!txt) return null;
+                const [datePart, timePart] = txt.split(' ');
+                if (datePart && timePart) {
+                    const [y, mo, d] = datePart.split('/').map(Number);
+                    return formatCocofoliaTimestamp(y, mo, d, ...timePart.split(':'));
+                }
+                return txt;
+            }
+
+            // ココフォリアのタブ名を整える。旧形式の書き出し(<p>形式)は「[main]」のようにカッコ付きで、
+            // しかも標準の3タブは英語のID(main/info/other)で入ってくる。新しい立ち絵付きの書き出しは
+            // 「メイン/情報/雑談」で入ってくるので、そろえておく(追記読み込みで、同じ部屋の2つの書き出しを
+            // つなげたときに、同じタブとして扱われ、重複判定も効くようにするため)。
+            function normalizeCcfoliaChannelName(raw) {
+                const name = String(raw || '').trim().replace(/^\[/, '').replace(/\]$/, '').trim();
+                const MAP = { main: 'メイン', info: '情報', other: '雑談' };
+                return MAP[name.toLowerCase()] || name || 'メイン';
+            }
+
+            // 改行(\n)を含むプレーンな文字列を、発言用のHTML(<br>区切り)にする。
+            // ココフォリアの新しい書き出しは、発言を white-space:pre-wrap の中に生の改行で入れている。
+            // 生の改行のままだとHTML表示では詰まってしまい、ダイス行の判定(<br>で行分割)も効かない。
+            function plainTextToMsgHtml(text) {
+                return escapeHtml(text).replace(/\r\n|\r|\n/g, '<br>');
             }
 
             // エポックミリ秒(UTC) を "YY-M/D・HH:MM:SS" 形式の日本時間表示に変換
@@ -5959,13 +5991,18 @@
                         // 別の項目として拾ってしまい、親のinnerHTMLに含まれる同じ内容が二重に足されていた
                         const spans = Array.from(p.children).filter(el => el.tagName === 'SPAN');
                         if (spans.length < 3) return;
-                        const loc = spans[0].textContent.trim();
+                        let loc = spans[0].textContent.trim();
                         const char = spans[1].textContent.trim();
                         const color = p.style.color || '#1e293b';
+                        // 時刻つきの書き出し: <span>[タブ]</span> <span>名前</span> <time class="timestamp">…</time> : <span>本文</span>
+                        // (時刻つきの形式だけ、タブ名も整える。時刻のない従来の書き出しは、これまでの表示のまま)
+                        const timeEl = Array.from(p.children).find(el => el.tagName === 'TIME');
+                        const time = timeEl ? ccfoliaTimeTextToStamp(timeEl.textContent) : null;
+                        if (timeEl) loc = normalizeCcfoliaChannelName(loc);
                         let msg = ""; for(let i=2; i<spans.length; i++) msg += spans[i].innerHTML;
                         msg = sanitizeMsgHtml(normalizeMsgWhitespace(msg));
                         locSet.add(loc); characters.add(char);
-                        tempLogData.push({ id: idx, loc, char, msg: msg.replace(/<[^>]+>/g, ''), color: color, rawMsg: msg, style: {}, icon: null, time: null });
+                        tempLogData.push({ id: idx, loc, char, msg: msg.replace(/<[^>]+>/g, ''), color: color, rawMsg: msg, style: {}, icon: null, time });
                     } catch(e) {}
                 });
                 commitParsedLog(tempLogData, locSet);
@@ -6003,22 +6040,12 @@
 
                         const textEl = article.querySelector('.message-text');
                         const rollEl = article.querySelector('.roll-result');
-                        let msgHtml = textEl ? escapeHtml(textEl.textContent) : '';
-                        if (rollEl) msgHtml += (msgHtml ? '<br>' : '') + escapeHtml(rollEl.textContent.trim());
+                        let msgHtml = textEl ? plainTextToMsgHtml(textEl.textContent) : '';
+                        if (rollEl) msgHtml += (msgHtml ? '<br>' : '') + plainTextToMsgHtml(rollEl.textContent.trim());
 
                         // タイムスタンプ（表示済みの現地時刻テキスト "YYYY/MM/DD HH:MM:SS" から変換）
-                        let time = null;
                         const timeEl = article.querySelector('.timestamp');
-                        if (timeEl) {
-                            const txt = timeEl.textContent.trim();
-                            const [datePart, timePart] = txt.split(' ');
-                            if (datePart && timePart) {
-                                const [y, mo, d] = datePart.split('/').map(Number);
-                                time = formatCocofoliaTimestamp(y, mo, d, ...timePart.split(':'));
-                            } else {
-                                time = txt;
-                            }
-                        }
+                        const time = timeEl ? ccfoliaTimeTextToStamp(timeEl.textContent) : null;
 
                         let icon = null;
                         const avatarEl = article.querySelector('.avatar');
